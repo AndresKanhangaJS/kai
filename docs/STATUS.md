@@ -1,8 +1,8 @@
 # Estado do projecto KAI
 
 - **Actualizado:** 2026-11-20
-- **Milestone actual:** M01 · Product Discovery — caminho crítico concluído; falta o resto do E1, E4 e E5
-- **Branch:** `chore/claude-harness` (6 commits publicados em `origin/chore/claude-harness`; spec+PRD por commitar)
+- **Milestone actual:** M01 · Product Discovery — Épicos E1, E2, E3 concluídos; faltam E4 (C4) e E5 (identidade visual)
+- **Branch:** `chore/claude-harness` (6 commits publicados em `origin/chore/claude-harness`; ADRs do E1 por commitar)
 
 ## Missão de arranque: fases
 
@@ -28,25 +28,28 @@
 ## Decisões recentes
 
 - D-01 a D-18: ver [`analysis.md` §0](product/analysis.md#0-decisões-do-owner-passam-a-c).
-- ADRs: ver [`docs/adr/`](adr/README.md). 8 aceites (0003, 0006, 0007, 0008, 0010, 0011, 0012, 0013), 1 substituído (0004 → ADR-0013), 4 propostos para revisão no M01 (0000, 0001, 0002, 0005, 0009).
+- ADRs: ver [`docs/adr/`](adr/README.md). **12 aceites** (0000, 0001, 0002, 0003, 0005, 0006, 0007, 0008, 0009, 0010, 0011, 0012), **1 substituído** (0004 → ADR-0013), **1 novo aceite** (0013). Todos os ADRs do M01 estão decididos.
 - **ADR-0013** (substitui o ADR-0004): modelo de segurança completo — PEP-1/PEP-2 e *execution grants*; tabela nível↔modo↔aprovação (P-004); lista fechada do nível 6 (P-005); máquina de estados da missão com 8 estados (P-003).
+- **ADR-0009** aceite com uma condição explícita: depende de um spike no M03 que confirme a publicação HTTP no Reverb; se falhar, cai para o fallback SSE já documentado no próprio ADR.
 - Harness: ver [`docs/engineering/claude-code-setup.md`](engineering/claude-code-setup.md), que inclui a proposta de servidores MCP, ainda sem nada instalado.
 
 ## M01 · Product Discovery
 
 Decomposto em 5 épicos (E1–E5) e 16 tarefas → [`docs/milestones/M01-product-discovery.md`](milestones/M01-product-discovery.md).
 
-**Caminho crítico concluído (2026-11-20):** ADR-0013 (P-003/004/005) → [`docs/specs/001-mvp-fatia-vertical.md`](specs/001-mvp-fatia-vertical.md) (Aprovada) → [`docs/product/prd.md`](product/prd.md) (Aprovado). Falta: Épico E1 restante, E4 (C4) e E5 (identidade visual) — todos paralelizáveis entre si.
+**Feito (2026-11-20):** Épico E1 (todos os ADRs decididos), Épico E2 (P-006, P-008), Épico E3 (spec + PRD aprovados, caminho crítico completo).
+
+**Falta:** Épico E4 — C4 nível 1–2 (`kai-c4`), agora destrancado (dependia do ADR-0002); Épico E5 — identidade visual mínima. Nenhuma dependência entre eles.
 
 ## Próximas 3 tarefas
 
-1. Épico E1 restante: ADR-0000, ADR-0001, ADR-0002, ADR-0005, ADR-0009 (sem dependências entre si, podem correr em qualquer ordem).
-2. Épico E4: C4 nível 1–2 (`kai-c4`), depois do ADR-0002.
-3. Épico E5: identidade visual mínima dark-first.
+1. Épico E4: C4 nível 1 (contexto) com `kai-c4` (T4.1).
+2. Épico E4: C4 nível 2 (contentores) e confirmação dos bounded contexts (T4.2, T4.3).
+3. Épico E5: identidade visual mínima dark-first (T5.1, T5.2).
 
 ## Perguntas abertas
 
-- P-003, P-004, P-005, P-006, P-008: **fechadas (2026-11-20)** → [ADR-0013](adr/0013-modelo-de-seguranca.md) e [`prd.md` §3](product/prd.md#3-âmbito-do-mvp-fatia-vertical-fina). As restantes, P-001, P-002, P-007, P-009 a P-017: ver [`analysis.md` §4.2](product/analysis.md#42-decisões-pendentes); nenhuma bloqueia o M01.
+- P-003 a P-006, P-008: **fechadas (2026-11-20)** → [ADR-0013](adr/0013-modelo-de-seguranca.md) e [`prd.md` §3](product/prd.md#3-âmbito-do-mvp-fatia-vertical-fina). As restantes, P-001, P-002, P-007, P-009 a P-017: ver [`analysis.md` §4.2](product/analysis.md#42-decisões-pendentes); nenhuma bloqueia o M01.
 - Proposta MCP aprovada (D-18); a instalação pede nova aprovação no M02: ver [`claude-code-setup.md` §5](engineering/claude-code-setup.md#5-mcp-proposta-nada-instalado).
 
 ## Bloqueios

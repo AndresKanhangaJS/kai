@@ -1,6 +1,6 @@
 # ADR-0000: Registar decisões arquitecturais (MADR)
 
-- **Estado:** Proposto
+- **Estado:** Aceite
 - **Data:** 2026-11-20
 - **Decisores:** owner
 - **Relacionados:** PDF p.5, p.19; `.claude/rules/docs-and-adrs.md`

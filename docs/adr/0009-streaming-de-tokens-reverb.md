@@ -1,6 +1,6 @@
 # ADR-0009: Streaming de tokens por Reverb
 
-- **Estado:** Proposto (depende de um spike no M03)
+- **Estado:** Aceite (condicionado ao spike no M03, ver Decisão)
 - **Data:** 2026-11-20
 - **Decisores:** owner
 - **Relacionados:** PDF p.6, p.7; ADR-0002, 0003; FR-008; AC-03
@@ -14,7 +14,7 @@
 2. **SSE do Python, reencaminhado pelo Laravel.** Simples. Contra: prende um worker PHP por stream e o cancelamento atravessa dois saltos.
 3. **Cliente ligado directamente ao Python, com token.** Menor latência. Contra: uma segunda superfície pública com autenticação duplicada.
 
-## Decisão (proposta)
+## Decisão
 - **Opção 1.** Deltas agregados (~50 ms, com `seq`) no canal `run.{id}`.
 - A resposta final chega pelo evento `ai.conversation.turn.completed.v1`; o Laravel persiste-a e o cliente reconcilia.
 - Os deltas são efémeros e não passam pelo RabbitMQ.

@@ -1,6 +1,6 @@
 # ADR-0001: Modular monolith Laravel + AI Engine Python separado
 
-- **Estado:** Proposto
+- **Estado:** Aceite
 - **Data:** 2026-11-20
 - **Decisores:** owner
 - **Relacionados:** PDF p.5, p.7–8; ADR-0002; `docs/product/analysis.md` §5

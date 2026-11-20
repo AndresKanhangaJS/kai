@@ -16,13 +16,13 @@
 
 | ID | Tarefa | Tipo | Critério de aceitação | Depende de | Paralelo? |
 |---|---|---|---|---|---|
-| T1.1 | Revê e decide o ADR-0000 (registar decisões arquitecturais, MADR) | docs (`kai-adr`) | ADR-0000 passa a "Aceite"; índice `docs/adr/README.md` actualizado | — | Sim |
-| T1.2 | Revê e decide o ADR-0001 (modular monolith Laravel + AI Engine Python) | docs (`kai-adr`) | ADR-0001 "Aceite"; resolve A-02 (KAI Core vs Core Platform) | — | Sim |
+| T1.1 | ~~Revê e decide o ADR-0000~~ | docs (`kai-adr`) | **Feito (2026-11-20).** ADR-0000 "Aceite" | — | Sim |
+| T1.2 | ~~Revê e decide o ADR-0001~~ | docs (`kai-adr`) | **Feito (2026-11-20).** ADR-0001 "Aceite"; resolve A-02 (KAI Core vs Core Platform) | — | Sim |
 | T1.3 | ~~Decide P-003 (transições da missão, §5.3) e integra a máquina de estados no ADR-0004~~ | docs (`kai-adr`) | **Feito (2026-11-20).** Decisão carregada para o ADR-0013 (substituiu o ADR-0004); `analysis.md` §4.2 marca P-003 "Fechado" | — | Não (mesmo ADR que T1.4) |
 | T1.4 | ~~Decide P-004 (nível↔modo↔aprovação, §5.4) e P-005 (lista do nível 6)~~ | docs (`kai-adr`) | **Feito (2026-11-20).** ADR-0013 "Aceite" com as três decisões (P-003, P-004, P-005); ADR-0004 "Substituído por ADR-0013"; `analysis.md` §4.2 marca P-004 e P-005 "Fechado" | T1.3 | Não |
-| T1.5 | Revê e decide o ADR-0002 (fronteira de contratos Laravel ↔ Python), resolvendo A-03 | docs (`kai-adr`) | ADR-0002 "Aceite" | — | Sim |
-| T1.6 | Revê e decide o ADR-0005 (memória e RAG: MySQL, Qdrant, S3) | docs (`kai-adr`) | ADR-0005 "Aceite"; regista P-014 como aberta para o M04 | — | Sim |
-| T1.7 | Revê e decide o ADR-0009 (streaming de tokens por Reverb), marcando o spike do M03 | docs (`kai-adr`) | ADR-0009 "Aceite" com a condição do spike e o fallback SSE documentados | — | Sim |
+| T1.5 | ~~Revê e decide o ADR-0002~~, resolvendo A-03 | docs (`kai-adr`) | **Feito (2026-11-20).** ADR-0002 "Aceite"; corrigida a referência obsoleta ao ADR-0004 (→ ADR-0013) | — | Sim |
+| T1.6 | ~~Revê e decide o ADR-0005~~ (memória e RAG) | docs (`kai-adr`) | **Feito (2026-11-20).** ADR-0005 "Aceite"; P-014 fica aberta para o M04, como já estava | — | Sim |
+| T1.7 | ~~Revê e decide o ADR-0009~~ (streaming de tokens por Reverb) | docs (`kai-adr`) | **Feito (2026-11-20).** ADR-0009 "Aceite (condicionado ao spike no M03)"; fallback SSE já documentado | — | Sim |
 
 ## Épico E2: decisões de produto fechadas — P-006 e P-008 (FR-010; sem ADR novo)
 
@@ -36,7 +36,7 @@
 | ID | Tarefa | Tipo | Critério de aceitação | Depende de | Paralelo? |
 |---|---|---|---|---|---|
 | T3.1 | ~~Escreve a spec do MVP com `kai-spec`~~ | spec (`kai-spec`) | **Feito (2026-11-20).** `docs/specs/001-mvp-fatia-vertical.md`, estado "Aprovada", cobre AC-01 a AC-10 (AC-05 dividido em a/b/c) | T1.3, T1.4 | Não |
-| T3.2 | ~~Escreve o PRD~~ | docs | **Feito (2026-11-20).** `docs/product/prd.md`, estado "Rascunho", com visão, persona, 10 casos de uso ligados às AC, fora de âmbito e riscos | T3.1, T2.1, T2.2 | Não |
+| T3.2 | ~~Escreve o PRD~~ | docs | **Feito (2026-11-20).** `docs/product/prd.md`, com visão, persona, 10 casos de uso ligados às AC, fora de âmbito e riscos | T3.1, T2.1, T2.2 | Não |
 | T3.3 | ~~Owner aprova o PRD~~ | aprovação | **Feito (2026-11-20).** `prd.md` marcado "Aprovado (2026-11-20)" | T3.2 | Não |
 
 ## Épico E4: C4 nível 1–2 e bounded contexts (NFR-001, NFR-026; ADR-0001, ADR-0002, ADR-0003, ADR-0010)

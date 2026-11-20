@@ -1,6 +1,6 @@
 # ADR-0005: Memória e RAG: MySQL, Qdrant e object storage
 
-- **Estado:** Proposto
+- **Estado:** Aceite
 - **Data:** 2026-11-20
 - **Decisores:** owner
 - **Relacionados:** PDF p.5, p.6, p.11; ADR-0002, 0008; D-07; P-009, P-014

@@ -427,19 +427,20 @@ São 10 milestones, sem estimativas de duração (p.18).
 
 | ADR | Título | Estado |
 |---|---|---|
-| 0000 | Registar decisões arquitecturais (MADR) | Proposto |
-| 0001 | Modular monolith Laravel + AI Engine Python separado | Proposto |
-| 0002 | Fronteira de contratos Laravel ↔ Python | Proposto |
+| 0000 | Registar decisões arquitecturais (MADR) | Aceite |
+| 0001 | Modular monolith Laravel + AI Engine Python separado | Aceite |
+| 0002 | Fronteira de contratos Laravel ↔ Python | Aceite |
 | 0003 | Mensageria RabbitMQ + Outbox/Inbox | Aceite (D-11) |
 | 0004 | Modelo de segurança: o LLM não é fronteira; níveis 1–6; PDP no Laravel; *execution grants* | Substituído por ADR-0013 |
-| 0005 | Memória e RAG: MySQL, Qdrant e S3 | Proposto |
+| 0005 | Memória e RAG: MySQL, Qdrant e S3 | Aceite |
 | 0006 | Abstracção de LLM como porta própria | Aceite (D-08) |
 | 0007 | Baseline de versões | Aceite (D-09, D-13) |
 | 0008 | Object storage: SeaweedFS via API S3 | Aceite (D-12) |
-| 0009 | Streaming de tokens por Reverb | Proposto (spike no M03) |
+| 0009 | Streaming de tokens por Reverb | Aceite (condicionado ao spike no M03) |
 | 0010 | Autenticação entre serviços: JWS assimétrico + rede privada | Aceite (D-06) |
 | 0011 | Desvios ao roadmap do PDF | Aceite (D-11) |
 | 0012 | Idioma do repositório: PT-PT | Aceite (D-01) |
+| 0013 | Modelo de segurança: o LLM não é fronteira; níveis 1–6 (substitui o ADR-0004) | Aceite |
 
 ## 9. Divergências entre perspectivas
 

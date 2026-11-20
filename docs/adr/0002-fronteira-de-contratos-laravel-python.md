@@ -1,9 +1,9 @@
 # ADR-0002: Fronteira de contratos Laravel ↔ Python
 
-- **Estado:** Proposto
+- **Estado:** Aceite
 - **Data:** 2026-11-20
 - **Decisores:** owner
-- **Relacionados:** PDF p.4, p.7–9, p.19–20; ADR-0001, 0003, 0004, 0010; `docs/product/analysis.md` §5
+- **Relacionados:** PDF p.4, p.7–9, p.19–20; ADR-0001, 0003, 0010, 0013; `docs/product/analysis.md` §5
 
 ## Contexto
 - O PDF chama "KAI Core" ao núcleo que compreende, planeia e coordena [C p.4, p.9], mas coloca utilizadores, conversas, agentes, ferramentas, missões e auditoria no Core Platform Laravel [C p.7]. Não diz quem é dono do quê (A-02, A-03, A-04).
