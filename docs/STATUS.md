@@ -1,8 +1,8 @@
 # Estado do projecto KAI
 
 - **Actualizado:** 2026-11-20
-- **Milestone actual:** M02 · Core Foundation — **Épico E1 concluído**; E4.1–E4.3 feitas; E2, E3, resto de E4 por fazer
-- **Branch:** `chore/claude-harness` (1 commit local ainda por publicar; migração de Identity & Access por commitar)
+- **Milestone actual:** M02 · Core Foundation — **Épico E1 concluído**; E4.1–E4.4 feitas; E2, E3, E4.5/E4.6 por fazer
+- **Branch:** `chore/claude-harness` (2 commits locais ainda por publicar; comando de owner + correcção do phpunit.xml por commitar)
 
 ## Milestones concluídos
 
@@ -23,6 +23,7 @@
 - `.claude/scripts/validate_harness.py` actualizado: a lista de pastas proibidas já não inclui `apps`/`packages`/`docker-compose.yml` (o M02 introduz-os deliberadamente); passou a excluir `vendor/`, `node_modules/`, `dist/`, `build/` da verificação de links e do scan de segredos (eram falsos positivos de dependências de terceiros).
 - **Bug encontrado e corrigido na E1.4:** `php artisan serve` só reenvia ao processo que serve os pedidos as variáveis de ambiente que já existem no ficheiro `.env`, nunca as que só estão no Docker Compose. Um `.env`/`database.sqlite` residual do scaffold original mascarou isto na E1.2 (parecia "healthy", mas servia pedidos via SQLite, não MySQL). A E1.4, com um `git clone` real para `/tmp`, expôs o problema; corrigido a invocar `php -S` directamente no `apps/api/Dockerfile`. Re-confirmado nos dois sítios.
 - Resíduo a limpar (não é crítico): `/tmp/kai-ac01-test`, o clone de teste da E1.4. O `rm -rf` para fora dos caminhos seguros do repositório é bloqueado pelo guard de propósito; o owner pode apagá-lo manualmente quando quiser.
+- **Bug encontrado e corrigido na E4.4:** os testes PHPUnit corriam silenciosamente contra o **MySQL real** do Docker Compose, não o SQLite em memória que `apps/api/phpunit.xml` tenta forçar. Causa: o Docker Compose define `DB_CONNECTION`/`DB_DATABASE`/`APP_ENV` como variáveis de ambiente reais do contentor, que populam `$_ENV`/`$_SERVER` antes do PHPUnit arrancar; o `env()` do Laravel lê esses primeiro, e o `<env force="true">` do PHPUnit só corrige `getenv()`, não `$_ENV`. Confirmado empiricamente: a tabela `migrations` do MySQL real aparecia cheia depois de uma simples corrida de testes. **Até a E2 formalizar isto num script:** corre os testes com `docker compose run --rm -e APP_ENV=testing -e DB_CONNECTION=sqlite -e DB_DATABASE=:memory: api vendor/bin/phpunit`.
 
 ## Decisões recentes
 
@@ -37,17 +38,17 @@ Decomposto em 4 épicos e 17 tarefas → [`docs/milestones/M02-core-foundation.m
 - **E1 (concluído):** monorepo mínimo (`apps/api`, `apps/web`, `packages/contracts`) e Docker Compose; AC-01 verificada a partir de um clone limpo; fecha P-015 (fornecedor `fake` por omissão).
 - **E2:** CI — lint, PHPStan, mypy, Pest, Vitest, validação de schemas, secret scan.
 - **E3:** contratos v1 (`kai-contract`) — síncrono (`tool-authorizations`, health) e os 6 schemas assíncronos do MVP, antes de o RabbitMQ existir (chega no M03).
-- **E4 (E4.1–E4.3 feitas):** Identity & Access — login passkey/TOTP, revogação de sessão. P-017 fechada: `laravel/fortify` + `laravel/passkeys` instalados. Spec aprovada: [`docs/specs/002-identity-access.md`](specs/002-identity-access.md) (7 critérios). Modelo de ameaças: [`docs/security/threat-model-identity-access.md`](security/threat-model-identity-access.md) (11 ameaças STRIDE). Migração: `user_preferences` nova e `sessions` com `last_authenticated_at` + FK a `users`; `migrate → rollback → migrate` verificado contra MySQL real; 4 testes PHPUnit novos (6/6 a passar).
+- **E4 (E4.1–E4.4 feitas):** Identity & Access. P-017 fechada: `laravel/fortify` + `laravel/passkeys` instalados. Spec: [`docs/specs/002-identity-access.md`](specs/002-identity-access.md). Modelo de ameaças: [`docs/security/threat-model-identity-access.md`](security/threat-model-identity-access.md). Migração de `user_preferences`/`sessions` verificada contra MySQL real. Comando `kai:create-owner` (sem password, sem registo público); 11/11 testes a passar.
 
 **Critério de aceitação:** AC-01 e AC-02; CI verde.
 
-**Caminho crítico:** ~~E1.1 → E4.1 → E4.2 → E4.3~~ → E4.5 (login) → E4.6 (E2E, AC-02). E1 (AC-01) já está feito.
+**Caminho crítico:** ~~E1.1 → E4.1 → E4.2 → E4.3~~ → E4.5 (login) → E4.6 (E2E, AC-02). E4.4 feita em paralelo. E1 (AC-01) já está feito.
 
 ## Próximas 3 tarefas
 
-1. E4.4: comando `artisan` para criar o owner por CLI (sem registo público, D-05) — paralelo com E4.5.
-2. E4.5: implementa login (passkey/TOTP), aplicando as mitigações do modelo de ameaças (T-04 *throttle*, T-06 cifra confirmada) — caminho crítico.
-3. E3.1/E3.2: definir os contratos v1 com `kai-contract`, em paralelo.
+1. E4.5: implementa login (passkey/TOTP), aplicando as mitigações do modelo de ameaças (T-04 *throttle*, T-06 cifra confirmada) — caminho crítico.
+2. E3.1/E3.2: definir os contratos v1 com `kai-contract`, em paralelo.
+3. E2: formalizar como a CI corre os testes (ver o bug de ambiente acima) — lint, PHPStan, Pest/Vitest, secret scan.
 
 ## Perguntas abertas
 
