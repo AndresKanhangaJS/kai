@@ -193,7 +193,7 @@ O PDF não fixa metas numéricas (A-15). As metas [H] confirmam-se no M01.
 | A-09 | "Instrumentar desde o início" vs observabilidade e CI/CD só no M10 | CI no M02, tracing no M03 (D-11) |
 | A-10 | A stack da ficha (p.2) omite Qdrant e MinIO; Tauri listado como cliente | Resolvido por D-09, D-12, D-13 |
 | A-11 | Redis também usado como fila? | Proposta [H]: Redis só para cache, sessões, rate limiting e Reverb; filas entre serviços só no RabbitMQ |
-| A-12 | Caixas MESSAGING e PERSISTENCE vazias no diagrama da p.7; falta a Observability | Gráficos por verificar visualmente |
+| A-12 | Caixas MESSAGING e PERSISTENCE vazias no diagrama da p.7; falta a Observability | **Resolvido (2026-11-20)**, confirmado visualmente: as caixas não estavam vazias (MESSAGING = RabbitMQ+Redis; PERSISTENCE = MySQL+Qdrant+MinIO), só o texto extraído do PDF as tinha perdido. A Observability aparece como coluna à parte, ligada por linha tracejada à fronteira Core Platform/AI Intelligence. Ver `kai-vision.md` §05 |
 | A-13 | `integration_credentials` em MySQL vs "segredos fora do código e das mensagens" | Proposta: envelope encryption (P-007) |
 | A-14 | Uso pessoal vs MFA, RBAC e isolamento | `user_id` em tudo desde o dia 1, uso single-user [H] |
 | A-15 | Nenhum NFR numérico | Metas [H] na secção 3.2 |

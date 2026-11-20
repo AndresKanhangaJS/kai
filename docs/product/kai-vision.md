@@ -164,15 +164,16 @@ A arquitectura inicial deverá separar o cliente, o Core de negócio, o motor de
 | Persistence | Dados transaccionais, vetores e ficheiros | MySQL, Qdrant, MinIO |
 | Observability | Métricas, logs e traces | Prometheus, Grafana, Loki, Tempo, OpenTelemetry |
 
-**Diagrama de camadas (p.7), transcrição do texto:**
-- CLIENT APPLICATIONS
-- API / REALTIME GATEWAY
-- CORE PLATFORM: Laravel modular (Modular Monolith); utilizadores · conversas · agentes; ferramentas · missões · auditoria
-- AI INTELLIGENCE: Python · FastAPI (AI Engine); orquestração · agentes · RAG; speech · vision · LLM Gateway
-- MESSAGING
-- PERSISTENCE
+**Diagrama de camadas (p.7), confirmado visualmente a 2026-11-20 (resolve A-12):**
+- CLIENT APPLICATIONS: Web (React · TypeScript · Vite); Desktop (Tauri + React, fase posterior); Mobile (futuro).
+- API / REALTIME GATEWAY: Laravel · REST · Reverb/WebSockets · Auth.
+- CORE PLATFORM: Laravel modular (Modular Monolith); utilizadores · conversas · agentes; ferramentas · missões · auditoria.
+- AI INTELLIGENCE: Python · FastAPI (AI Engine); orquestração · agentes · RAG; speech · vision · LLM Gateway.
+- MESSAGING: RabbitMQ · Redis.
+- PERSISTENCE: MySQL 8, Qdrant, MinIO.
+- OBSERVABILITY: coluna à parte (não uma camada na mesma vertical), ligada por uma linha tracejada à fronteira entre Core Platform e AI Intelligence — OpenTelemetry, Prometheus, Grafana, Loki, Tempo; legenda "traces · métricas · logs de ponta a ponta".
 
-<!-- TODO(owner): o diagrama da p.7 não foi verificado visualmente; as caixas MESSAGING e PERSISTENCE aparecem sem conteúdo no texto extraído e a camada Observability não aparece no diagrama (A-12). -->
+O texto extraído automaticamente do PDF tinha perdido o conteúdo das caixas MESSAGING e PERSISTENCE; a imagem confirma-as preenchidas, ao contrário do que a A-12 original assumia.
 
 **Microsserviços candidatos à extracção (p.8):**
 

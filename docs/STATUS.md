@@ -1,8 +1,8 @@
 # Estado do projecto KAI
 
 - **Actualizado:** 2026-11-20
-- **Milestone actual:** M01 · Product Discovery — Épicos E1, E2, E3 concluídos; faltam E4 (C4) e E5 (identidade visual)
-- **Branch:** `chore/claude-harness` (6 commits publicados em `origin/chore/claude-harness`; ADRs do E1 por commitar)
+- **Milestone actual:** M01 · Product Discovery — Épicos E1 a E4 concluídos; falta só o E5 (identidade visual)
+- **Branch:** `chore/claude-harness` (7 commits publicados em `origin/chore/claude-harness`; C4 e correcções da A-12 por commitar)
 
 ## Missão de arranque: fases
 
@@ -19,6 +19,7 @@
 - A Fase 2 foi feita numa sessão Windows, sobre `\\wsl.localhost`; os hooks e o validador foram testados no WSL através de `wsl.exe`.
 - Os hooks estão registados no `.claude/settings.json` desde o fim da Fase 3. A partir daqui, o Claude Code só deve correr **dentro do WSL**, porque os hooks precisam de `bash` + `python3`.
 - No WSL, a versão instalada do Claude Code é a 2.1.211. A `stable` no npm é a 2.1.311 (verificada a 2026-11-20); convém actualizar.
+- `poppler-utils` instalado no WSL a 2026-11-20 (autorizado pelo owner, correu fora do guard por usar `sudo`), para ler visualmente as páginas do PDF de produto. Utilitário de sistema, não é dependência do projecto.
 - Não criar nesta missão:
   - `LICENSE` (Apache-2.0 já decidida, D-02);
   - CI;
@@ -37,15 +38,15 @@
 
 Decomposto em 5 épicos (E1–E5) e 16 tarefas → [`docs/milestones/M01-product-discovery.md`](milestones/M01-product-discovery.md).
 
-**Feito (2026-11-20):** Épico E1 (todos os ADRs decididos), Épico E2 (P-006, P-008), Épico E3 (spec + PRD aprovados, caminho crítico completo).
+**Feito (2026-11-20):** Épico E1 (ADRs), E2 (P-006, P-008), E3 (spec + PRD), e agora **E4** — [C4 nível 1](architecture/c4-01-context.md) e [nível 2](architecture/c4-02-containers.md), mais a correcção da A-12: o diagrama da p.7 do PDF não tinha as caixas MESSAGING/PERSISTENCE vazias (erro da extracção de texto); a Observability aparece como coluna à parte, ligada à fronteira Core Platform/AI Intelligence.
 
-**Falta:** Épico E4 — C4 nível 1–2 (`kai-c4`), agora destrancado (dependia do ADR-0002); Épico E5 — identidade visual mínima. Nenhuma dependência entre eles.
+**Falta:** só o **Épico E5** — identidade visual mínima dark-first (T5.1, T5.2).
 
 ## Próximas 3 tarefas
 
-1. Épico E4: C4 nível 1 (contexto) com `kai-c4` (T4.1).
-2. Épico E4: C4 nível 2 (contentores) e confirmação dos bounded contexts (T4.2, T4.3).
-3. Épico E5: identidade visual mínima dark-first (T5.1, T5.2).
+1. Épico E5, T5.1: nome visual, paleta dark-first e tipografia mínima, acessíveis (WCAG 2.2 AA).
+2. Épico E5, T5.2: registar a identidade visual em `docs/product/`, ligada do README e do PRD.
+3. Depois do E5: M01 fica concluído — rever a verificação do milestone e fazer o relatório final de fecho.
 
 ## Perguntas abertas
 

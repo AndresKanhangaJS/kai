@@ -43,9 +43,9 @@
 
 | ID | Tarefa | Tipo | Critério de aceitação | Depende de | Paralelo? |
 |---|---|---|---|---|---|
-| T4.1 | Diagrama C4 nível 1 (contexto) com `kai-c4` | docs (`kai-c4`) | Diagrama Mermaid em `docs/architecture/`, owner + KAI + integrações externas (GitHub) | T1.5 | Não |
-| T4.2 | Diagrama C4 nível 2 (contentores: React, Laravel, Python, RabbitMQ, MySQL, Redis; Qdrant e SeaweedFS marcados "planeado, M04") com `kai-c4` | docs (`kai-c4`) | Diagrama Mermaid coerente com §5.1 da análise | T4.1 | Não |
-| T4.3 | Confirma visualmente os bounded contexts de §5.1 contra o diagrama da p.7 do PDF (resolve A-12) | revisão (`kai-architect`) | A-12 marcado "Resolvido" em `analysis.md` §4.1, com nota sobre MESSAGING/PERSISTENCE/Observability | T4.2 | Não |
+| T4.1 | ~~Diagrama C4 nível 1 (contexto)~~ | docs (`kai-c4`) | **Feito (2026-11-20).** `docs/architecture/c4-01-context.md` | T1.5 | Não |
+| T4.2 | ~~Diagrama C4 nível 2 (contentores)~~ | docs (`kai-c4`) | **Feito (2026-11-20).** `docs/architecture/c4-02-containers.md`, com Qdrant/SeaweedFS "planeado M04" e Observability "planeado M03" | T4.1 | Não |
+| T4.3 | ~~Confirma visualmente os bounded contexts contra o diagrama da p.7~~ | revisão | **Feito (2026-11-20).** Lida a p.7 do PDF (`poppler-utils` instalado com autorização do owner); A-12 estava errada — as caixas MESSAGING/PERSISTENCE não estavam vazias. `analysis.md` §4.1 e `kai-vision.md` §05 corrigidos | T4.2 | Não |
 
 ## Épico E5: identidade visual mínima (FR-066, FR-068)
 
