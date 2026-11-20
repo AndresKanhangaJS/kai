@@ -1,8 +1,8 @@
 # Estado do projecto KAI
 
 - **Actualizado:** 2026-11-20
-- **Milestone actual:** M02 · Core Foundation — Épico E1 em curso (E1.1 feita)
-- **Branch:** `chore/claude-harness` (8 commits publicados em `origin/chore/claude-harness`; apps/api, apps/web, packages/contracts por commitar)
+- **Milestone actual:** M02 · Core Foundation — Épico E1 em curso (E1.1 e E1.2 feitas)
+- **Branch:** `chore/claude-harness` (9 commits publicados em `origin/chore/claude-harness`; Docker Compose por commitar)
 
 ## Milestones concluídos
 
@@ -45,7 +45,7 @@ Decomposto em 4 épicos e 17 tarefas → [`docs/milestones/M02-core-foundation.m
 
 ## Próximas 3 tarefas
 
-1. E1.2: `docker-compose.yml` com `api`, `web`, MySQL 8.4, Redis 8 e *health checks*.
+1. E1.3: `.env.example` com nomes e valores fictícios, incluindo o fornecedor `fake` por omissão (fecha P-015).
 2. E4.1: spike de passkeys no Laravel 13 (fecha P-017) — pode correr em paralelo com E1.
 3. E3.1/E3.2: definir os contratos v1 com `kai-contract`, em paralelo com o resto.
 

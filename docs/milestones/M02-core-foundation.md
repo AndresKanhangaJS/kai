@@ -19,7 +19,7 @@
 | ID | Tarefa | Tipo | Critério de aceitação | Depende de | Paralelo? |
 |---|---|---|---|---|---|
 | E1.1 | ~~Cria a estrutura mínima do monorepo~~ | infra | **Feito (2026-11-20).** `apps/api` (Laravel 13.11.0, scaffolded via Docker com PHP 8.5.13 — sem PHP/Composer instalados localmente), `apps/web` (Vite 8 + React 19 + TypeScript), `packages/contracts` (só README). `vendor/`/`node_modules/` confirmados fora do staging (`git add -n`) | — | Não |
-| E1.2 | Define `docker-compose.yml`: `api`, `web`, MySQL 8.4, Redis 8, com *health checks* | infra | `docker compose config` válido; todos os serviços têm *health check* | E1.1 | Não |
+| E1.2 | ~~Define `docker-compose.yml`~~ | infra | **Feito (2026-11-20).** `docker compose config` válido; os 4 serviços (api, web, mysql, redis) têm *health check* e passam a `healthy`; testado com `docker compose up -d` real (api e web respondem 200 no host), depois desmontado (`down -v`) | E1.1 | Não |
 | E1.3 | Cria `.env.example` com nomes e valores fictícios, incluindo um valor por omissão para o fornecedor de LLM (`fake`), mesmo sem o AI Engine existir ainda — fecha P-015 | infra/docs | `.env.example` sem segredos reais; `analysis.md` §4.2 marca P-015 "Fechado" | E1.2 | Não |
 | E1.4 | Verifica AC-01 de ponta a ponta: clone limpo, `docker compose up`, todos os serviços *healthy* | teste (E2E/infra) | AC-01 passa; `≤ 10 min` (NFR-029); scan de segredos limpo | E1.3 | Não |
 
