@@ -1,59 +1,56 @@
 # Estado do projecto KAI
 
 - **Actualizado:** 2026-11-20
-- **Milestone actual:** M01 · Product Discovery — **concluído (2026-11-20)**, a aguardar fecho formal do owner. Próximo: decompor o M02 (Core Foundation).
-- **Branch:** `chore/claude-harness` (7 commits publicados em `origin/chore/claude-harness`; identidade visual e fecho do M01 por commitar)
+- **Milestone actual:** M02 · Core Foundation — decomposto, pronto para arrancar
+- **Branch:** `chore/claude-harness` (8 commits publicados em `origin/chore/claude-harness`; decomposição do M02 por commitar)
 
-## Missão de arranque: fases
+## Milestones concluídos
 
-| Fase | Estado |
+| Milestone | Estado |
 |---|---|
-| 0 · Orientação | Aprovada |
-| 1 · Análise de arquitecto | Aprovada → [`docs/product/analysis.md`](product/analysis.md) |
-| 2 · Ambiente de engenharia do Claude Code | Aprovada (2026-11-20) |
-| 3 · Verificação do ambiente | **Aprovada (2026-11-20)**. Re-confirmado no WSL: `.claude/hooks/tests/test_guard.sh` → 75 ok/0 falhas; `python3 .claude/scripts/validate_harness.py` → 46 OK/0 avisos/0 erros. Hooks registados no `settings.json`. |
-| 4 · Entrega e arranque | **Concluída (2026-11-20).** 5 commits aprovados pelo owner, criados e publicados em `origin/chore/claude-harness` (sem PR/merge ainda). |
+| Missão de arranque do harness (Fases 0–4) | **Concluída (2026-11-20).** Harness do Claude Code, hooks, skills, agentes e regras publicados em `chore/claude-harness`. Ver histórico abaixo. |
+| M01 · Product Discovery | **Concluído (2026-11-20).** PRD e ADRs aprovados; P-003 a P-006 e P-008 fechados; C4 nível 1–2; identidade visual mínima. Ver [`docs/milestones/M01-product-discovery.md`](milestones/M01-product-discovery.md). |
 
 ## Notas de ambiente
 
-- A Fase 2 foi feita numa sessão Windows, sobre `\\wsl.localhost`; os hooks e o validador foram testados no WSL através de `wsl.exe`.
-- Os hooks estão registados no `.claude/settings.json` desde o fim da Fase 3. A partir daqui, o Claude Code só deve correr **dentro do WSL**, porque os hooks precisam de `bash` + `python3`.
+- O Claude Code corre **dentro do WSL** (hooks precisam de `bash` + `python3`); os hooks estão registados em `.claude/settings.json`.
 - No WSL, a versão instalada do Claude Code é a 2.1.211. A `stable` no npm é a 2.1.311 (verificada a 2026-11-20); convém actualizar.
-- `poppler-utils` instalado no WSL a 2026-11-20 (autorizado pelo owner, correu fora do guard por usar `sudo`), para ler visualmente as páginas do PDF de produto. Utilitário de sistema, não é dependência do projecto.
-- Não criar nesta missão:
-  - `LICENSE` (Apache-2.0 já decidida, D-02);
-  - CI;
-  - `apps/`, `services/`, `packages/`, `infrastructure/`;
-  - `docker-compose.yml`.
+- `poppler-utils` instalado no WSL a 2026-11-20 (autorizado pelo owner, correu fora do guard por usar `sudo`), para ler visualmente páginas do PDF de produto. Utilitário de sistema, não é dependência do projecto.
+- A restrição "não criar `apps/`, `CI`, `docker-compose.yml`" aplicava-se só à missão de arranque do harness (concluída). O M02 é o milestone que os introduz deliberadamente — ver decomposição abaixo.
+- `LICENSE` (Apache-2.0, D-02) continua por criar; entra antes da primeira publicação de código, não necessariamente no M02.
 
 ## Decisões recentes
 
 - D-01 a D-18: ver [`analysis.md` §0](product/analysis.md#0-decisões-do-owner-passam-a-c).
-- ADRs: ver [`docs/adr/`](adr/README.md). **12 aceites** (0000, 0001, 0002, 0003, 0005, 0006, 0007, 0008, 0009, 0010, 0011, 0012), **1 substituído** (0004 → ADR-0013), **1 novo aceite** (0013). Todos os ADRs do M01 estão decididos.
-- **ADR-0013** (substitui o ADR-0004): modelo de segurança completo — PEP-1/PEP-2 e *execution grants*; tabela nível↔modo↔aprovação (P-004); lista fechada do nível 6 (P-005); máquina de estados da missão com 8 estados (P-003).
-- **ADR-0009** aceite com uma condição explícita: depende de um spike no M03 que confirme a publicação HTTP no Reverb; se falhar, cai para o fallback SSE já documentado no próprio ADR.
-- Harness: ver [`docs/engineering/claude-code-setup.md`](engineering/claude-code-setup.md), que inclui a proposta de servidores MCP, ainda sem nada instalado.
+- ADRs: ver [`docs/adr/`](adr/README.md). 12 aceites, 1 substituído (0004 → 0013). Todos os ADRs do M01 estão decididos; nenhum novo ADR aberto ainda para o M02 (pode surgir do spike de passkeys, E4.1).
+- Harness: ver [`docs/engineering/claude-code-setup.md`](engineering/claude-code-setup.md), que inclui a proposta de servidores MCP, ainda sem nada instalado (instalação pede aprovação no M02, D-18).
 
-## M01 · Product Discovery — concluído (2026-11-20)
+## M02 · Core Foundation
 
-Decomposto em 5 épicos (E1–E5) e 16 tarefas, todas feitas → [`docs/milestones/M01-product-discovery.md`](milestones/M01-product-discovery.md) (secção "Verificação do milestone").
+Decomposto em 4 épicos e 17 tarefas → [`docs/milestones/M02-core-foundation.md`](milestones/M02-core-foundation.md).
 
-- **E1:** todos os ADRs do M01 (0000, 0001, 0002, 0005, 0009, 0013) `Aceite`.
-- **E2:** P-006 e P-008 fechadas.
-- **E3:** [spec do MVP](specs/001-mvp-fatia-vertical.md) e [PRD](product/prd.md) aprovados.
-- **E4:** [C4 nível 1](architecture/c4-01-context.md) e [nível 2](architecture/c4-02-containers.md); corrigida a A-12 (o diagrama da p.7 não tinha as caixas MESSAGING/PERSISTENCE vazias — era um erro da extracção de texto do PDF).
-- **E5:** [identidade visual mínima](product/identidade-visual.md) — paleta dark-first, tipografia, 5 estados do núcleo do MVP.
+- **E1:** monorepo mínimo (`apps/api`, `apps/web`, `packages/contracts`) e Docker Compose; fecha P-015 (fornecedor `fake` por omissão).
+- **E2:** CI — lint, PHPStan, mypy, Pest, Vitest, validação de schemas, secret scan.
+- **E3:** contratos v1 (`kai-contract`) — síncrono (`tool-authorizations`, health) e os 6 schemas assíncronos do MVP, antes de o RabbitMQ existir (chega no M03).
+- **E4:** Identity & Access — login passkey/TOTP, revogação de sessão; fecha P-017 (spike de passkeys no Laravel 13).
+
+**Critério de aceitação:** AC-01 e AC-02; CI verde.
+
+**Caminho crítico:** E1.1 → E4.1 (spike passkeys) → E4.2 (spec) → E4.3 (migração) → E4.5 (login) → E4.6 (E2E, AC-02). Em paralelo: E1.2–E1.4 (AC-01), E2.1/E2.2/E2.4, E3.1–E3.3 → E2.3.
+
+**Risco a vigiar:** se o spike de passkeys (E4.1) exigir um pacote novo, isso é uma dependência nova — pára e pede aprovação antes de a adicionar (regra de ouro de segurança).
 
 ## Próximas 3 tarefas
 
-1. Owner: fecho formal do M01 (os critérios de aceitação já estão todos cumpridos e aprovados individualmente).
-2. Decompor o M02 (Core Foundation) com a skill `kai-milestone`.
-3. M02 trata P-017 (spike de passkeys) antes de AC-02, e P-015 (fornecedor fake por omissão na demo/CI).
+1. E1.1: criar a estrutura mínima do monorepo (`apps/api`, `apps/web`, `packages/contracts`).
+2. E4.1: spike de passkeys no Laravel 13 (fecha P-017) — pode correr em paralelo com E1.
+3. E3.1/E3.2: definir os contratos v1 com `kai-contract`, em paralelo com o resto.
 
 ## Perguntas abertas
 
-- P-003 a P-006, P-008: **fechadas (2026-11-20)** → [ADR-0013](adr/0013-modelo-de-seguranca.md) e [`prd.md` §3](product/prd.md#3-âmbito-do-mvp-fatia-vertical-fina). As restantes, P-001, P-002, P-007, P-009 a P-017: ver [`analysis.md` §4.2](product/analysis.md#42-decisões-pendentes); nenhuma bloqueia o M01.
-- Proposta MCP aprovada (D-18); a instalação pede nova aprovação no M02: ver [`claude-code-setup.md` §5](engineering/claude-code-setup.md#5-mcp-proposta-nada-instalado).
+- P-015, P-017: a fechar no M02 (E1.3 e E4.1, respectivamente) — ver [`docs/milestones/M02-core-foundation.md`](milestones/M02-core-foundation.md).
+- Restantes P-xxx: ver [`analysis.md` §4.2](product/analysis.md#42-decisões-pendentes); nenhuma bloqueia o M02.
+- Proposta MCP aprovada (D-18); a instalação pede nova aprovação explícita no M02, ainda não pedida: ver [`claude-code-setup.md` §5](engineering/claude-code-setup.md#5-mcp-proposta-nada-instalado).
 
 ## Bloqueios
 
