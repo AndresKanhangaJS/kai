@@ -73,9 +73,9 @@ Medidas com avaliações versionadas (`kai-eval`), nunca por impressão subjecti
 
 ## 8. Fora deste documento
 
-- C4 de nível 1–2 e a confirmação visual dos bounded contexts: Épico E4 do M01.
-- Identidade visual mínima: Épico E5 do M01.
-- Os ADRs ainda propostos (0000, 0001, 0002, 0005, 0009): Épico E1 do M01, em curso.
+- C4 de nível 1–2 e a confirmação visual dos bounded contexts: [`docs/architecture/c4-01-context.md`](../architecture/c4-01-context.md) e [`c4-02-containers.md`](../architecture/c4-02-containers.md) (Épico E4, feito).
+- Identidade visual mínima: [`docs/product/identidade-visual.md`](identidade-visual.md) (Épico E5).
+- Os ADRs do M01 (0000, 0001, 0002, 0005, 0009, 0013): todos `Aceite` — ver [`docs/adr/README.md`](../adr/README.md) (Épico E1, feito).
 - Requisitos funcionais e não funcionais completos, com a etiqueta [C]/[H]/[P] e a página de origem: `docs/product/analysis.md` §3.
 
 ## 9. Aprovação

@@ -51,8 +51,8 @@
 
 | ID | Tarefa | Tipo | Critério de aceitação | Depende de | Paralelo? |
 |---|---|---|---|---|---|
-| T5.1 | Define nome visual, paleta dark-first e tipografia mínima (FR-066), e um esquema simples para os estados do núcleo que entram no MVP (FR-068, sem Listening/Speaking) | design/docs | Paleta e tipografia documentadas, acessíveis (contraste WCAG 2.2 AA, NFR-030) | — | Sim |
-| T5.2 | Regista a identidade visual em `docs/product/` | docs | Documento ligado do README e do PRD | T5.1 | Não |
+| T5.1 | ~~Define nome visual, paleta dark-first e tipografia mínima~~ | design/docs | **Feito (2026-11-20).** `docs/product/identidade-visual.md`: paleta, tipografia e 5 estados do núcleo do MVP (FR-068), cada um com reforço não-cor (WCAG 2.2 AA) | — | Sim |
+| T5.2 | ~~Regista a identidade visual em `docs/product/`~~ | docs | **Feito (2026-11-20).** Ligado a partir do README e do PRD §8 | T5.1 | Não |
 
 ---
 
@@ -74,12 +74,14 @@
 
 ## Verificação do milestone
 
-- Todos os ADRs 0000–0012 em `docs/adr/` com estado "Aceite" (os já aceites mantêm-se; os 6 propostos passam a decididos).
-- `docs/product/analysis.md` §4.2: P-003, P-004, P-005, P-006, P-008 marcados "Fechado", cada um com link para o ADR ou secção do PRD que o decide.
-- PRD em `docs/product/` com estado "Aprovado" e data.
-- Diagramas C4 nível 1 e 2 em `docs/architecture/`, Mermaid, renderizáveis.
-- Identidade visual mínima documentada e ligada do README.
-- `docs/STATUS.md` actualizado a reflectir o M01 fechado e a abertura do M02.
+- [x] Todos os ADRs 0000–0012 em `docs/adr/` com estado "Aceite" ou "Substituído" — confirmado (`docs/adr/README.md`); o ADR-0013 substitui o ADR-0004.
+- [x] `docs/product/analysis.md` §4.2: P-003, P-004, P-005, P-006, P-008 marcados "Fechado", cada um com link para o ADR ou secção do PRD que o decide.
+- [x] PRD em `docs/product/prd.md` com estado "Aprovado (2026-11-20)".
+- [x] Diagramas C4 nível 1 e 2 em `docs/architecture/`, Mermaid, renderizáveis.
+- [x] Identidade visual mínima documentada em `docs/product/identidade-visual.md` e ligada do README e do PRD.
+- [x] `docs/STATUS.md` actualizado a reflectir o M01 fechado.
+
+**M01 concluído a 2026-11-20.** Todos os 16 itens de E1–E5 estão feitos. Próximo passo: decompor o M02 (Core Foundation) com a skill `kai-milestone`.
 
 ## Estimativa
 

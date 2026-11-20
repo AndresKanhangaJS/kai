@@ -13,14 +13,17 @@ O KAI é uma inteligência pessoal que compreende o contexto do utilizador e exe
 O trabalho feito até agora:
 - **Visão do produto:** [`docs/product/kai-vision.md`](docs/product/kai-vision.md); o original é o [PDF](docs/product/1_KAI_Product_Vision_Architecture_Roadmap.pdf).
 - **Análise de arquitectura:** requisitos, riscos, bounded contexts, MVP e plano, em [`docs/product/analysis.md`](docs/product/analysis.md).
+- **PRD do MVP:** [`docs/product/prd.md`](docs/product/prd.md); spec com os critérios de aceitação em [`docs/specs/001-mvp-fatia-vertical.md`](docs/specs/001-mvp-fatia-vertical.md).
 - **Decisões arquitecturais:** em [`docs/adr/`](docs/adr/README.md).
+- **Diagramas C4:** contexto e contentores em [`docs/architecture/`](docs/architecture/c4-01-context.md).
+- **Identidade visual mínima:** [`docs/product/identidade-visual.md`](docs/product/identidade-visual.md).
 - **Ambiente de engenharia para o Claude Code:** [`docs/engineering/claude-code-setup.md`](docs/engineering/claude-code-setup.md).
 - **Estado actual:** [`docs/STATUS.md`](docs/STATUS.md).
 
 ## Arquitectura (planeada)
 
 - **Core Platform:** Laravel 13 / PHP 8.5, como Modular Monolith. É o sistema de registo e o ponto de decisão de política (ADR-0001, ADR-0002).
-- **AI Engine:** Python 3.14 + FastAPI. LLM Gateway (Anthropic + Ollama), contexto, execução de ferramentas com *execution grants* (ADR-0004, ADR-0006).
+- **AI Engine:** Python 3.14 + FastAPI. LLM Gateway (Anthropic + Ollama), contexto, execução de ferramentas com *execution grants* (ADR-0013, ADR-0006).
 - **Cliente:** React + TypeScript + Vite, com streaming via Laravel Reverb (ADR-0009).
 - **Dados e mensagens:**
   - MySQL 8.4 LTS;

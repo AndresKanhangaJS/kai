@@ -1,8 +1,8 @@
 # Estado do projecto KAI
 
 - **Actualizado:** 2026-11-20
-- **Milestone actual:** M01 · Product Discovery — Épicos E1 a E4 concluídos; falta só o E5 (identidade visual)
-- **Branch:** `chore/claude-harness` (7 commits publicados em `origin/chore/claude-harness`; C4 e correcções da A-12 por commitar)
+- **Milestone actual:** M01 · Product Discovery — **concluído (2026-11-20)**, a aguardar fecho formal do owner. Próximo: decompor o M02 (Core Foundation).
+- **Branch:** `chore/claude-harness` (7 commits publicados em `origin/chore/claude-harness`; identidade visual e fecho do M01 por commitar)
 
 ## Missão de arranque: fases
 
@@ -34,19 +34,21 @@
 - **ADR-0009** aceite com uma condição explícita: depende de um spike no M03 que confirme a publicação HTTP no Reverb; se falhar, cai para o fallback SSE já documentado no próprio ADR.
 - Harness: ver [`docs/engineering/claude-code-setup.md`](engineering/claude-code-setup.md), que inclui a proposta de servidores MCP, ainda sem nada instalado.
 
-## M01 · Product Discovery
+## M01 · Product Discovery — concluído (2026-11-20)
 
-Decomposto em 5 épicos (E1–E5) e 16 tarefas → [`docs/milestones/M01-product-discovery.md`](milestones/M01-product-discovery.md).
+Decomposto em 5 épicos (E1–E5) e 16 tarefas, todas feitas → [`docs/milestones/M01-product-discovery.md`](milestones/M01-product-discovery.md) (secção "Verificação do milestone").
 
-**Feito (2026-11-20):** Épico E1 (ADRs), E2 (P-006, P-008), E3 (spec + PRD), e agora **E4** — [C4 nível 1](architecture/c4-01-context.md) e [nível 2](architecture/c4-02-containers.md), mais a correcção da A-12: o diagrama da p.7 do PDF não tinha as caixas MESSAGING/PERSISTENCE vazias (erro da extracção de texto); a Observability aparece como coluna à parte, ligada à fronteira Core Platform/AI Intelligence.
-
-**Falta:** só o **Épico E5** — identidade visual mínima dark-first (T5.1, T5.2).
+- **E1:** todos os ADRs do M01 (0000, 0001, 0002, 0005, 0009, 0013) `Aceite`.
+- **E2:** P-006 e P-008 fechadas.
+- **E3:** [spec do MVP](specs/001-mvp-fatia-vertical.md) e [PRD](product/prd.md) aprovados.
+- **E4:** [C4 nível 1](architecture/c4-01-context.md) e [nível 2](architecture/c4-02-containers.md); corrigida a A-12 (o diagrama da p.7 não tinha as caixas MESSAGING/PERSISTENCE vazias — era um erro da extracção de texto do PDF).
+- **E5:** [identidade visual mínima](product/identidade-visual.md) — paleta dark-first, tipografia, 5 estados do núcleo do MVP.
 
 ## Próximas 3 tarefas
 
-1. Épico E5, T5.1: nome visual, paleta dark-first e tipografia mínima, acessíveis (WCAG 2.2 AA).
-2. Épico E5, T5.2: registar a identidade visual em `docs/product/`, ligada do README e do PRD.
-3. Depois do E5: M01 fica concluído — rever a verificação do milestone e fazer o relatório final de fecho.
+1. Owner: fecho formal do M01 (os critérios de aceitação já estão todos cumpridos e aprovados individualmente).
+2. Decompor o M02 (Core Foundation) com a skill `kai-milestone`.
+3. M02 trata P-017 (spike de passkeys) antes de AC-02, e P-015 (fornecedor fake por omissão na demo/CI).
 
 ## Perguntas abertas
 
