@@ -1,0 +1,45 @@
+# Definição de ferramenta: Tool Registry do KAI (dados sintéticos; sem segredos)
+name: example.resource.read        # <dominio>.<recurso>.<accao>
+version: "1.0"
+description: >-
+  O que faz, em uma frase, e quando o agente a deve usar.
+category: developer                 # developer | knowledge | system | productivity | data | ...
+requirements: [FR-031]              # rastreabilidade
+mode: read-only                     # read-only | draft | write
+operation_level: 1                  # 1-5 (o nível 6 nunca é registado)
+approval:
+  policy: none                      # none | policy | always
+  reauth_minutes: null              # obrigatório no nível 5 (ex.: 10)
+  taint_escalates: true             # depois de ler conteúdo externo, o nível 4 exige aprovação
+permissions:
+  - scope: example:read             # permissão necessária no PDP
+credentials:
+  kind: none                        # none | integration (libertada pelo Laravel, ligada ao grant)
+  scopes: []
+egress:
+  allowed_domains: []               # vazio = sem rede
+limits:
+  timeout_seconds: 10
+  retry:
+    max_attempts: 2
+    on: [timeout, 5xx]              # só se a operação for idempotente
+  max_output_bytes: 65536
+  rate_limit_per_minute: 30
+input_schema:
+  type: object
+  additionalProperties: false
+  required: [resource_id]
+  properties:
+    resource_id: { type: string, maxLength: 128 }
+output_schema:
+  type: object
+  additionalProperties: false
+  required: [content, source]
+  properties:
+    content: { type: string, maxLength: 65536 }
+    source: { type: string, maxLength: 512 }
+output_handling:
+  untrusted: true                   # tratado como dados, nunca como instruções
+  secret_scan: true
+audit: required
+availability: enabled               # enabled | disabled | deprecated
