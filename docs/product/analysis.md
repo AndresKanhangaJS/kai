@@ -217,9 +217,9 @@ A recomendação vem primeiro em cada linha.
 |---|---|---|---|
 | P-001 | Nome do ficheiro PDF | Manter `1_KAI_...pdf` e corrigir as referências | Harness |
 | P-002 | Valores dos limites de custo e de passos | Medir com o conjunto de avaliação (D-14); ponto de partida: $1 por missão e $5 por dia | M03 |
-| P-003 | Transições da missão | Proposta 5.3 | M01 |
-| P-004 | Tabela nível ↔ modo ↔ aprovação, incluindo a regra de *taint* | Proposta 5.4 | M01 |
-| P-005 | Lista do nível 6 | Shell ou SQL irrestrito, ler segredos, desligar auditoria, alterar as próprias permissões | M01 |
+| P-003 | Transições da missão | **Fechado** → [ADR-0013](../adr/0013-modelo-de-seguranca.md) | M01 |
+| P-004 | Tabela nível ↔ modo ↔ aprovação, incluindo a regra de *taint* | **Fechado** → [ADR-0013](../adr/0013-modelo-de-seguranca.md) | M01 |
+| P-005 | Lista do nível 6 | **Fechado** → [ADR-0013](../adr/0013-modelo-de-seguranca.md): shell/SQL irrestrito, ler segredos, desligar auditoria, alterar as próprias permissões | M01 |
 | P-006 | PT/EN só na conversa ou também na UI | Conversa em PT/EN; UI em PT primeiro, com i18n preparado | M01 |
 | P-007 | Cifra de `integration_credentials` | Envelope encryption (AES-256-GCM, chave mestra separada da `APP_KEY`, rotação); libertação ao Python ligada a um *grant* | M07 |
 | P-008 | Daily Briefing (email e calendário) | Fora da v1; o 1.º cenário de demo é o Developer Assistant | M01 |
@@ -431,7 +431,7 @@ São 10 milestones, sem estimativas de duração (p.18).
 | 0001 | Modular monolith Laravel + AI Engine Python separado | Proposto |
 | 0002 | Fronteira de contratos Laravel ↔ Python | Proposto |
 | 0003 | Mensageria RabbitMQ + Outbox/Inbox | Aceite (D-11) |
-| 0004 | Modelo de segurança: o LLM não é fronteira; níveis 1–6; PDP no Laravel; *execution grants* | Proposto |
+| 0004 | Modelo de segurança: o LLM não é fronteira; níveis 1–6; PDP no Laravel; *execution grants* | Substituído por ADR-0013 |
 | 0005 | Memória e RAG: MySQL, Qdrant e S3 | Proposto |
 | 0006 | Abstracção de LLM como porta própria | Aceite (D-08) |
 | 0007 | Baseline de versões | Aceite (D-09, D-13) |
