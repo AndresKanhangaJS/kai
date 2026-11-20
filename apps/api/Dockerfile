@@ -23,4 +23,9 @@ RUN chmod +x /usr/local/bin/docker-entrypoint.sh /app/artisan
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 EXPOSE 8000
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+# Não usa "php artisan serve": esse comando filtra as variáveis de ambiente
+# que reenvia para o processo que serve os pedidos (só as que já estão no
+# ficheiro .env), por isso DB_HOST/DB_CONNECTION definidas só no Docker Compose
+# nunca lá chegavam. Invoca o servidor embutido do PHP directamente, com o
+# mesmo router que o Laravel usa, herdando o ambiente completo do contentor.
+CMD ["php", "-S", "0.0.0.0:8000", "-t", "public", "vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php"]

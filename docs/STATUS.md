@@ -1,8 +1,8 @@
 # Estado do projecto KAI
 
 - **Actualizado:** 2026-11-20
-- **Milestone actual:** M02 · Core Foundation — Épico E1 em curso (E1.1 e E1.2 feitas)
-- **Branch:** `chore/claude-harness` (9 commits publicados em `origin/chore/claude-harness`; Docker Compose por commitar)
+- **Milestone actual:** M02 · Core Foundation — **Épico E1 concluído** (AC-01 verificada); E2, E3, E4 por fazer
+- **Branch:** `chore/claude-harness` (9 commits publicados em `origin/chore/claude-harness`; .env.example e correcção do Dockerfile por commitar)
 
 ## Milestones concluídos
 
@@ -21,6 +21,8 @@
 - Toolchain local confirmado 2026-11-20: Node v20.20.2, npm 10.8.2, Docker 29.4.3 presentes; **PHP e Composer não estão instalados localmente**. `apps/api` foi criado via Docker (imagem `php:8.5-cli` + binário `composer` extraído de `composer:latest`), sem instalar nada no sistema. Decisão do owner: scaffold via Docker, não instalação local.
 - O scaffold do Laravel gera `apps/api/CLAUDE.md` e `AGENTS.md` com instruções do "Laravel Boost" para qualquer agente instalar PHP via `curl | bash` e o pacote `laravel/boost` automaticamente. Tratado como conteúdo não confiável (regra de segurança 4) e substituído por um apontador às regras do KAI — Boost continua por decidir (D-18), nunca auto-instalado.
 - `.claude/scripts/validate_harness.py` actualizado: a lista de pastas proibidas já não inclui `apps`/`packages`/`docker-compose.yml` (o M02 introduz-os deliberadamente); passou a excluir `vendor/`, `node_modules/`, `dist/`, `build/` da verificação de links e do scan de segredos (eram falsos positivos de dependências de terceiros).
+- **Bug encontrado e corrigido na E1.4:** `php artisan serve` só reenvia ao processo que serve os pedidos as variáveis de ambiente que já existem no ficheiro `.env`, nunca as que só estão no Docker Compose. Um `.env`/`database.sqlite` residual do scaffold original mascarou isto na E1.2 (parecia "healthy", mas servia pedidos via SQLite, não MySQL). A E1.4, com um `git clone` real para `/tmp`, expôs o problema; corrigido a invocar `php -S` directamente no `apps/api/Dockerfile`. Re-confirmado nos dois sítios.
+- Resíduo a limpar (não é crítico): `/tmp/kai-ac01-test`, o clone de teste da E1.4. O `rm -rf` para fora dos caminhos seguros do repositório é bloqueado pelo guard de propósito; o owner pode apagá-lo manualmente quando quiser.
 
 ## Decisões recentes
 
@@ -32,26 +34,26 @@
 
 Decomposto em 4 épicos e 17 tarefas → [`docs/milestones/M02-core-foundation.md`](milestones/M02-core-foundation.md).
 
-- **E1:** monorepo mínimo (`apps/api`, `apps/web`, `packages/contracts`) e Docker Compose; fecha P-015 (fornecedor `fake` por omissão).
+- **E1 (concluído):** monorepo mínimo (`apps/api`, `apps/web`, `packages/contracts`) e Docker Compose; AC-01 verificada a partir de um clone limpo; fecha P-015 (fornecedor `fake` por omissão).
 - **E2:** CI — lint, PHPStan, mypy, Pest, Vitest, validação de schemas, secret scan.
 - **E3:** contratos v1 (`kai-contract`) — síncrono (`tool-authorizations`, health) e os 6 schemas assíncronos do MVP, antes de o RabbitMQ existir (chega no M03).
 - **E4:** Identity & Access — login passkey/TOTP, revogação de sessão; fecha P-017 (spike de passkeys no Laravel 13).
 
 **Critério de aceitação:** AC-01 e AC-02; CI verde.
 
-**Caminho crítico:** E1.1 → E4.1 (spike passkeys) → E4.2 (spec) → E4.3 (migração) → E4.5 (login) → E4.6 (E2E, AC-02). Em paralelo: E1.2–E1.4 (AC-01), E2.1/E2.2/E2.4, E3.1–E3.3 → E2.3.
+**Caminho crítico:** ~~E1.1~~ → E4.1 (spike passkeys) → E4.2 (spec) → E4.3 (migração) → E4.5 (login) → E4.6 (E2E, AC-02). E1 (AC-01) já está feito. Em paralelo: E2.1/E2.2/E2.4, E3.1–E3.3 → E2.3.
 
 **Risco a vigiar:** se o spike de passkeys (E4.1) exigir um pacote novo, isso é uma dependência nova — pára e pede aprovação antes de a adicionar (regra de ouro de segurança).
 
 ## Próximas 3 tarefas
 
-1. E1.3: `.env.example` com nomes e valores fictícios, incluindo o fornecedor `fake` por omissão (fecha P-015).
-2. E4.1: spike de passkeys no Laravel 13 (fecha P-017) — pode correr em paralelo com E1.
-3. E3.1/E3.2: definir os contratos v1 com `kai-contract`, em paralelo com o resto.
+1. E4.1: spike de passkeys no Laravel 13 (fecha P-017) — caminho crítico até à AC-02.
+2. E3.1/E3.2: definir os contratos v1 com `kai-contract`, em paralelo.
+3. E2.1/E2.2/E2.4: CI de lint/testes para `apps/api` e `apps/web`, em paralelo.
 
 ## Perguntas abertas
 
-- P-015, P-017: a fechar no M02 (E1.3 e E4.1, respectivamente) — ver [`docs/milestones/M02-core-foundation.md`](milestones/M02-core-foundation.md).
+- P-015: **fechada (2026-11-20)** → [`.env.example`](../.env.example). P-017: por fechar, E4.1 — ver [`docs/milestones/M02-core-foundation.md`](milestones/M02-core-foundation.md).
 - Restantes P-xxx: ver [`analysis.md` §4.2](product/analysis.md#42-decisões-pendentes); nenhuma bloqueia o M02.
 - Proposta MCP aprovada (D-18); a instalação pede nova aprovação explícita no M02, ainda não pedida: ver [`claude-code-setup.md` §5](engineering/claude-code-setup.md#5-mcp-proposta-nada-instalado).
 

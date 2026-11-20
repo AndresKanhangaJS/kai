@@ -229,7 +229,7 @@ A recomendação vem primeiro em cada linha.
 | P-012 | Ferramentas locais vs cloud (p.20) | Decidir com o desktop | Pós-M10 |
 | P-013 | Exposição da produção | Só por VPN ou túnel até ao M10 | M10 |
 | P-014 | Quem é dono de `document_chunks` (secção 9) | Schema próprio do AI Engine | M04 |
-| P-015 | Demo pública (custo e chaves) | Modo fake/Ollama por omissão para quem clona o repositório | M02 |
+| P-015 | Demo pública (custo e chaves) | **Fechado** → [`.env.example`](../../.env.example): `MODEL_PROVIDER=fake` por omissão para quem clona o repositório | M02 |
 | P-016 | Modelo-juiz das avaliações e orçamento mensal | Modelo fixado, calibrado com cerca de 50 itens etiquetados por humanos | M05 |
 | P-017 | Passkeys no Laravel 13 (1.ª parte ou pacote) | Spike | M02 |
 
