@@ -47,7 +47,7 @@
 | ID | Tarefa | Tipo | Critério de aceitação | Depende de | Paralelo? |
 |---|---|---|---|---|---|
 | E4.1 | ~~Spike: passkeys (WebAuthn) no Laravel 13~~ | spike/docs | **Feito (2026-11-20).** Suporte de 1.ª parte confirmado: `laravel/fortify` v1.43.0 + `laravel/passkeys` v0.3.0 (MIT), instalado em `apps/api` com aprovação explícita do owner (dependência nova). Cobre também o TOTP de D-05. `analysis.md` §4.2 marca P-017 "Fechado" | E1.1 | Não |
-| E4.2 | Escreve a spec de Identity & Access com `kai-spec`, Given/When/Then a partir de AC-02 | spec (`kai-spec`) | Spec aprovada cobre login, revogação de sessão e o caso negativo (sessão revogada não autentica) | E4.1 | Não |
+| E4.2 | ~~Escreve a spec de Identity & Access~~ | spec (`kai-spec`) | **Feito (2026-11-20).** `docs/specs/002-identity-access.md` (Aprovada), 7 critérios (AC-02a–g). Modelo de ameaças feito a seguir: `docs/security/threat-model-identity-access.md` (11 ameaças STRIDE, 9 testes a criar) | E4.1 | Não |
 | E4.3 | Migração `users`, `sessions`, `user_preferences` com `kai-db-migration`, `user_id` em todas as linhas próprias | migração (`kai-db-migration`) | Migração reversível; índice único onde aplicável; dados de teste sintéticos | E4.2 | Não |
 | E4.4 | Comando `artisan` para criar o owner por CLI (sem registo público, D-05) | código + testes Pest | Comando cria um utilizador; não existe rota de registo público | E4.3 | Sim |
 | E4.5 | Implementa login com passkey (ou TOTP como alternativa) e revogação de sessão | código + testes Pest | AC-02 passa a nível de integração; sessão revogada deixa de autenticar pedidos | E4.3, E4.1 | Não |
@@ -57,7 +57,7 @@
 
 ## Ordem e caminho crítico
 
-1. **Caminho crítico até AC-02:** ~~E1.1 → E4.1~~ → E4.2 → E4.3 → E4.5 → E4.6.
+1. **Caminho crítico até AC-02:** ~~E1.1 → E4.1 → E4.2~~ → E4.3 → E4.5 → E4.6.
 2. **Em paralelo com o caminho crítico:** E1.2 → E1.3 → E1.4 (AC-01); E2.1, E2.2, E2.4; E3.1, E3.2 → E3.3 → E2.3; E4.4.
 3. O milestone só fecha quando AC-01, AC-02 e a CI completa (E2.1–E2.4) estiverem todos verdes.
 
