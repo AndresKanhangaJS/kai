@@ -43,10 +43,11 @@ REQUIRED_AGENTS = {
 }
 READ_ONLY_AGENTS = {"kai-architect", "kai-security-reviewer", "kai-verifier"}
 WRITE_TOOLS = {"Edit", "Write", "Bash", "NotebookEdit"}
-FORBIDDEN_PATHS = [  # missão de arranque; rever no M02 (D-02, D-11, D-18)
-    "apps", "services", "packages", "infrastructure", "docker-compose.yml",
+FORBIDDEN_PATHS = [  # M02 introduz apps/, packages/ e docker-compose.yml (E1); revisto 2026-11-20
+    "services", "infrastructure",
     "LICENSE", ".github/workflows", ".mcp.json",
 ]
+EXCLUDED_DIRS = {"vendor", "node_modules", "dist", "dist-ssr", "build", ".git"}
 SECRET_PATTERNS = {
     "chave Anthropic/OpenAI": re.compile(r"\bsk-(?:ant-)?[A-Za-z0-9_-]{20,}"),
     "AWS access key": re.compile(r"\bAKIA[0-9A-Z]{16}\b"),
@@ -235,7 +236,7 @@ def anchors_of(p: Path) -> set[str]:
 
 
 def md_files() -> list[Path]:
-    return [p for p in ROOT.rglob("*.md") if ".git" not in p.parts]
+    return [p for p in ROOT.rglob("*.md") if not EXCLUDED_DIRS & set(p.parts)]
 
 
 def check_links() -> None:
@@ -258,7 +259,7 @@ def check_links() -> None:
 def check_secrets() -> None:
     scanned = 0
     for p in ROOT.rglob("*"):
-        if ".git" in p.parts or not p.is_file() or p.suffix.lower() not in TEXT_SUFFIXES:
+        if EXCLUDED_DIRS & set(p.parts) or not p.is_file() or p.suffix.lower() not in TEXT_SUFFIXES:
             continue
         try:
             text = p.read_text(encoding="utf-8")
@@ -274,9 +275,9 @@ def check_secrets() -> None:
 def check_forbidden() -> None:
     present = [x for x in FORBIDDEN_PATHS if (ROOT / x).exists()]
     if present:
-        errors.append(f"não devem existir nesta missão: {present}")
+        errors.append(f"ainda não devem existir (pré-M09/M10 ou sem aprovação): {present}")
     else:
-        oks.append(f"sem estrutura de aplicação: {', '.join(FORBIDDEN_PATHS)} ausentes")
+        oks.append(f"ainda sem: {', '.join(FORBIDDEN_PATHS)}")
 
 
 def main() -> int:

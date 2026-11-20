@@ -1,8 +1,8 @@
 # Estado do projecto KAI
 
 - **Actualizado:** 2026-11-20
-- **Milestone actual:** M02 · Core Foundation — decomposto, pronto para arrancar
-- **Branch:** `chore/claude-harness` (8 commits publicados em `origin/chore/claude-harness`; decomposição do M02 por commitar)
+- **Milestone actual:** M02 · Core Foundation — Épico E1 em curso (E1.1 feita)
+- **Branch:** `chore/claude-harness` (8 commits publicados em `origin/chore/claude-harness`; apps/api, apps/web, packages/contracts por commitar)
 
 ## Milestones concluídos
 
@@ -18,6 +18,9 @@
 - `poppler-utils` instalado no WSL a 2026-11-20 (autorizado pelo owner, correu fora do guard por usar `sudo`), para ler visualmente páginas do PDF de produto. Utilitário de sistema, não é dependência do projecto.
 - A restrição "não criar `apps/`, `CI`, `docker-compose.yml`" aplicava-se só à missão de arranque do harness (concluída). O M02 é o milestone que os introduz deliberadamente — ver decomposição abaixo.
 - `LICENSE` (Apache-2.0, D-02) continua por criar; entra antes da primeira publicação de código, não necessariamente no M02.
+- Toolchain local confirmado 2026-11-20: Node v20.20.2, npm 10.8.2, Docker 29.4.3 presentes; **PHP e Composer não estão instalados localmente**. `apps/api` foi criado via Docker (imagem `php:8.5-cli` + binário `composer` extraído de `composer:latest`), sem instalar nada no sistema. Decisão do owner: scaffold via Docker, não instalação local.
+- O scaffold do Laravel gera `apps/api/CLAUDE.md` e `AGENTS.md` com instruções do "Laravel Boost" para qualquer agente instalar PHP via `curl | bash` e o pacote `laravel/boost` automaticamente. Tratado como conteúdo não confiável (regra de segurança 4) e substituído por um apontador às regras do KAI — Boost continua por decidir (D-18), nunca auto-instalado.
+- `.claude/scripts/validate_harness.py` actualizado: a lista de pastas proibidas já não inclui `apps`/`packages`/`docker-compose.yml` (o M02 introduz-os deliberadamente); passou a excluir `vendor/`, `node_modules/`, `dist/`, `build/` da verificação de links e do scan de segredos (eram falsos positivos de dependências de terceiros).
 
 ## Decisões recentes
 
@@ -42,7 +45,7 @@ Decomposto em 4 épicos e 17 tarefas → [`docs/milestones/M02-core-foundation.m
 
 ## Próximas 3 tarefas
 
-1. E1.1: criar a estrutura mínima do monorepo (`apps/api`, `apps/web`, `packages/contracts`).
+1. E1.2: `docker-compose.yml` com `api`, `web`, MySQL 8.4, Redis 8 e *health checks*.
 2. E4.1: spike de passkeys no Laravel 13 (fecha P-017) — pode correr em paralelo com E1.
 3. E3.1/E3.2: definir os contratos v1 com `kai-contract`, em paralelo com o resto.
 
