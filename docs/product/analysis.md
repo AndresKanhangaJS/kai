@@ -22,7 +22,7 @@
 | D-02 | Licença Apache-2.0 | Registada; o ficheiro `LICENSE` ainda não foi criado |
 | D-03 | Deploy: local (Docker Compose) agora, VPS única depois | Sem Kubernetes (p.17) |
 | D-04 | O Claude Code corre dentro do WSL | — |
-| D-05 | Autenticação do owner: passkey (WebAuthn) + TOTP, com códigos de recuperação; re-autenticação no nível 5; conta criada por CLI | Suporte a passkeys no Laravel 13 por verificar (P-017) |
+| D-05 | Autenticação do owner: passkey (WebAuthn) + TOTP, com códigos de recuperação; re-autenticação no nível 5; conta criada por CLI | Suporte a passkeys no Laravel 13 confirmado de 1.ª parte via `laravel/fortify` (P-017, fechada) |
 | D-06 | Autenticação entre serviços: JWS assimétrico de curta duração + rede Docker privada; um utilizador RabbitMQ por serviço; mTLS só com vários hosts | Responde à p.20 |
 | D-07 | Indexável na v1: uploads explícitos, conversas (com opt-out) e repositórios do owner, sem ficheiros de segredos | Email e calendário fora da v1. Credenciais e dados sensíveis nunca são indexados. |
 | D-08 | LLM do protótipo: Anthropic (cloud) + Ollama (2.º adaptador) + fornecedor falso determinístico para a CI | Responde à p.20 |
@@ -231,7 +231,7 @@ A recomendação vem primeiro em cada linha.
 | P-014 | Quem é dono de `document_chunks` (secção 9) | Schema próprio do AI Engine | M04 |
 | P-015 | Demo pública (custo e chaves) | **Fechado** → [`.env.example`](../../.env.example): `MODEL_PROVIDER=fake` por omissão para quem clona o repositório | M02 |
 | P-016 | Modelo-juiz das avaliações e orçamento mensal | Modelo fixado, calibrado com cerca de 50 itens etiquetados por humanos | M05 |
-| P-017 | Passkeys no Laravel 13 (1.ª parte ou pacote) | Spike | M02 |
+| P-017 | Passkeys no Laravel 13 (1.ª parte ou pacote) | **Fechado** (2026-11-20): suporte de 1.ª parte confirmado — `laravel/fortify` v1.43.0 + `laravel/passkeys` v0.3.0 (MIT, PHP ^8.2, Laravel ^12\|^13), instalado em `apps/api`. Cobre também o TOTP de D-05 (`pragmarx/google2fa`) | M02 |
 
 ### 4.3 Riscos
 

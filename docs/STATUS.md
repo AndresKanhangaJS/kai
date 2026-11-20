@@ -1,8 +1,8 @@
 # Estado do projecto KAI
 
 - **Actualizado:** 2026-11-20
-- **Milestone actual:** M02 · Core Foundation — **Épico E1 concluído** (AC-01 verificada); E2, E3, E4 por fazer
-- **Branch:** `chore/claude-harness` (9 commits publicados em `origin/chore/claude-harness`; .env.example e correcção do Dockerfile por commitar)
+- **Milestone actual:** M02 · Core Foundation — **Épico E1 concluído**; E4.1 feita (dependência nova aprovada); E2, E3, resto de E4 por fazer
+- **Branch:** `chore/claude-harness` (commit da E1.3/E1.4 ainda por publicar; `laravel/fortify` por commitar)
 
 ## Milestones concluídos
 
@@ -27,7 +27,7 @@
 ## Decisões recentes
 
 - D-01 a D-18: ver [`analysis.md` §0](product/analysis.md#0-decisões-do-owner-passam-a-c).
-- ADRs: ver [`docs/adr/`](adr/README.md). 12 aceites, 1 substituído (0004 → 0013). Todos os ADRs do M01 estão decididos; nenhum novo ADR aberto ainda para o M02 (pode surgir do spike de passkeys, E4.1).
+- ADRs: ver [`docs/adr/`](adr/README.md). 12 aceites, 1 substituído (0004 → 0013). Todos os ADRs do M01 estão decididos; nenhum novo ADR aberto ainda para o M02.
 - Harness: ver [`docs/engineering/claude-code-setup.md`](engineering/claude-code-setup.md), que inclui a proposta de servidores MCP, ainda sem nada instalado (instalação pede aprovação no M02, D-18).
 
 ## M02 · Core Foundation
@@ -37,23 +37,21 @@ Decomposto em 4 épicos e 17 tarefas → [`docs/milestones/M02-core-foundation.m
 - **E1 (concluído):** monorepo mínimo (`apps/api`, `apps/web`, `packages/contracts`) e Docker Compose; AC-01 verificada a partir de um clone limpo; fecha P-015 (fornecedor `fake` por omissão).
 - **E2:** CI — lint, PHPStan, mypy, Pest, Vitest, validação de schemas, secret scan.
 - **E3:** contratos v1 (`kai-contract`) — síncrono (`tool-authorizations`, health) e os 6 schemas assíncronos do MVP, antes de o RabbitMQ existir (chega no M03).
-- **E4:** Identity & Access — login passkey/TOTP, revogação de sessão; fecha P-017 (spike de passkeys no Laravel 13).
+- **E4 (E4.1 feita):** Identity & Access — login passkey/TOTP, revogação de sessão. P-017 fechada: suporte de 1.ª parte confirmado (`laravel/fortify` v1.43.0 + `laravel/passkeys` v0.3.0, MIT, dependência nova aprovada pelo owner), já instalado em `apps/api`.
 
 **Critério de aceitação:** AC-01 e AC-02; CI verde.
 
-**Caminho crítico:** ~~E1.1~~ → E4.1 (spike passkeys) → E4.2 (spec) → E4.3 (migração) → E4.5 (login) → E4.6 (E2E, AC-02). E1 (AC-01) já está feito. Em paralelo: E2.1/E2.2/E2.4, E3.1–E3.3 → E2.3.
-
-**Risco a vigiar:** se o spike de passkeys (E4.1) exigir um pacote novo, isso é uma dependência nova — pára e pede aprovação antes de a adicionar (regra de ouro de segurança).
+**Caminho crítico:** ~~E1.1 → E4.1~~ → E4.2 (spec) → E4.3 (migração) → E4.5 (login) → E4.6 (E2E, AC-02). E1 (AC-01) já está feito.
 
 ## Próximas 3 tarefas
 
-1. E4.1: spike de passkeys no Laravel 13 (fecha P-017) — caminho crítico até à AC-02.
+1. E4.2: spec de Identity & Access com `kai-spec`, a partir de AC-02 — caminho crítico.
 2. E3.1/E3.2: definir os contratos v1 com `kai-contract`, em paralelo.
 3. E2.1/E2.2/E2.4: CI de lint/testes para `apps/api` e `apps/web`, em paralelo.
 
 ## Perguntas abertas
 
-- P-015: **fechada (2026-11-20)** → [`.env.example`](../.env.example). P-017: por fechar, E4.1 — ver [`docs/milestones/M02-core-foundation.md`](milestones/M02-core-foundation.md).
+- P-015, P-017: **fechadas (2026-11-20)** → [`.env.example`](../.env.example) e [`docs/milestones/M02-core-foundation.md`](milestones/M02-core-foundation.md) (E4.1).
 - Restantes P-xxx: ver [`analysis.md` §4.2](product/analysis.md#42-decisões-pendentes); nenhuma bloqueia o M02.
 - Proposta MCP aprovada (D-18); a instalação pede nova aprovação explícita no M02, ainda não pedida: ver [`claude-code-setup.md` §5](engineering/claude-code-setup.md#5-mcp-proposta-nada-instalado).
 
