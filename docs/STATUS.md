@@ -1,8 +1,8 @@
 # Estado do projecto KAI
 
 - **Actualizado:** 2026-11-20
-- **Milestone actual:** M01 · Product Discovery, caminho crítico iniciado (P-003/004/005 fechadas)
-- **Branch:** `chore/claude-harness` (5 commits publicados em `origin/chore/claude-harness`; ADRs do M01 por commitar)
+- **Milestone actual:** M01 · Product Discovery — caminho crítico concluído; falta o resto do E1, E4 e E5
+- **Branch:** `chore/claude-harness` (6 commits publicados em `origin/chore/claude-harness`; spec+PRD por commitar)
 
 ## Missão de arranque: fases
 
@@ -36,17 +36,17 @@
 
 Decomposto em 5 épicos (E1–E5) e 16 tarefas → [`docs/milestones/M01-product-discovery.md`](milestones/M01-product-discovery.md).
 
-Caminho crítico: ~~ADR-0013 (P-003, P-004, P-005)~~ **feito (2026-11-20)** → spec do MVP (`kai-spec`, T3.1) → PRD → aprovação do owner. Em paralelo: restantes ADRs (E1), P-006/P-008 (E2), identidade visual (E5), e o C4 (E4) depois do ADR-0002.
+**Caminho crítico concluído (2026-11-20):** ADR-0013 (P-003/004/005) → [`docs/specs/001-mvp-fatia-vertical.md`](specs/001-mvp-fatia-vertical.md) (Aprovada) → [`docs/product/prd.md`](product/prd.md) (Aprovado). Falta: Épico E1 restante, E4 (C4) e E5 (identidade visual) — todos paralelizáveis entre si.
 
 ## Próximas 3 tarefas
 
-1. Spec do MVP com `kai-spec` (T3.1), a partir de AC-01 a AC-10 — já pode arrancar, P-003/004/005 estão fechadas.
-2. Em paralelo: Épico E1 restante — ADR-0000, ADR-0001, ADR-0002, ADR-0005, ADR-0009.
-3. Em paralelo: P-006 e P-008 (Épico E2) e a identidade visual mínima (Épico E5).
+1. Épico E1 restante: ADR-0000, ADR-0001, ADR-0002, ADR-0005, ADR-0009 (sem dependências entre si, podem correr em qualquer ordem).
+2. Épico E4: C4 nível 1–2 (`kai-c4`), depois do ADR-0002.
+3. Épico E5: identidade visual mínima dark-first.
 
 ## Perguntas abertas
 
-- P-003, P-004, P-005: **fechadas (2026-11-20)** → [ADR-0013](adr/0013-modelo-de-seguranca.md). P-006, P-008: recomendação escrita em `analysis.md`, ainda a ratificar no M01. As restantes, P-001, P-002, P-007, P-009 a P-017: ver [`analysis.md` §4.2](product/analysis.md#42-decisões-pendentes); nenhuma bloqueia o M01.
+- P-003, P-004, P-005, P-006, P-008: **fechadas (2026-11-20)** → [ADR-0013](adr/0013-modelo-de-seguranca.md) e [`prd.md` §3](product/prd.md#3-âmbito-do-mvp-fatia-vertical-fina). As restantes, P-001, P-002, P-007, P-009 a P-017: ver [`analysis.md` §4.2](product/analysis.md#42-decisões-pendentes); nenhuma bloqueia o M01.
 - Proposta MCP aprovada (D-18); a instalação pede nova aprovação no M02: ver [`claude-code-setup.md` §5](engineering/claude-code-setup.md#5-mcp-proposta-nada-instalado).
 
 ## Bloqueios

@@ -28,16 +28,16 @@
 
 | ID | Tarefa | Tipo | Critério de aceitação | Depende de | Paralelo? |
 |---|---|---|---|---|---|
-| T2.1 | Decide P-006 (conversa em PT/EN; UI em PT com i18n preparado) e regista no PRD | docs | `analysis.md` §4.2 marca P-006 "Fechado"; PRD (T3.2) reflecte o âmbito | — | Sim |
-| T2.2 | Decide P-008 (Daily Briefing fora da v1; 1.º cenário de demo é o Developer Assistant) e regista no PRD e no roadmap | docs | `analysis.md` §4.2 marca P-008 "Fechado"; PRD e `docs/STATUS.md` reflectem o cenário de demo | — | Sim |
+| T2.1 | ~~Decide P-006~~ | docs | **Feito (2026-11-20).** `analysis.md` §4.2 marca P-006 "Fechado"; registado em `prd.md` §3 | — | Sim |
+| T2.2 | ~~Decide P-008~~ | docs | **Feito (2026-11-20).** `analysis.md` §4.2 marca P-008 "Fechado"; registado em `prd.md` §3 (cenário Developer Assistant) | — | Sim |
 
 ## Épico E3: PRD e casos de uso do MVP (FR-001–003, FR-008, FR-009, FR-013, FR-021, FR-022, FR-044–062 subconjunto MVP; NFR-015, NFR-016, NFR-020, NFR-021)
 
 | ID | Tarefa | Tipo | Critério de aceitação | Depende de | Paralelo? |
 |---|---|---|---|---|---|
-| T3.1 | Escreve a spec do MVP com `kai-spec`, com critérios Given/When/Then derivados de AC-01 a AC-10 | spec (`kai-spec`) | Spec aprovada cobre as 10 AC, com segurança (AC-06, AC-07) e observabilidade (AC-08) explícitas | T1.3, T1.4 | Não |
-| T3.2 | Escreve o PRD (visão, persona do owner, casos de uso, fora de âmbito) a partir da spec e de `analysis.md` | docs | PRD em `docs/product/` com visão (p.4), não-objectivos (p.5) e AC-01 a AC-10 referenciados | T3.1, T2.1, T2.2 | Não |
-| T3.3 | Owner aprova o PRD | aprovação | PRD marcado "Aprovado" com data | T3.2 | Não |
+| T3.1 | ~~Escreve a spec do MVP com `kai-spec`~~ | spec (`kai-spec`) | **Feito (2026-11-20).** `docs/specs/001-mvp-fatia-vertical.md`, estado "Aprovada", cobre AC-01 a AC-10 (AC-05 dividido em a/b/c) | T1.3, T1.4 | Não |
+| T3.2 | ~~Escreve o PRD~~ | docs | **Feito (2026-11-20).** `docs/product/prd.md`, estado "Rascunho", com visão, persona, 10 casos de uso ligados às AC, fora de âmbito e riscos | T3.1, T2.1, T2.2 | Não |
+| T3.3 | ~~Owner aprova o PRD~~ | aprovação | **Feito (2026-11-20).** `prd.md` marcado "Aprovado (2026-11-20)" | T3.2 | Não |
 
 ## Épico E4: C4 nível 1–2 e bounded contexts (NFR-001, NFR-026; ADR-0001, ADR-0002, ADR-0003, ADR-0010)
 
@@ -58,7 +58,7 @@
 
 ## Ordem e caminho crítico
 
-1. **Caminho crítico:** T1.3 → T1.4 → T3.1 → T3.2 → T3.3. (A máquina de estados e os níveis/modos têm de estar decididos antes da spec do MVP, porque definem AC-05, AC-06 e AC-09.)
+1. **Caminho crítico:** T1.3 → T1.4 → T3.1 → T3.2 → T3.3. **Concluído (2026-11-20).** (A máquina de estados e os níveis/modos tinham de estar decididos antes da spec do MVP, porque definem AC-05, AC-06 e AC-09.)
 2. **Em paralelo com o caminho crítico:** T1.1, T1.2, T1.5, T1.6, T1.7, T2.1, T2.2, T5.1 → T5.2.
 3. **Depois de T1.5 (ADR-0002 decidido):** T4.1 → T4.2 → T4.3, em paralelo com T3.*.
 4. T3.3 (aprovação do PRD) é o último gate antes de fechar o milestone.
