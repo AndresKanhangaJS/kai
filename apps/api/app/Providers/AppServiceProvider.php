@@ -19,6 +19,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // App\Listeners\LogAuthenticationAttempt é auto-descoberto pelo
+        // Laravel (os parâmetros tipados em Login/TwoFactorAuthenticationFailed
+        // já bastam); registá-lo aqui também duplicava os logs.
     }
 }

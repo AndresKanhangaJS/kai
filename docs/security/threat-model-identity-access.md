@@ -42,7 +42,7 @@ Não há fronteira Laravel↔RabbitMQ↔Python nem Python↔LLM neste módulo �
 | Segredo TOTP (seed) | Crítica | `users` (cifrado em repouso pelo Fortify) |
 | Códigos de recuperação | Alta | `users` (cifrados, uso único) |
 | Sessão do owner (cookie/ID) | Alta | `sessions`, cookie no browser |
-| Registo de auditoria de tentativas de login | Média | `audit_logs` |
+| Registo de auditoria de tentativas de login | Média | Logs estruturados (JSON); `audit_logs` dedicada fica para o M05 |
 
 ## Ameaças
 
@@ -86,12 +86,14 @@ Não há fronteira Laravel↔RabbitMQ↔Python nem Python↔LLM neste módulo �
 
 ## Testes a criar
 
-- [ ] T-01: desafio de login dá resposta indistinguível para username existente vs inexistente
-- [ ] T-02/T-03: assertion com assinatura inválida é rejeitada; reenviar a mesma assertion (replay) falha
-- [ ] T-04: N+1 tentativas de TOTP falhadas bloqueiam temporariamente
-- [ ] T-05: reutilizar um código de recuperação falha na 2.ª tentativa (AC-02g)
-- [ ] T-06: segredo TOTP e códigos de recuperação não estão em texto claro na BD
-- [ ] T-07: ID de sessão regenerado no login; cookies `HttpOnly`/`Secure`/`SameSite=Lax` confirmados
-- [ ] T-08: listar/revogar a sessão de outro `user_id` falha (AC-02f)
-- [ ] T-09: revogação de sessão sem token CSRF válido é rejeitada
-- [ ] T-10: tentativa de login (sucesso e falha) gera uma entrada de auditoria
+Feitos na E4.5 (`tests/Feature/Auth/TotpLoginTest.php`, `SessionManagementTest.php`; 23 testes, SQLite isolado e confirmação manual contra MySQL real):
+
+- [x] T-01: resposta idêntica (estado + corpo) para email inexistente vs código errado
+- [ ] T-02/T-03: assertion com assinatura inválida é rejeitada; reenviar a mesma assertion (replay) falha — **não testável sem um autenticador real ou *Virtual Authenticator***; fica para a E4.6 (E2E, Playwright)
+- [x] T-04: 6.ª tentativa de TOTP seguida bloqueia (429)
+- [x] T-05: reutilizar um código de recuperação falha na 2.ª tentativa (AC-02g)
+- [x] T-06: segredo TOTP e códigos de recuperação não estão em texto claro na BD
+- [ ] T-07: regeneração do ID de sessão confirmada indirectamente (login funciona, `last_authenticated_at` muda de linha); as *flags* dos cookies (`HttpOnly`/`Secure`/`SameSite=Lax`) não têm teste automático dedicado — confirmadas visualmente nos cabeçalhos `Set-Cookie` de um pedido real
+- [x] T-08: listar/revogar a sessão de outro `user_id` falha (AC-02f)
+- [x] T-09: confirmado manualmente contra a stack real (não em teste automático — o Laravel desactiva CSRF em testes, por desenho): um token CSRF desactualizado dá 419
+- [x] T-10: login com sucesso e falha de TOTP geram cada um uma entrada de log estruturado

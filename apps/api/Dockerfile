@@ -28,4 +28,13 @@ EXPOSE 8000
 # ficheiro .env), por isso DB_HOST/DB_CONNECTION definidas só no Docker Compose
 # nunca lá chegavam. Invoca o servidor embutido do PHP directamente, com o
 # mesmo router que o Laravel usa, herdando o ambiente completo do contentor.
-CMD ["php", "-S", "0.0.0.0:8000", "-t", "public", "vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php"]
+#
+# O router (vendor/.../resources/server.php) resolve os caminhos a partir de
+# getcwd(), não de "-t" — por isso o cwd do processo tem de ser o próprio
+# public/ (é assim que o "php artisan serve" o invoca, via Symfony Process
+# com cwd = public_path()). Sem isto, qualquer pedido dá erro fatal
+# (require_once /app/index.php, que não existe) mesmo respondendo HTTP 200 —
+# um healthcheck que só olha para o código HTTP não apanha isto. O WORKDIR
+# fica em /app (o entrypoint precisa disso para o .env e o artisan); só o
+# comando final muda de directório.
+CMD ["sh", "-c", "cd public && exec php -S 0.0.0.0:8000 ../vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php"]

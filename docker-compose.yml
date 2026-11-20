@@ -37,6 +37,8 @@ services:
       DB_PASSWORD: ${DB_PASSWORD:-kai}
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
+      SANCTUM_STATEFUL_DOMAINS: ${SANCTUM_STATEFUL_DOMAINS:-localhost:5173}
     volumes:
       - ./apps/api:/app
       - api_vendor:/app/vendor
@@ -48,7 +50,11 @@ services:
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "php", "-r", "exit(@file_get_contents('http://localhost:8000') === false ? 1 : 0);"]
+      # /up é a rota de health check nativa do Laravel (bootstrap/app.php).
+      # Importante: um "não é false" não chega — um erro fatal do PHP com
+      # display_errors ligado também devolve HTTP 200 com HTML de erro, por
+      # isso confirma o conteúdo esperado, não só que respondeu algo.
+      test: ["CMD", "php", "-r", "exit(str_contains(@file_get_contents('http://localhost:8000/up') ?: '', 'PHP Fatal error') || !@file_get_contents('http://localhost:8000/up') ? 1 : 0);"]
       interval: 5s
       timeout: 5s
       retries: 10

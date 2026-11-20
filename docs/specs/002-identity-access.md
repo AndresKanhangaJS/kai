@@ -12,6 +12,7 @@
 - **[C FR-044, FR-045]** Autenticação por passkey + TOTP; MFA e gestão de sessões (listar e revogar) entram no MVP.
 - **[C P-017, fechada]** `laravel/fortify` v1.43.0 + `laravel/passkeys` v0.3.0 (MIT) já instalados em `apps/api` (E4.1); cobrem WebAuthn e TOTP (`pragmarx/google2fa`) num só pacote oficial.
 - **[H]** Esta spec cobre só Identity & Access; não repete AC-01, AC-03 a AC-10 (`docs/specs/001-mvp-fatia-vertical.md`), só aprofunda a AC-02.
+- **[C, descoberto na E4.5]** O `laravel/fortify` trata o TOTP como **segundo factor depois de uma password** (o desafio de 2FA só é alcançável depois do `/login` com password). Como não há password (D-05), isto exigiu um controlador próprio (`TotpLoginController`) que reutiliza a verificação do Fortify mas entra directamente por email+código, sem o passo de password.
 
 ## 2. Objectivo
 O owner autentica-se de forma *phishing-resistant* (passkey) ou com TOTP como alternativa, gere as suas sessões activas e pode revogar qualquer uma; uma sessão revogada deixa imediatamente de autenticar pedidos.
@@ -20,7 +21,7 @@ O owner autentica-se de forma *phishing-resistant* (passkey) ou com TOTP como al
 
 | ID | Dado | Quando | Então | Tipo de teste |
 |---|---|---|---|---|
-| AC-02a | O owner criado por CLI, com uma passkey registada | Faz login com essa passkey | Obtém uma sessão autenticada; o evento fica auditado | integração |
+| AC-02a | O owner criado por CLI, com uma passkey registada | Faz login com essa passkey | Obtém uma sessão autenticada; o evento fica auditado | E2E (ver nota) |
 | AC-02b | O owner sem a passkey disponível (ex. noutro dispositivo) | Faz login com um código TOTP válido | Obtém uma sessão autenticada | integração |
 | AC-02c (negativo) | Um código TOTP inválido ou expirado | O owner tenta autenticar-se | A autenticação falha; nenhuma sessão é criada; a tentativa fica auditada | integração, negativo |
 | AC-02d | O owner autenticado, com várias sessões activas | Lista as suas sessões | Vê cada uma com dispositivo, IP e data da última actividade, sem dados de outra pessoa (não há outra, mas a query já filtra por `user_id`) | integração |
@@ -44,7 +45,7 @@ O owner autentica-se de forma *phishing-resistant* (passkey) ou com TOTP como al
 ## 5. Observabilidade
 
 - **Spans:** `http.server POST /auth/login`, `http.server DELETE /auth/sessions/{id}`, `http.server GET /auth/sessions`.
-- **Métricas:** `kai_auth_attempts_total{method,outcome}` (`method`: `passkey`\|`totp`\|`recovery_code`; `outcome`: `success`\|`failure`) — nova, segue a convenção `kai_*` de `observability.md`.
+- **Métricas:** `kai_auth_attempts_total{method,outcome}` (`method`: `passkey`\|`totp`\|`recovery_code`; `outcome`: `success`\|`failure`) — nomeada, mas **ainda não exportada**: não há stack de métricas antes do M03 (`grafana/otel-lgtm`, `kai-observability`). Por agora, os logs estruturados (abaixo) cobrem a auditoria; a métrica propriamente dita fica para o M03.
 - **Logs (sem dados sensíveis):** `actor_id` (quando conhecido), `method`, `outcome`, `trace_id`; nunca o código TOTP, a resposta WebAuthn, nem o código de recuperação.
 
 ## 6. Contratos
@@ -53,10 +54,10 @@ Sem contratos novos. Login e sessões são internos ao Core Platform, consumidos
 
 ## 7. Plano de testes
 
-- **Unitários:** validação de TOTP; geração e consumo de códigos de recuperação (uso único); regra "sessão revogada rejeita pedidos".
-- **Integração:** fluxo de registo de passkey + login; `laravel/passkeys` e `laravel/fortify` têm *helpers* de teste para simular a cerimónia WebAuthn sem hardware.
-- **E2E:** aprofunda a AC-02 de `docs/specs/001-mvp-fatia-vertical.md`, com o *Virtual Authenticator* do Chrome DevTools Protocol para simular WebAuthn no Playwright. **[H]**, a confirmar como viável na E4.6.
-- **Negativos de segurança explícitos:** TOTP errado; sessão revogada; código de recuperação reutilizado; tentativa de listar/revogar sessão de outro `user_id` (via manipulação directa do pedido).
+- **Correcção à E4.2:** ao contrário do que esta secção assumia, **`laravel/passkeys`/`laravel/fortify` não têm *helpers* de teste para simular a cerimónia WebAuthn** sem hardware — a verificação criptográfica real só é exercitável com um autenticador real ou um *Virtual Authenticator* ao nível do browser. AC-02a (login por passkey) fica, por isso, sem teste de integração nesta spec; só é coberta a nível E2E (E4.6).
+- **Feito na E4.5 (integração, 23 testes PHPUnit, `tests/Feature/Auth/`):** AC-02b, AC-02c, AC-02d, AC-02e, AC-02f, AC-02g; e os negativos do modelo de ameaças (T-01, T-04, T-05, T-06, T-08, T-10). T-09 (CSRF) não é testado a este nível — o Laravel desactiva a validação de CSRF durante testes automáticos por desenho (`runningUnitTests()`); confirmado manualmente contra a stack real que um token CSRF inválido é mesmo rejeitado (419).
+- **Unitários:** validação de TOTP; geração e consumo de códigos de recuperação (uso único); regra "sessão revogada rejeita pedidos" — cobertos pelos testes de integração acima, sem ficheiros unitários à parte.
+- **E2E (por fazer, E4.6):** AC-02a com o *Virtual Authenticator* do Chrome DevTools Protocol no Playwright. **[H]**, a confirmar como viável.
 - Dados sintéticos; sem rede nem chaves reais.
 
 ## 8. Fora de âmbito
