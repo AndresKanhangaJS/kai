@@ -1,8 +1,8 @@
 # Estado do projecto KAI
 
 - **Actualizado:** 2026-11-20
-- **Milestone actual:** M02 · Core Foundation — **Épico E1 concluído**; E4.1 e E4.2 feitas (spec + modelo de ameaças); E2, E3, resto de E4 por fazer
-- **Branch:** `chore/claude-harness` (3 commits locais ainda por publicar; spec + threat model por commitar)
+- **Milestone actual:** M02 · Core Foundation — **Épico E1 concluído**; E4.1–E4.3 feitas; E2, E3, resto de E4 por fazer
+- **Branch:** `chore/claude-harness` (1 commit local ainda por publicar; migração de Identity & Access por commitar)
 
 ## Milestones concluídos
 
@@ -37,17 +37,17 @@ Decomposto em 4 épicos e 17 tarefas → [`docs/milestones/M02-core-foundation.m
 - **E1 (concluído):** monorepo mínimo (`apps/api`, `apps/web`, `packages/contracts`) e Docker Compose; AC-01 verificada a partir de um clone limpo; fecha P-015 (fornecedor `fake` por omissão).
 - **E2:** CI — lint, PHPStan, mypy, Pest, Vitest, validação de schemas, secret scan.
 - **E3:** contratos v1 (`kai-contract`) — síncrono (`tool-authorizations`, health) e os 6 schemas assíncronos do MVP, antes de o RabbitMQ existir (chega no M03).
-- **E4 (E4.1, E4.2 feitas):** Identity & Access — login passkey/TOTP, revogação de sessão. P-017 fechada: suporte de 1.ª parte confirmado (`laravel/fortify` v1.43.0 + `laravel/passkeys` v0.3.0, MIT, dependência nova aprovada pelo owner), já instalado em `apps/api`. Spec aprovada: [`docs/specs/002-identity-access.md`](specs/002-identity-access.md) (7 critérios). Modelo de ameaças feito antes da implementação: [`docs/security/threat-model-identity-access.md`](security/threat-model-identity-access.md) (11 ameaças STRIDE, 9 testes a criar).
+- **E4 (E4.1–E4.3 feitas):** Identity & Access — login passkey/TOTP, revogação de sessão. P-017 fechada: `laravel/fortify` + `laravel/passkeys` instalados. Spec aprovada: [`docs/specs/002-identity-access.md`](specs/002-identity-access.md) (7 critérios). Modelo de ameaças: [`docs/security/threat-model-identity-access.md`](security/threat-model-identity-access.md) (11 ameaças STRIDE). Migração: `user_preferences` nova e `sessions` com `last_authenticated_at` + FK a `users`; `migrate → rollback → migrate` verificado contra MySQL real; 4 testes PHPUnit novos (6/6 a passar).
 
 **Critério de aceitação:** AC-01 e AC-02; CI verde.
 
-**Caminho crítico:** ~~E1.1 → E4.1 → E4.2~~ → E4.3 (migração) → E4.5 (login) → E4.6 (E2E, AC-02). E1 (AC-01) já está feito.
+**Caminho crítico:** ~~E1.1 → E4.1 → E4.2 → E4.3~~ → E4.5 (login) → E4.6 (E2E, AC-02). E1 (AC-01) já está feito.
 
 ## Próximas 3 tarefas
 
-1. E4.3: migração `users`, `sessions`, `user_preferences` com `kai-db-migration` — caminho crítico.
-2. E3.1/E3.2: definir os contratos v1 com `kai-contract`, em paralelo.
-3. E2.1/E2.2/E2.4: CI de lint/testes para `apps/api` e `apps/web`, em paralelo.
+1. E4.4: comando `artisan` para criar o owner por CLI (sem registo público, D-05) — paralelo com E4.5.
+2. E4.5: implementa login (passkey/TOTP), aplicando as mitigações do modelo de ameaças (T-04 *throttle*, T-06 cifra confirmada) — caminho crítico.
+3. E3.1/E3.2: definir os contratos v1 com `kai-contract`, em paralelo.
 
 ## Perguntas abertas
 
