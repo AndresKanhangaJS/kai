@@ -59,6 +59,7 @@ Não há fronteira Laravel↔RabbitMQ↔Python nem Python↔LLM neste módulo �
 | T-09 | Tampering | CSRF num pedido de revogação de sessão | B | M | Token CSRF do Laravel em pedidos que mudam estado; `SameSite=Lax` | Middleware `VerifyCsrfToken` | Teste: pedido de revogação sem token CSRF válido é rejeitado |
 | T-10 | Repudiation | Tentativa de login (sucesso ou falha) sem registo rastreável | B | M | Cada tentativa grava em `audit_logs`: actor, método, resultado, `trace_id` (NFR-002) | Controllers de autenticação | Teste: verificar a entrada de auditoria após uma tentativa |
 | T-11 | Denial of Service | Inundação do endpoint de login | B | M | *Rate limiting* (mesmo mecanismo de T-04); DoS de rede fica fora deste âmbito (M10) | Middleware de throttle | Coberto por T-04; sem teste adicional aqui |
+| T-12 | Elevation of Privilege / Repudiation | Persistência através de uma credencial nova: com um cookie de sessão roubado, o atacante regista a sua própria passkey ou lê/troca o segredo TOTP e os códigos de recuperação; revogar a sessão já não o expulsa (achado da revisão de segurança da E4.6b, 2026-11-21) | M | A | Step-up: as rotas de gestão de credenciais exigem `password.confirm`; sem password, o login (passkey/TOTP/recuperação) e `/passkeys/confirm` marcam a sessão como confirmada; janela `auth.password_timeout` = 600 s (D-05). Cada alteração de credencial fica auditada (`auth.credential.*`, origem cli/http). `kai:enable-totp --force` revoga todas as sessões; `--revoke-passkeys` remove as passkeys (as duas revogações auditadas). Um re-login por cookie de "remember me" nunca conta como confirmação | `config/fortify.php` (`confirmPassword`), `config/auth.php`, `LogAuthenticationAttempt`, `LogCredentialChange`, `EnableTotpCommand` | `RecentAuthenticationTest` (10 rotas → 423 depois de 10 min; "remember me"), `CredentialAuditTest`, `EnableTotpCommandTest` (rotação) |
 
 ### Checklist LLM / agentes (obrigatória — todos não aplicáveis aqui)
 
@@ -89,11 +90,12 @@ Não há fronteira Laravel↔RabbitMQ↔Python nem Python↔LLM neste módulo �
 Feitos na E4.5 (`tests/Feature/Auth/TotpLoginTest.php`, `SessionManagementTest.php`; 23 testes, SQLite isolado e confirmação manual contra MySQL real):
 
 - [x] T-01: resposta idêntica (estado + corpo) para email inexistente vs código errado
-- [ ] T-02/T-03: assertion com assinatura inválida é rejeitada; reenviar a mesma assertion (replay) falha — **não testável sem um autenticador real ou *Virtual Authenticator***; fica para a E4.6 (E2E, Playwright)
+- [x] T-02/T-03 (E4.6b, E2E): uma assertion com a assinatura adulterada em trânsito é rejeitada; reenviar uma assertion válida já usada (mesmo com um challenge novo na sessão) é rejeitado. Virtual Authenticator do CDP, `apps/web/e2e/ac-02-identity-access.spec.ts`
 - [x] T-04: 6.ª tentativa de TOTP seguida bloqueia (429)
 - [x] T-05: reutilizar um código de recuperação falha na 2.ª tentativa (AC-02g)
 - [x] T-06: segredo TOTP e códigos de recuperação não estão em texto claro na BD
-- [ ] T-07: regeneração do ID de sessão confirmada indirectamente (login funciona, `last_authenticated_at` muda de linha); as *flags* dos cookies (`HttpOnly`/`Secure`/`SameSite=Lax`) não têm teste automático dedicado — confirmadas visualmente nos cabeçalhos `Set-Cookie` de um pedido real
+- [x] T-07 (E4.6b, E2E): o cookie de sessão é `HttpOnly` e `SameSite=Lax`; o cookie anónimo de antes do login não fica autenticado (sem *session fixation*). **`Secure` não é verificável em `http://localhost`**: vem de `SESSION_SECURE_COOKIE` com HTTPS, a garantir no M10 (produção)
 - [x] T-08: listar/revogar a sessão de outro `user_id` falha (AC-02f)
 - [x] T-09: confirmado manualmente contra a stack real (não em teste automático — o Laravel desactiva CSRF em testes, por desenho): um token CSRF desactualizado dá 419
-- [x] T-10: login com sucesso e falha de TOTP geram cada um uma entrada de log estruturado
+- [x] T-10: login com sucesso e falha de TOTP geram cada um uma entrada de log estruturado; desde a E4.6b, o sucesso regista o `method` (`passkey`/`totp`/`recovery_code`), verificado em `CredentialAuditTest` e no log real pelo `scripts/e2e.sh`
+- [x] T-12 (E4.6b): step-up para gerir credenciais, auditoria de alterações de credenciais e rotação que revoga sessões — `RecentAuthenticationTest`, `CredentialAuditTest`, `EnableTotpCommandTest`

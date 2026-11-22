@@ -93,6 +93,11 @@ button:disabled {
   font-size: 14px;
 }
 
+.auth-notice {
+  color: var(--accent);
+  font-size: 14px;
+}
+
 .sessions-header {
   display: flex;
   justify-content: space-between;

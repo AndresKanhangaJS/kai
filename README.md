@@ -54,7 +54,24 @@ O MVP é uma fatia vertical fina: login, chat em streaming, uma ferramenta só d
 
 ## Quick start
 
-Ainda não aplicável: chega no M02 (`docker compose up` com dados sintéticos).
+Em construção (M02). Hoje já é possível:
+
+```bash
+docker compose up -d --wait
+docker compose exec api php artisan migrate
+docker compose exec api php artisan kai:create-owner "Nome" owner@example.test
+docker compose exec api php artisan kai:enable-totp owner@example.test
+```
+
+O `kai:enable-totp` mostra **uma única vez** o URI `otpauth://` (para a app autenticadora) e os códigos de recuperação. Depois, em `http://localhost:5173`, entra com o código TOTP e usa "Registar passkey" para passares a entrar com a passkey. Gerir credenciais exige um login nos últimos 10 minutos.
+
+Se suspeitares de que a conta foi comprometida: `kai:enable-totp <email> --force` roda o segredo e revoga todas as sessões; junta `--revoke-passkeys` para apagar também as passkeys.
+
+E2E de AC-02 (Playwright, numa stack descartável `kai-e2e`; pára primeiro a stack de dev com `docker compose stop`):
+
+```bash
+scripts/e2e.sh
+```
 
 ## Contribuir e segurança
 

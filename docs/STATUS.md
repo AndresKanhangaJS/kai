@@ -1,8 +1,8 @@
 # Estado do projecto KAI
 
-- **Actualizado:** 2026-11-21
-- **Milestone actual:** M02 · Core Foundation — **Épico E1 concluído**; E4.1–E4.6a feitas (login confirmado num browser real pelo owner); E2, E3, E4.6b por fazer
-- **Branch:** `chore/claude-harness` (vários commits locais por publicar; UI mínima de login + correcção de CORS por commitar)
+- **Actualizado:** 2026-11-21 (E4.6b)
+- **Milestone actual:** M02 · Core Foundation — **Épicos E1 e E4 concluídos** (E4.6b: E2E de AC-02 com passkey real a passar localmente; falta ligá-lo à CI na E2.2); E2 e E3 por fazer
+- **Branch:** `chore/claude-harness` (vários commits locais por publicar; E4.6b por commitar)
 
 ## Milestones concluídos
 
@@ -27,6 +27,8 @@
 - **Bug grave encontrado e corrigido na E4.5 (invalidava verificações anteriores):** depois de trocar `php artisan serve` por `php -S` (E1.4), **todos os pedidos HTTP ao `api`, incluindo `/`, davam erro fatal do PHP** (o *router* do Laravel resolve `public/index.php` a partir de `getcwd()`, não do `-t public`; com `WORKDIR /app`, tentava abrir `/app/index.php`, que não existe). O erro vinha com HTTP 200 (PHP com `display_errors` devolve HTML de erro, não 500), por isso o healthcheck (só verificava "houve resposta") e os `curl` anteriores nunca o apanharam. Corrigido: o `CMD` muda para `public/` antes de invocar `php -S` (como o `artisan serve` já fazia internamente). Healthcheck do `api` reforçado para confirmar que a resposta não é uma página de erro. Reconfirmado com um pedido real de ponta a ponta (CSRF → login TOTP → listar sessões) contra o MySQL real.
 - **Bug encontrado pelo owner na E4.6a, só visível num browser real:** `config/cors.php` tinha `'login'` nos `paths`, que só cobre a rota exacta `/login`, não `/login/totp` — o `curl` não detecta isto (CORS é imposto pelo browser). O *preflight* falhava silenciosamente, dando "Falha inesperada" na UI. Corrigido (`'login/*'`); confirmado com um `OPTIONS` real e depois um login completo no Chrome do owner.
 
+- **E4.6b, ambiente:** o Docker é o Docker Desktop (WSL), onde `network_mode: host` não chega às portas publicadas. O contentor E2E fica na rede da stack e usa `apps/web/e2e/port-forward.mjs` para `localhost:5173/8000` apontarem para `web`/`api` (a origem WebAuthn tem de ser `http://localhost:5173`). A stack `kai-e2e` usa as mesmas portas da de dev (5173, 8000, 3306): `scripts/e2e.sh` recusa correr se estiverem ocupadas. Partilha com a de dev o bind mount de `apps/api` (ficheiro de ambiente e `APP_KEY`), mas os logs vão para o stderr do contentor (`docker-compose.e2e.yml`), não para o `laravel.log`. Desde a E4.6b, as portas de dev publicam só em `127.0.0.1` **[H: o Chrome do Windows continua a chegar a `localhost`; por confirmar pelo owner]**.
+
 ## Decisões recentes
 
 - D-01 a D-18: ver [`analysis.md` §0](product/analysis.md#0-decisões-do-owner-passam-a-c).
@@ -40,17 +42,17 @@ Decomposto em 4 épicos e 17 tarefas → [`docs/milestones/M02-core-foundation.m
 - **E1 (concluído):** monorepo mínimo (`apps/api`, `apps/web`, `packages/contracts`) e Docker Compose; AC-01 verificada a partir de um clone limpo; fecha P-015 (fornecedor `fake` por omissão).
 - **E2:** CI — lint, PHPStan, mypy, Pest, Vitest, validação de schemas, secret scan.
 - **E3:** contratos v1 (`kai-contract`) — síncrono (`tool-authorizations`, health) e os 6 schemas assíncronos do MVP, antes de o RabbitMQ existir (chega no M03).
-- **E4 (E4.1–E4.6a feitas, só falta a E4.6b):** Identity & Access. P-017 fechada. `laravel/sanctum` instalado (SPA cross-origin). Fortify headless. `TotpLoginController` próprio (TOTP como alternativa à passkey). `SessionController`. Spec: [`docs/specs/002-identity-access.md`](specs/002-identity-access.md). Modelo de ameaças: [`docs/security/threat-model-identity-access.md`](security/threat-model-identity-access.md). 23/23 testes a passar. **UI mínima em `apps/web`** (login TOTP/recuperação/passkey, lista de sessões) — **primeiro ecrã do KAI visto e confirmado pelo owner num browser real** (Chrome, Windows), incluindo o login completo.
+- **E4 (concluído; o E2E só falta entrar na CI, E2.2):** Identity & Access. P-017 fechada. `laravel/sanctum` instalado (SPA cross-origin). Fortify headless. `TotpLoginController` próprio (TOTP como alternativa à passkey). `SessionController`. Spec: [`docs/specs/002-identity-access.md`](specs/002-identity-access.md). Modelo de ameaças: [`docs/security/threat-model-identity-access.md`](security/threat-model-identity-access.md). 42/42 testes PHPUnit a passar. **E4.6b:** `scripts/e2e.sh` — 5 testes Playwright (AC-02a/b/c/e/f/g, T-02, T-03, T-07) numa stack descartável `kai-e2e`, passkey via Virtual Authenticator do CDP; registo de passkey na UI; `kai:enable-totp`. A revisão de segurança encontrou um achado ALTO (gestão de credenciais sem step-up, T-12), já corrigido: janela de 10 min e auditoria de credenciais. **UI mínima em `apps/web`** (login TOTP/recuperação/passkey, lista de sessões) — **primeiro ecrã do KAI visto e confirmado pelo owner num browser real** (Chrome, Windows), incluindo o login completo.
 
 **Critério de aceitação:** AC-01 e AC-02; CI verde.
 
-**Caminho crítico:** ~~E1.1 → E4.1 → E4.2 → E4.3 → E4.5 → E4.6a~~ → E4.6b (E2E, inclui passkey real). E1 (AC-01) já está feito.
+**Caminho crítico:** ~~E1.1 → E4.1 → E4.2 → E4.3 → E4.5 → E4.6a → E4.6b~~ — fechado. O M02 fica a depender da E2 (CI) e da E3 (contratos).
 
 ## Próximas 3 tarefas
 
-1. E4.6b: E2E de AC-02 com Playwright (login TOTP + passkey via Virtual Authenticator do CDP) — fecha o Épico E4 e o caminho crítico do M02.
-2. E3.1/E3.2: definir os contratos v1 com `kai-contract`, em paralelo.
-3. E2: formalizar como a CI corre os testes (ver os bugs de ambiente acima) — lint, PHPStan, Pest/Vitest, secret scan.
+1. E2: CI — lint, PHPStan, Pest/Vitest, secret scan; formalizar como correm os testes (ver os bugs de ambiente acima) e ligar `scripts/e2e.sh` (E2.2).
+2. E3.1/E3.2: definir os contratos v1 com `kai-contract`.
+3. Owner: correr `kai:enable-totp` no owner de dev (se ainda não tiver TOTP) e registar uma passkey real no Chrome/Windows Hello.
 
 ## Perguntas abertas
 

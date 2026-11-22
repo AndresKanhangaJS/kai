@@ -40,6 +40,7 @@ O owner autentica-se de forma *phishing-resistant* (passkey) ou com TOTP como al
   - *Session fixation*/*hijacking* → o identificador de sessão é regenerado no login; cookies `HttpOnly`, `Secure`, `SameSite=Lax`.
   - Phishing → mitigado pela preferência por passkey (WebAuthn liga a credencial à origem).
   - Modelo de ameaças completo (STRIDE, 11 ameaças) em [`docs/security/threat-model-identity-access.md`](../security/threat-model-identity-access.md), com as mitigações e os testes a criar na E4.5.
+- **Gestão de credenciais (T-12, acrescentado na E4.6b) [C]:** registar ou apagar passkeys e ler ou trocar o segredo TOTP e os códigos de recuperação exige uma autenticação nos últimos 10 min (D-05), através do `password.confirm` nativo: o login conta como confirmação, porque não há password. Fora da janela → 423. Cada alteração fica auditada (`auth.credential.*`).
 - **Segredos:** nenhum em código; a chave de cifra de sessão/cookie usa a `APP_KEY` já gerida pelo Laravel.
 
 ## 5. Observabilidade
@@ -57,7 +58,8 @@ Sem contratos novos. Login e sessões são internos ao Core Platform, consumidos
 - **Correcção à E4.2:** ao contrário do que esta secção assumia, **`laravel/passkeys`/`laravel/fortify` não têm *helpers* de teste para simular a cerimónia WebAuthn** sem hardware — a verificação criptográfica real só é exercitável com um autenticador real ou um *Virtual Authenticator* ao nível do browser. AC-02a (login por passkey) fica, por isso, sem teste de integração nesta spec; só é coberta a nível E2E (E4.6).
 - **Feito na E4.5 (integração, 23 testes PHPUnit, `tests/Feature/Auth/`):** AC-02b, AC-02c, AC-02d, AC-02e, AC-02f, AC-02g; e os negativos do modelo de ameaças (T-01, T-04, T-05, T-06, T-08, T-10). T-09 (CSRF) não é testado a este nível — o Laravel desactiva a validação de CSRF durante testes automáticos por desenho (`runningUnitTests()`); confirmado manualmente contra a stack real que um token CSRF inválido é mesmo rejeitado (419).
 - **Unitários:** validação de TOTP; geração e consumo de códigos de recuperação (uso único); regra "sessão revogada rejeita pedidos" — cobertos pelos testes de integração acima, sem ficheiros unitários à parte.
-- **E2E (por fazer, E4.6):** AC-02a com o *Virtual Authenticator* do Chrome DevTools Protocol no Playwright. **[H]**, a confirmar como viável.
+- **E2E (feito, E4.6b, 2026-11-21) [C]:** `apps/web/e2e/ac-02-identity-access.spec.ts` (5 testes), corrido por `scripts/e2e.sh` numa stack descartável. AC-02a com o *Virtual Authenticator* do Chrome DevTools Protocol (registo da passkey pela UI → logout → login por passkey), AC-02b, AC-02c, AC-02e, AC-02f e AC-02g (login por código de recuperação) num browser real, mais T-02, T-03 e T-07. **Não cobertos no E2E** (ficam na integração, E4.5): AC-02d (campos da lista de sessões) e o uso único do código de recuperação da AC-02g. A auditoria de cada login, com o `method`, é confirmada no log real pelo script.
+- **Bootstrap de credenciais (acrescentado na E4.6b) [C]:** o `kai:create-owner` cria o owner sem credencial nenhuma, e não havia como obter uma. Agora: `kai:enable-totp {email} {--force}` activa o TOTP pela CLI (operador de confiança; fica já confirmado), mostra o segredo e os códigos de recuperação **uma única vez** e recusa rodar um segredo activo sem `--force`. A passkey regista-se depois do primeiro login, na página de sessões. Testes: `tests/Feature/EnableTotpCommandTest.php`.
 - Dados sintéticos; sem rede nem chaves reais.
 
 ## 8. Fora de âmbito

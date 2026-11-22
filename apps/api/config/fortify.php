@@ -165,16 +165,22 @@ return [
     |
     */
 
-    // D-05: só passkey + TOTP. Sem password (nullable), por isso
-    // "confirmPassword" fica sempre false — não há password para confirmar.
-    // Sem registo público, sem reset de password, sem perfil a actualizar.
+    // D-05: só passkey + TOTP. Sem registo público, sem reset de password,
+    // sem perfil a actualizar.
+    //
+    // threat-model T-12: "confirmPassword" liga o middleware password.confirm
+    // às rotas de gestão de credenciais (registar/apagar passkey, ler/trocar o
+    // segredo TOTP e os códigos de recuperação). Não há password: o login
+    // marca a sessão como confirmada (LogAuthenticationAttempt), e a janela é
+    // auth.password_timeout (10 min). Um cookie roubado não chega para
+    // persistir o acesso com uma credencial nova.
     'features' => [
         Features::twoFactorAuthentication([
             'confirm' => true,
-            'confirmPassword' => false,
+            'confirmPassword' => true,
         ]),
         Features::passkeys([
-            'confirmPassword' => false,
+            'confirmPassword' => true,
         ]),
     ],
 

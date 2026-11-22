@@ -1,0 +1,38 @@
+# E2E (M02 E4.6b): override usado só por scripts/e2e.sh, sempre com
+# `-p kai-e2e` (stack descartável, volumes próprios apagados no fim).
+#
+#   docker compose -p kai-e2e -f docker-compose.yml -f docker-compose.e2e.yml ...
+
+services:
+  api:
+    environment:
+      # Os logs (incluindo a auditoria) vão para o stdout/stderr do contentor,
+      # nunca para apps/api/storage/logs/laravel.log, que é partilhado com a
+      # stack de dev por bind mount.
+      LOG_CHANNEL: stderr
+
+  e2e:
+    # Imagem oficial do Playwright, fixada por digest (supply chain,
+    # security.md), na mesma versão do @playwright/test (1.65.1).
+    image: mcr.microsoft.com/playwright:v1.65.1-noble@sha256:1507cbfc550a63a6b7396791ca4f00df17beb56342d2447b3f106c306f525579
+    working_dir: /app
+    environment:
+      CI: "1"
+      # Artefactos (traces de falhas) ficam dentro do contentor, que é
+      # removido no fim: nunca escritos no host.
+      E2E_OUTPUT_DIR: /tmp/e2e-results
+    volumes:
+      # Código só de leitura; node_modules num volume próprio.
+      - ./apps/web:/app:ro
+      - e2e_node_modules:/app/node_modules
+    depends_on:
+      api:
+        condition: service_healthy
+      web:
+        condition: service_healthy
+    # port-forward.mjs: localhost:5173/8000 → web/api, para a origem WebAuthn
+    # ser http://localhost:5173 também dentro deste contentor.
+    command: ["sh", "-c", "(node e2e/port-forward.mjs &) && npx playwright test"]
+
+volumes:
+  e2e_node_modules:

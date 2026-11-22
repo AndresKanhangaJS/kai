@@ -131,6 +131,64 @@ export async function loginWithPasskey(): Promise<void> {
   }
 }
 
+/**
+ * Cerimónia WebAuthn de registo de passkey (E4.6b), só com sessão
+ * autenticada. O servidor guarda as opções na sessão e valida a attestation
+ * contra elas (RP ID e origem em `config/passkeys.php`).
+ */
+export async function registerPasskey(name: string): Promise<void> {
+  const optionsResponse = await apiFetch('/user/passkeys/options')
+  if (optionsResponse.status === 423) {
+    // T-12: gerir credenciais exige um login nos últimos 10 minutos.
+    throw new ApiError(
+      'Por segurança, só podes registar uma passkey até 10 minutos depois de entrares. Termina a sessão e volta a entrar.',
+      423,
+    )
+  }
+  if (!optionsResponse.ok) {
+    throw new ApiError('Não foi possível iniciar o registo da passkey.', optionsResponse.status)
+  }
+  const { options } = await optionsResponse.json()
+
+  const publicKey: PublicKeyCredentialCreationOptions = {
+    ...options,
+    challenge: base64UrlToBuffer(options.challenge),
+    user: { ...options.user, id: base64UrlToBuffer(options.user.id) },
+    excludeCredentials: options.excludeCredentials?.map((credential: { id: string; type: 'public-key' }) => ({
+      ...credential,
+      id: base64UrlToBuffer(credential.id),
+    })),
+  }
+
+  const credential = (await navigator.credentials.create({ publicKey })) as PublicKeyCredential | null
+  if (!credential) {
+    throw new ApiError('Registo da passkey cancelado.', 0)
+  }
+
+  const response = credential.response as AuthenticatorAttestationResponse
+
+  const storeResponse = await apiFetch('/user/passkeys', {
+    method: 'POST',
+    body: JSON.stringify({
+      name,
+      credential: {
+        id: credential.id,
+        rawId: bufferToBase64Url(credential.rawId),
+        type: credential.type,
+        response: {
+          clientDataJSON: bufferToBase64Url(response.clientDataJSON),
+          attestationObject: bufferToBase64Url(response.attestationObject),
+          transports: response.getTransports?.() ?? [],
+        },
+      },
+    }),
+  })
+
+  if (!storeResponse.ok) {
+    throw new ApiError('Não foi possível registar a passkey.', storeResponse.status)
+  }
+}
+
 export async function listSessions(): Promise<ApiSession[]> {
   const response = await apiFetch('/api/sessions')
   if (!response.ok) {

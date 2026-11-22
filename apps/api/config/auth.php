@@ -112,6 +112,9 @@ return [
     |
     */
 
-    'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
+    // D-05 / threat-model T-12: no KAI não há password; a "confirmação" é uma
+    // autenticação recente (login por passkey/TOTP, ou /passkeys/confirm).
+    // Gerir credenciais exige que tenha sido há ≤ 10 min.
+    'password_timeout' => (int) env('AUTH_PASSWORD_TIMEOUT', 600),
 
 ];

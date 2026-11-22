@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { type ApiSession, listSessions, logout, revokeSession } from './api'
+import { type ApiSession, ApiError, listSessions, logout, registerPasskey, revokeSession } from './api'
 
 type Props = {
   onLoggedOut: () => void
@@ -8,6 +8,8 @@ type Props = {
 export function SessionsPage({ onLoggedOut }: Props) {
   const [sessions, setSessions] = useState<ApiSession[]>([])
   const [error, setError] = useState<string | null>(null)
+  const [notice, setNotice] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
 
   async function refresh() {
     try {
@@ -32,6 +34,20 @@ export function SessionsPage({ onLoggedOut }: Props) {
     }
   }
 
+  async function handleRegisterPasskey() {
+    setBusy(true)
+    setError(null)
+    setNotice(null)
+    try {
+      await registerPasskey(`Passkey de ${new Date().toLocaleDateString('pt-PT')}`)
+      setNotice('Passkey registada. Já podes entrar com ela.')
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'Falha inesperada.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
   async function handleLogout() {
     await logout()
     onLoggedOut()
@@ -45,6 +61,16 @@ export function SessionsPage({ onLoggedOut }: Props) {
           Terminar sessão
         </button>
       </header>
+
+      <button type="button" className="btn-secondary" onClick={handleRegisterPasskey} disabled={busy}>
+        Registar passkey
+      </button>
+
+      {notice && (
+        <p role="status" aria-live="polite" className="auth-notice">
+          {notice}
+        </p>
+      )}
 
       {error && (
         <p role="alert" aria-live="assertive" className="auth-error">

@@ -1,3 +1,6 @@
+# Portas publicadas só em loopback (revisão de segurança da E4.6b): nada
+# fica exposto à rede local. No Docker Desktop, o browser do Windows continua
+# a chegar a http://localhost:5173.
 services:
   mysql:
     image: mysql:8.4
@@ -9,7 +12,7 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
     ports:
-      - "3306:3306"
+      - "127.0.0.1:3306:3306"
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
       interval: 5s
@@ -43,7 +46,7 @@ services:
       - ./apps/api:/app
       - api_vendor:/app/vendor
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
     depends_on:
       mysql:
         condition: service_healthy
@@ -68,7 +71,7 @@ services:
       - ./apps/web:/app
       - web_node_modules:/app/node_modules
     ports:
-      - "5173:5173"
+      - "127.0.0.1:5173:5173"
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:5173"]
       interval: 5s
