@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Models\User;
 use Illuminate\Contracts\Auth\StatefulGuard;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -24,7 +25,7 @@ use Laravel\Fortify\Fortify;
  */
 class TotpLoginController extends Controller
 {
-    public function __invoke(Request $request, TwoFactorAuthenticationProvider $provider)
+    public function __invoke(Request $request, TwoFactorAuthenticationProvider $provider): JsonResponse
     {
         $request->validate([
             'email' => ['required', 'email'],
@@ -65,7 +66,7 @@ class TotpLoginController extends Controller
         return response()->json(['errors' => $genericError], 422);
     }
 
-    private function login(Request $request, User $user): \Illuminate\Http\JsonResponse
+    private function login(Request $request, User $user): JsonResponse
     {
         /** @var StatefulGuard $guard */
         $guard = Auth::guard('web');

@@ -22,4 +22,4 @@ paths:
 
 ## Testes
 - Vitest e Testing Library para componentes; Playwright para E2E (AC-03, AC-05, AC-09).
-- Os comandos concretos são definidos no M02; até lá, não os inventes.
+- Comandos: `scripts/ci/web.sh` (`tsc -b`, `oxlint`, Vitest) e `scripts/e2e.sh` (Playwright). Lint: `oxlint`, não ESLint (ADR-0014). Ver `docs/engineering/ci.md`.

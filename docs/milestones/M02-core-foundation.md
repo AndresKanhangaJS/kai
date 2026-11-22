@@ -29,10 +29,10 @@
 
 | ID | Tarefa | Tipo | Critério de aceitação | Depende de | Paralelo? |
 |---|---|---|---|---|---|
-| E2.1 | Workflow CI do Laravel: Pint (lint), PHPStan/Larastan, Pest | ci | CI corre em cada PR; falha se algum passo falhar | E1.1 | Sim |
-| E2.2 | Workflow CI do React: ESLint/Prettier, Vitest | ci | Idem, para `apps/web` | E1.1 | Sim |
+| E2.1 | ~~Workflow CI do Laravel: Pint (lint), PHPStan/Larastan, Pest~~ | ci | **Feito localmente (2026-11-22); a confirmar no primeiro PR.** `scripts/ci/api.sh`: Pint, Larastan 3.14.0 no nível 6 sem baseline (22 erros corrigidos, nenhum ignorado) e Pest 4.7.8 (41 testes). Falha com exit 1 perante um erro injectado | E1.1 | Sim |
+| E2.2 | ~~Workflow CI do React: lint, Vitest~~ | ci | **Feito localmente (2026-11-22).** `scripts/ci/web.sh`: `tsc -b`, `oxlint` (mantido em vez de ESLint/Prettier, decisão do owner) e Vitest 5.1.0 (9 testes: cliente WebAuthn e página de login). `apps/web` passa a Node 24 LTS. O `scripts/e2e.sh` corre também na CI | E1.1 | Sim |
 | E2.3 | Workflow CI de contratos: valida os schemas OpenAPI/AsyncAPI/JSON Schema de `packages/contracts` | ci | Falha se um schema for inválido ou um exemplo não validar contra ele | E3.3 | Não |
-| E2.4 | Secret scanning na CI (ex. gitleaks) | ci | Bloqueia o merge se encontrar um segredo (NFR-007) | E1.1 | Sim |
+| E2.4 | Secret scanning | ci | Bloqueia o merge se encontrar um segredo (NFR-007). **Feito do lado do repo (2026-11-22):** o `validate_harness.py` corre na CI. **Falta o owner activar *Secret scanning* + *Push protection* no GitHub** ([`ci.md`](../engineering/ci.md)); o gitleaks não foi aprovado (ADR-0014) | E1.1 | Sim |
 
 ## Épico E3: contratos v1 (FR-032 subconjunto, NFR-006; ADR-0002)
 

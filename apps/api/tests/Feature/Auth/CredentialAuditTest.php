@@ -24,6 +24,7 @@ class CredentialAuditTest extends TestCase
 {
     use RefreshDatabase;
 
+    /** @return array{0: User, 1: string} */
     private function userWithTotp(): array
     {
         $secret = app(Google2FA::class)->generateSecretKey();
@@ -49,7 +50,7 @@ class CredentialAuditTest extends TestCase
 
     public function test_a_totp_login_logs_the_method(): void
     {
-        Log::spy();
+        $log = Log::spy();
         [$user, $secret] = $this->userWithTotp();
 
         $this->postJson('/login/totp', [
@@ -57,19 +58,19 @@ class CredentialAuditTest extends TestCase
             'code' => app(Google2FA::class)->getCurrentOtp($secret),
         ])->assertSuccessful();
 
-        Log::shouldHaveReceived('info')->with('auth.login.succeeded', Mockery::on(
+        $log->shouldHaveReceived('info')->with('auth.login.succeeded', Mockery::on(
             fn (array $context) => $context['method'] === 'totp' && $context['actor_id'] === $user->id
         ))->once();
     }
 
     public function test_a_recovery_code_login_logs_the_method_without_the_code(): void
     {
-        Log::spy();
+        $log = Log::spy();
         [$user] = $this->userWithTotp();
 
         $this->postJson('/login/totp', ['email' => $user->email, 'recovery_code' => 'abc-123-def'])->assertSuccessful();
 
-        Log::shouldHaveReceived('info')->with('auth.login.succeeded', Mockery::on(
+        $log->shouldHaveReceived('info')->with('auth.login.succeeded', Mockery::on(
             fn (array $context) => $context['method'] === 'recovery_code'
                 && ! str_contains(json_encode($context), 'abc-123-def')
         ))->once();
@@ -77,29 +78,29 @@ class CredentialAuditTest extends TestCase
 
     public function test_passkey_registration_and_deletion_are_audited(): void
     {
-        Log::spy();
+        $log = Log::spy();
         [$user] = $this->userWithTotp();
         $passkey = $this->passkeyFor($user);
 
         PasskeyRegistered::dispatch($user, $passkey);
         PasskeyDeleted::dispatch($user, $passkey);
 
-        Log::shouldHaveReceived('info')->with('auth.credential.passkey_registered', Mockery::on(
+        $log->shouldHaveReceived('info')->with('auth.credential.passkey_registered', Mockery::on(
             fn (array $context) => $context['actor_id'] === $user->id && $context['passkey_id'] === $passkey->id
         ))->once();
-        Log::shouldHaveReceived('info')->with('auth.credential.passkey_deleted', Mockery::type('array'))->once();
+        $log->shouldHaveReceived('info')->with('auth.credential.passkey_deleted', Mockery::type('array'))->once();
     }
 
     public function test_enabling_totp_from_the_cli_is_audited_without_the_secret(): void
     {
-        Log::spy();
+        $log = Log::spy();
         $user = User::factory()->create(['email' => 'owner@example.test', 'password' => null]);
 
         Artisan::call('kai:enable-totp', ['email' => 'owner@example.test']);
         $output = Artisan::output();
         preg_match('/secret=([A-Z2-7]+)/', $output, $matches);
 
-        Log::shouldHaveReceived('info')->with('auth.credential.totp_enabled', Mockery::on(
+        $log->shouldHaveReceived('info')->with('auth.credential.totp_enabled', Mockery::on(
             fn (array $context) => $context['actor_id'] === $user->id
                 && $context['source'] === 'cli'
                 && ! str_contains(json_encode($context), $matches[1])
@@ -109,7 +110,7 @@ class CredentialAuditTest extends TestCase
     public function test_incident_rotation_from_the_cli_audits_the_revocations(): void
     {
         // Revisão de segurança N1: deletes em massa não disparam eventos.
-        Log::spy();
+        $log = Log::spy();
         [$user] = $this->userWithTotp();
         $this->passkeyFor($user);
         DB::table('sessions')->insert([
@@ -121,17 +122,17 @@ class CredentialAuditTest extends TestCase
             'email' => $user->email, '--force' => true, '--revoke-passkeys' => true,
         ])->assertSuccessful();
 
-        Log::shouldHaveReceived('info')->with('auth.credential.sessions_revoked', Mockery::on(
+        $log->shouldHaveReceived('info')->with('auth.credential.sessions_revoked', Mockery::on(
             fn (array $context) => $context['actor_id'] === $user->id && $context['count'] === 1 && $context['source'] === 'cli'
         ))->once();
-        Log::shouldHaveReceived('info')->with('auth.credential.passkeys_revoked', Mockery::on(
+        $log->shouldHaveReceived('info')->with('auth.credential.passkeys_revoked', Mockery::on(
             fn (array $context) => $context['actor_id'] === $user->id && $context['count'] === 1
         ))->once();
     }
 
     public function test_disabling_totp_over_http_is_audited(): void
     {
-        Log::spy();
+        $log = Log::spy();
         [$user, $secret] = $this->userWithTotp();
         $this->postJson('/login/totp', [
             'email' => $user->email,
@@ -140,7 +141,7 @@ class CredentialAuditTest extends TestCase
 
         $this->deleteJson('/user/two-factor-authentication')->assertSuccessful();
 
-        Log::shouldHaveReceived('info')->with('auth.credential.totp_disabled', Mockery::on(
+        $log->shouldHaveReceived('info')->with('auth.credential.totp_disabled', Mockery::on(
             fn (array $context) => $context['actor_id'] === $user->id && $context['source'] === 'http'
         ))->once();
     }

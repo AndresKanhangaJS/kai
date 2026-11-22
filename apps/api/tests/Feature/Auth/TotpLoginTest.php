@@ -14,6 +14,7 @@ class TotpLoginTest extends TestCase
 {
     use RefreshDatabase;
 
+    /** @return array{0: User, 1: string} */
     private function userWithTotp(): array
     {
         $secret = app(Google2FA::class)->generateSecretKey();
@@ -86,12 +87,12 @@ class TotpLoginTest extends TestCase
     public function test_a_failed_attempt_is_logged(): void
     {
         // threat-model-identity-access.md T-10.
-        Log::spy();
+        $log = Log::spy();
 
         [$user] = $this->userWithTotp();
         $this->postJson('/login/totp', ['email' => $user->email, 'code' => '000000']);
 
-        Log::shouldHaveReceived('warning')->with('auth.login.failed', \Mockery::type('array'))->once();
+        $log->shouldHaveReceived('warning')->with('auth.login.failed', \Mockery::type('array'))->once();
     }
 
     public function test_login_rate_limit_blocks_after_repeated_failures(): void

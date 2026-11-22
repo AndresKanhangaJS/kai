@@ -50,14 +50,14 @@ class SessionManagementTest extends TestCase
         // O driver de sessão de teste é "array" (rápido, não persiste); este
         // teste precisa mesmo da tabela sessions.
         config(['session.driver' => 'database']);
-        Log::spy();
+        $log = Log::spy();
 
         $user = $this->loginViaTotp();
 
         $session = DB::table('sessions')->where('user_id', $user->id)->sole();
         $this->assertNotNull($session->last_authenticated_at);
 
-        Log::shouldHaveReceived('info')->with('auth.login.succeeded', \Mockery::type('array'))->once();
+        $log->shouldHaveReceived('info')->with('auth.login.succeeded', \Mockery::type('array'))->once();
     }
 
     public function test_lists_only_the_authenticated_users_sessions(): void
@@ -72,7 +72,9 @@ class SessionManagementTest extends TestCase
         $response = $this->fromFrontend()->getJson('/api/sessions');
 
         $response->assertSuccessful();
-        $ids = collect($response->json('data'))->pluck('id');
+        /** @var list<array{id: string}> $data */
+        $data = $response->json('data');
+        $ids = array_column($data, 'id');
         $this->assertNotContains('other-session', $ids);
     }
 

@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Auth;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 
@@ -12,7 +14,7 @@ use Illuminate\Support\Facades\DB;
  */
 class SessionController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
         $sessions = DB::table('sessions')
             ->where('user_id', $request->user()->getKey())
@@ -33,7 +35,7 @@ class SessionController extends Controller
         ]);
     }
 
-    public function destroy(Request $request, string $id)
+    public function destroy(Request $request, string $id): JsonResponse|Response
     {
         $deleted = DB::table('sessions')
             ->where('id', $id)

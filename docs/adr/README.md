@@ -21,3 +21,4 @@
 | [0011](0011-desvios-ao-roadmap.md) | Desvios ao roadmap do PDF | Aceite | 2026-11-20 |
 | [0012](0012-idioma-do-repositorio.md) | Idioma do repositório: PT-PT | Aceite | 2026-11-20 |
 | [0013](0013-modelo-de-seguranca.md) | Modelo de segurança: o LLM não é fronteira; níveis 1–6 (substitui o ADR-0004) | Aceite | 2026-11-20 |
+| [0014](0014-ci-github-actions-via-docker-compose.md) | CI em GitHub Actions via Docker Compose | Proposto | 2026-11-22 |

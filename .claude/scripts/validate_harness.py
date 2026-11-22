@@ -43,9 +43,9 @@ REQUIRED_AGENTS = {
 }
 READ_ONLY_AGENTS = {"kai-architect", "kai-security-reviewer", "kai-verifier"}
 WRITE_TOOLS = {"Edit", "Write", "Bash", "NotebookEdit"}
-FORBIDDEN_PATHS = [  # M02 introduz apps/, packages/ e docker-compose.yml (E1); revisto 2026-11-20
+FORBIDDEN_PATHS = [  # M02 introduz apps/, packages/, docker-compose.yml (E1) e .github/workflows (E2); revisto 2026-11-22
     "services", "infrastructure",
-    "LICENSE", ".github/workflows", ".mcp.json",
+    "LICENSE", ".mcp.json",
 ]
 EXCLUDED_DIRS = {"vendor", "node_modules", "dist", "dist-ssr", "build", ".git"}
 SECRET_PATTERNS = {

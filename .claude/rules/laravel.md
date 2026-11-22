@@ -24,6 +24,6 @@ Baseline: Laravel 13, PHP 8.5 (ADR-0007). Modular monolith: ADR-0001.
 - Consumidores idempotentes, com inbox (`processed_message_id`).
 
 ## Qualidade
-- Pest para os testes; PHPStan/Larastan no nível acordado no M02.
+- Pest para os testes; PHPStan/Larastan no nível 6, sem baseline (ADR-0014).
 - Erros e logs estruturados com `trace_id`, sem PII nem segredos.
-- Os comandos concretos (pint, pest, phpstan) são definidos no M02; até lá, não os inventes.
+- Comandos: `scripts/ci/api.sh` (Pint `--test`, PHPStan/Larastan nível 6 sem baseline, Pest). Ver `docs/engineering/ci.md` e ADR-0014.

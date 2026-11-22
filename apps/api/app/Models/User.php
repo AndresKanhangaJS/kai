@@ -21,6 +21,7 @@ class User extends Authenticatable implements PasskeyUser
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
 
+    /** @return HasOne<UserPreference, $this> */
     public function preferences(): HasOne
     {
         return $this->hasOne(UserPreference::class);

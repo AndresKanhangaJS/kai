@@ -1,8 +1,8 @@
 # Estado do projecto KAI
 
 - **Actualizado:** 2026-11-21 (E4.6b)
-- **Milestone actual:** M02 · Core Foundation — **Épicos E1 e E4 concluídos** (E4.6b: E2E de AC-02 com passkey real a passar localmente; falta ligá-lo à CI na E2.2); E2 e E3 por fazer
-- **Branch:** `chore/claude-harness` (vários commits locais por publicar; E4.6b por commitar)
+- **Milestone actual:** M02 · Core Foundation — **Épicos E1 e E4 concluídos**; **E2 (CI) feita localmente** (E2.1, E2.2; E2.4 depende de o owner activar o secret scanning do GitHub; E2.3 espera pela E3); E3 por fazer
+- **Branch:** `chore/m02-ci` (E2; a partir de `chore/claude-harness`)
 
 ## Milestones concluídos
 
@@ -40,7 +40,7 @@
 Decomposto em 4 épicos e 17 tarefas → [`docs/milestones/M02-core-foundation.md`](milestones/M02-core-foundation.md).
 
 - **E1 (concluído):** monorepo mínimo (`apps/api`, `apps/web`, `packages/contracts`) e Docker Compose; AC-01 verificada a partir de um clone limpo; fecha P-015 (fornecedor `fake` por omissão).
-- **E2:** CI — lint, PHPStan, mypy, Pest, Vitest, validação de schemas, secret scan.
+- **E2 (feita localmente, a confirmar no primeiro PR):** `.github/workflows/ci.yml` com 4 jobs que correm os mesmos scripts do local (`scripts/ci/*.sh`, `scripts/e2e.sh`), ADR-0014 (Proposto). Pint, Larastan nível 6 sem baseline, Pest (41), `tsc`, `oxlint`, Vitest (9), E2E (5). `apps/web` em Node 24 LTS. Falta: o owner activar *Secret scanning* + *Push protection* ([`ci.md`](engineering/ci.md)); E2.3 (schemas) com a E3; mypy com o primeiro código Python.
 - **E3:** contratos v1 (`kai-contract`) — síncrono (`tool-authorizations`, health) e os 6 schemas assíncronos do MVP, antes de o RabbitMQ existir (chega no M03).
 - **E4 (concluído; o E2E só falta entrar na CI, E2.2):** Identity & Access. P-017 fechada. `laravel/sanctum` instalado (SPA cross-origin). Fortify headless. `TotpLoginController` próprio (TOTP como alternativa à passkey). `SessionController`. Spec: [`docs/specs/002-identity-access.md`](specs/002-identity-access.md). Modelo de ameaças: [`docs/security/threat-model-identity-access.md`](security/threat-model-identity-access.md). 42/42 testes PHPUnit a passar. **E4.6b:** `scripts/e2e.sh` — 5 testes Playwright (AC-02a/b/c/e/f/g, T-02, T-03, T-07) numa stack descartável `kai-e2e`, passkey via Virtual Authenticator do CDP; registo de passkey na UI; `kai:enable-totp`. A revisão de segurança encontrou um achado ALTO (gestão de credenciais sem step-up, T-12), já corrigido: janela de 10 min e auditoria de credenciais. **UI mínima em `apps/web`** (login TOTP/recuperação/passkey, lista de sessões) — **primeiro ecrã do KAI visto e confirmado pelo owner num browser real** (Chrome, Windows), incluindo o login completo.
 
@@ -50,7 +50,7 @@ Decomposto em 4 épicos e 17 tarefas → [`docs/milestones/M02-core-foundation.m
 
 ## Próximas 3 tarefas
 
-1. E2: CI — lint, PHPStan, Pest/Vitest, secret scan; formalizar como correm os testes (ver os bugs de ambiente acima) e ligar `scripts/e2e.sh` (E2.2).
+1. Confirmar a CI verde no primeiro PR de `chore/m02-ci`; o owner activa o secret scanning do GitHub e aprova o ADR-0014.
 2. E3.1/E3.2: definir os contratos v1 com `kai-contract`.
 3. Owner: correr `kai:enable-totp` no owner de dev (se ainda não tiver TOTP) e registar uma passkey real no Chrome/Windows Hello.
 

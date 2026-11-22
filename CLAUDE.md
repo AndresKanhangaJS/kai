@@ -46,8 +46,14 @@ Corre a skill `/done` sobre o diff para verificar a DoD.
 **Regra de trabalho:** trabalha em pequenas entregas. Compreende o requisito, propõe um plano, implementa, testa e documenta. Justifica cada decisão relevante.
 
 ## Comandos
-- Build, teste, lint e formatação: **TBD (milestone 02)**. Ainda não existe toolchain.
-- Não inventes comandos. Se precisares de um comando que não está aqui, pergunta.
+- Tudo corre em Docker, igual na CI e no local ([`docs/engineering/ci.md`](docs/engineering/ci.md), ADR-0014):
+  - `scripts/ci/api.sh`: Pint, PHPStan (nível 6) e Pest, com SQLite em memória forçado.
+  - `scripts/ci/web.sh`: `tsc -b`, `oxlint` e Vitest.
+  - `scripts/ci/harness.sh`: validação do harness, scan de segredos e testes do guard.
+  - `scripts/e2e.sh`: E2E Playwright numa stack descartável; a stack de dev tem de estar parada.
+  - `scripts/ci/all.sh`: tudo.
+- Nunca corras os testes do `apps/api` com um `docker compose run` sem as variáveis de teste: correm contra o MySQL real (bug da E4.4). Usa o `scripts/ci/api.sh`.
+- Não inventes outros comandos. Se precisares de um que não está aqui, pergunta.
 
 ## Convenções
 - Commits: Conventional Commits (`feat`, `fix`, `docs`, `chore`, `refactor`, `test`, `ci`, `build`, `perf`), com a descrição em PT-PT e no imperativo.
