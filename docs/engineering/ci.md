@@ -27,7 +27,7 @@ scripts/ci/all.sh                       # tudo, pela ordem da CI
 
 ## Secret scanning (E2.4, NFR-007): passos para o owner
 
-O scan de segredos na CI (`validate_harness.py`) procura 6 padrões. A protecção principal é a do próprio GitHub, que se activa nas definições do repositório:
+O scan de segredos na CI (`validate_harness.py`) procura 10 padrões em todos os ficheiros que o git conhece, mas só na árvore final do PR, não em cada commit. A protecção principal é a do próprio GitHub, que se activa nas definições do repositório:
 
 1. **Settings → Code security → Secret Protection → Enable.** Isto activa o *Secret scanning*: o GitHub analisa o histórico e os pushes novos.
 2. Na mesma página, activa a **Push protection**: um push que contenha um segredo conhecido é bloqueado antes de chegar ao repositório.

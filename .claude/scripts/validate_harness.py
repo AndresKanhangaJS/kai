@@ -15,6 +15,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import subprocess
 import sys
 import unicodedata
 from pathlib import Path
@@ -48,17 +49,30 @@ FORBIDDEN_PATHS = [  # M02 introduz apps/, packages/, docker-compose.yml (E1) e 
     "LICENSE", ".mcp.json",
 ]
 EXCLUDED_DIRS = {"vendor", "node_modules", "dist", "dist-ssr", "build", ".git"}
-SECRET_PATTERNS = {
+SECRET_PATTERNS = {  # revisto na E2 (revisão de segurança, 2026-11-22)
     "chave Anthropic/OpenAI": re.compile(r"\bsk-(?:ant-)?[A-Za-z0-9_-]{20,}"),
     "AWS access key": re.compile(r"\bAKIA[0-9A-Z]{16}\b"),
     "chave privada PEM": re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----"),
-    "token GitHub": re.compile(r"\b(?:ghp|gho|ghs|ghu)_[A-Za-z0-9]{36}\b|\bgithub_pat_[A-Za-z0-9_]{22,}"),
-    "token Slack": re.compile(r"\bxox[baprs]-[A-Za-z0-9-]{10,}"),
+    "token GitHub": re.compile(r"\b(?:ghp|gho|ghs|ghu|ghr)_[A-Za-z0-9]{36}\b|\bgithub_pat_[A-Za-z0-9_]{22,}"),
+    "token Slack": re.compile(r"\bx(?:ox[baprs]|app)-[A-Za-z0-9-]{10,}"),
+    "chave Google API": re.compile(r"\bAIza[0-9A-Za-z_-]{35}\b"),
+    "JWT": re.compile(r"\beyJ[A-Za-z0-9_-]{10,}\.eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}"),
+    "APP_KEY do Laravel": re.compile(r"APP_KEY\s*=\s*base64:[A-Za-z0-9+/]{20,}"),
+    # Código e configuração: chave (com ou sem aspas, sufixos como _secret) e
+    # valor entre aspas. Cobre PHP (=>), JSON/YAML ("token": "…") e JS/Python.
     "atribuição de segredo": re.compile(
-        r"(?i)\b(password|passwd|secret|api[_-]?key|token)\s*[:=]\s*['\"][^'\"\s]{8,}['\"]"
+        r"(?i)(?<![A-Za-z])(?:password|passwd|secret|api[_-]?key|token|private[_-]?key)[A-Za-z_]*['\"]?"
+        r"\s*(?:=>|:|=)\s*['\"]([^'\"\s]{8,})['\"]"
+    ),
+    # Ficheiros de ambiente: NOME_COM_SEGREDO=valor sem aspas (ex.: DB_PASSWORD=…).
+    "variável de ambiente com segredo": re.compile(
+        r"(?m)^[ \t]*(?:export[ \t]+)?[A-Z0-9_]*(?:PASSWORD|SECRET|API_KEY|TOKEN|PRIVATE_KEY)[A-Z0-9_]*"
+        r"=([^\s'\"#$(][^\s#()]{7,})"
     ),
 }
-TEXT_SUFFIXES = {".md", ".json", ".yaml", ".yml", ".sh", ".py", ".txt", ".toml", ""}
+# Valores que são claramente marcadores, não segredos (evita falsos positivos).
+PLACEHOLDER_VALUE = re.compile(r"(?i)example|changeme|placeholder|your[-_]|<[^>]*>|^x{6,}$|\*{3,}|redacted")
+MAX_SCAN_BYTES = 2_000_000
 
 
 def rel(p: Path) -> str:
@@ -256,20 +270,39 @@ def check_links() -> None:
     oks.append(f"links internos verificados: {total}")
 
 
+def scan_targets() -> list[Path]:
+    """Ficheiros a analisar: os que o git conhece ou conheceria (versionados e
+    novos não ignorados). Nunca lê ficheiros ignorados, como os de ambiente
+    locais (security.md)."""
+    try:
+        out = subprocess.run(
+            ["git", "-C", str(ROOT), "ls-files", "-z", "--cached", "--others", "--exclude-standard"],
+            check=True, capture_output=True,
+        ).stdout
+    except (OSError, subprocess.CalledProcessError):
+        warnings.append("scan de segredos: git indisponível; a usar a árvore de ficheiros")
+        return [p for p in ROOT.rglob("*") if p.is_file() and not (EXCLUDED_DIRS & set(p.parts))]
+    paths = [ROOT / name for name in out.decode("utf-8").split("\0") if name]
+    return [p for p in paths if p.is_file() and not (EXCLUDED_DIRS & set(p.relative_to(ROOT).parts))]
+
+
 def check_secrets() -> None:
     scanned = 0
-    for p in ROOT.rglob("*"):
-        if EXCLUDED_DIRS & set(p.parts) or not p.is_file() or p.suffix.lower() not in TEXT_SUFFIXES:
-            continue
+    for p in scan_targets():
         try:
+            if p.stat().st_size > MAX_SCAN_BYTES:
+                continue
             text = p.read_text(encoding="utf-8")
         except (UnicodeDecodeError, OSError):
-            continue
+            continue  # binário ou ilegível
         scanned += 1
         for label, rx in SECRET_PATTERNS.items():
             for m in rx.finditer(text):
+                value = m.group(1) if rx.groups else m.group(0)
+                if PLACEHOLDER_VALUE.search(value):
+                    continue
                 errors.append(f"{rel(p)}: possível segredo ({label}) na linha {text[:m.start()].count(chr(10)) + 1}")
-    oks.append(f"scan de segredos: {scanned} ficheiros de texto, padrões={len(SECRET_PATTERNS)}")
+    oks.append(f"scan de segredos: {scanned} ficheiros (git ls-files), padrões={len(SECRET_PATTERNS)}")
 
 
 def check_forbidden() -> None:

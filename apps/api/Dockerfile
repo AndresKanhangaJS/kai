@@ -2,9 +2,11 @@
 
 # Só para extrair o binário do Composer; a imagem final corre PHP 8.5 (ADR-0007/D-09),
 # não o PHP embutido nesta imagem.
-FROM composer:2 AS composer
+# Imagens fixadas por digest (supply chain, security.md; revisão de segurança
+# da E2, 2026-11-22). Actualizar um digest é uma alteração revista (ADR-0014).
+FROM composer:2@sha256:50ea4d33fdcde1adb0f045547295faa1548b33872e5f789dae5b02ce2fb5de93 AS composer
 
-FROM php:8.5-cli
+FROM php:8.5-cli@sha256:f324fcb4dc009ac0470a7d614cd122499dcee3ca47a9bab620fc14c0eb759ba2
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         libzip-dev libonig-dev unzip git \

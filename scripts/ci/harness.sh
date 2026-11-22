@@ -7,7 +7,7 @@ set -euo pipefail
 cd "$(dirname "$0")/../.."
 
 echo "→ validate_harness.py (inclui o scan de segredos)"
-python3 .claude/scripts/validate_harness.py
+python3 -I .claude/scripts/validate_harness.py
 
 echo "→ Testes do hook guard"
 bash .claude/hooks/tests/test_guard.sh

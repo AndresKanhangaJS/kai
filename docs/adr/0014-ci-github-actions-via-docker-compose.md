@@ -25,11 +25,20 @@ Ferramentas, todas com versão exacta e lockfile:
 - **`apps/api`:** Pint, PHPStan com Larastan 3.14.0 no nível 6 e sem baseline, Pest 4.7.8, que fixa o PHPUnit em 12.5.33.
 - **`apps/web`:** `tsc`, `oxlint` e Vitest 5.1.0 com Testing Library 16.3.3 e jsdom 31.0.0, sobre `node:24-alpine` fixada por digest.
 
-O secret scan combina o *Secret scanning* e a *Push protection* do GitHub com o `validate_harness.py` na CI.
+O secret scan combina o *Secret scanning* e a *Push protection* do GitHub com o `validate_harness.py` na CI, que analisa todos os ficheiros conhecidos do git (`git ls-files`, nunca os ignorados) com 10 padrões.
+
+Detalhes e desvios ao plano:
+- todas as imagens (`composer`, `php`, `mysql`, `redis`, `node`, Playwright) ficam fixadas por digest;
+- `npm ci --ignore-scripts` em todo o lado;
+- o PHPStan analisa também `tests/`;
+- a suite `Unit` vazia sai do `phpunit.xml` (só tinha o exemplo do scaffold); volta quando houver o primeiro teste unitário;
+- Larastan 3.14.0 porque a 3.15.0 tinha menos de 2 semanas;
+- `@testing-library/dom` entra como *peer dependency* obrigatória da `@testing-library/react`;
+- o `tests/TestCase.php` recusa correr fora do SQLite em memória (bug da E4.4).
 
 ## Consequências
 - **Positivas:** o que passa no local passa na CI e vice-versa. A supply chain da CI é mínima. O E2E com passkey corre em cada PR, numa stack descartável. Os testes deixam de poder correr contra o MySQL real.
-- **Negativas / custos:** a CI é mais lenta, porque constrói as imagens em cada job, sem cache por agora. O scan de segredos na CI tem 6 padrões e é mais fraco que o gitleaks; depende de o owner activar as funcionalidades do GitHub.
+- **Negativas / custos:** a CI é mais lenta, porque constrói as imagens em cada job, sem cache por agora. O scan de segredos na CI é mais fraco que o gitleaks e só vê a árvore final do PR, não cada commit; o histórico depende do *Secret scanning* do GitHub, que o owner tem de activar.
 - **Riscos e mitigação:** os digests e SHAs fixados envelhecem; actualizá-los é uma alteração revista, nunca automática. Subir de nível no PHPStan pede um novo ADR ou uma revisão deste. A E2.3 (validação de schemas) e o mypy entram quando existirem a E3 e o código Python.
 
 ## Verificação

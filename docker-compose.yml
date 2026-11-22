@@ -3,7 +3,8 @@
 # a chegar a http://localhost:5173.
 services:
   mysql:
-    image: mysql:8.4
+    # Imagens fixadas por digest (ADR-0014); actualizar é uma alteração revista.
+    image: mysql:8.4@sha256:a81d043930e51745522bd5c430961cf8286f0a23f0a9a2a6e0108f7ea71b0902
     environment:
       MYSQL_DATABASE: ${DB_DATABASE:-kai}
       MYSQL_USER: ${DB_USERNAME:-kai}
@@ -20,7 +21,7 @@ services:
       retries: 10
 
   redis:
-    image: redis:8
+    image: redis:8@sha256:1f88291b4c57bdf249f02eb085a8669889b2d2954e91d4de5118a5da6b78dd53
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s

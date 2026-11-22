@@ -8,7 +8,7 @@ cd "$(dirname "$0")/../.."
 docker compose run --rm --no-deps -T web sh -c '
   set -e
   echo "→ npm ci"
-  npm ci --no-audit --no-fund
+  npm ci --ignore-scripts --no-audit --no-fund
   echo "→ TypeScript (tsc -b)"
   npx tsc -b
   echo "→ oxlint"
