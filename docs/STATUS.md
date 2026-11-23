@@ -1,8 +1,8 @@
 # Estado do projecto KAI
 
-- **Actualizado:** 2026-11-22 (E2 + E3)
+- **Actualizado:** 2026-11-23 (M03 E1.1)
 - **Milestone actual:** M02 · Core Foundation — **Épicos E1 e E4 concluídos**; **E1–E4 concluídos; CI verde no GitHub** (corrida 45156786354, 5/5 jobs, 2026-11-23). Para fechar o M02 falta o owner activar o secret scanning (E2.4), aprovar o ADR-0014 e fazer merge do PR. **M03 decomposto** ([`M03-kai-intelligence.md`](milestones/M03-kai-intelligence.md))
-- **Branch:** `chore/m02-ci` (E2 e E3; PR aberto para `main`, CI verde)
+- **Branch:** `chore/m02-ci` (E2 e E3; PR aberto para `main`, CI verde). Spike do Reverb em `feat/m03-reverb-spike`
 
 ## Milestones concluídos
 
@@ -51,7 +51,7 @@ Decomposto em 4 épicos e 17 tarefas → [`docs/milestones/M02-core-foundation.m
 ## Próximas 3 tarefas
 
 1. Owner: activar *Secret scanning* + *Push protection*, aprovar o ADR-0014 e fazer merge do PR (fecha o M02).
-2. M03 E1: spike do Reverb (E1.1) e escolha das bibliotecas AMQP e OpenTelemetry (E1.2, E1.3; P-019, pede aprovação do owner).
+2. M03 E1.2/E1.3: escolher as bibliotecas AMQP e OpenTelemetry (P-019; pede a aprovação do owner). O spike do Reverb (E1.1) já passou: [ADR-0015](adr/0015-streaming-de-tokens-reverb-confirmado.md) por aprovar.
 3. Owner: correr `kai:enable-totp` no owner de dev (se ainda não tiver TOTP) e registar uma passkey real no Chrome/Windows Hello.
 
 ## Perguntas abertas

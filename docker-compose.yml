@@ -1,6 +1,20 @@
 # Portas publicadas só em loopback (revisão de segurança da E4.6b): nada
 # fica exposto à rede local. No Docker Desktop, o browser do Windows continua
 # a chegar a http://localhost:5173.
+
+# Reverb (M03 E1.1, ADR-0009): o api publica por HTTP no serviço reverb, e o
+# browser liga-se por WebSocket a localhost:8080. Os valores por omissão são de
+# desenvolvimento; noutro ambiente vêm do ficheiro de ambiente (.env.example).
+x-reverb-env: &reverb-env
+  BROADCAST_CONNECTION: reverb
+  REVERB_APP_ID: ${REVERB_APP_ID:-kai-local}
+  REVERB_APP_KEY: ${REVERB_APP_KEY:-kai-local-key}
+  REVERB_APP_SECRET: ${REVERB_APP_SECRET:-changeme-local-reverb}
+  REVERB_HOST: reverb
+  REVERB_PORT: 8080
+  REVERB_SCHEME: http
+  REVERB_ALLOWED_ORIGINS: ${FRONTEND_URL:-http://localhost:5173}
+
 services:
   mysql:
     # Imagens fixadas por digest (ADR-0014); actualizar é uma alteração revista.
@@ -43,6 +57,7 @@ services:
       REDIS_PORT: 6379
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
       SANCTUM_STATEFUL_DOMAINS: ${SANCTUM_STATEFUL_DOMAINS:-localhost:5173}
+      <<: *reverb-env
     volumes:
       - ./apps/api:/app
       - api_vendor:/app/vendor
@@ -59,6 +74,29 @@ services:
       # display_errors ligado também devolve HTTP 200 com HTML de erro, por
       # isso confirma o conteúdo esperado, não só que respondeu algo.
       test: ["CMD", "php", "-r", "exit(str_contains(@file_get_contents('http://localhost:8000/up') ?: '', 'PHP Fatal error') || !@file_get_contents('http://localhost:8000/up') ? 1 : 0);"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  reverb:
+    # Mesma imagem e código do api; só o comando muda. Espera pelo api para o
+    # entrypoint não criar o ficheiro de ambiente e a APP_KEY em concorrência.
+    build:
+      context: ./apps/api
+    command: ["php", "artisan", "reverb:start", "--host=0.0.0.0", "--port=8080"]
+    environment:
+      APP_ENV: local
+      <<: *reverb-env
+    volumes:
+      - ./apps/api:/app
+      - api_vendor:/app/vendor
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "php", "-r", "exit(@fsockopen('127.0.0.1', 8080) ? 0 : 1);"]
       interval: 5s
       timeout: 5s
       retries: 10

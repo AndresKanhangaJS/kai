@@ -16,4 +16,4 @@ echo "→ PHPStan (Larastan, nível 6)"
 run api vendor/bin/phpstan analyse --no-progress --memory-limit=1G
 
 echo "→ Pest"
-run -e APP_ENV=testing -e DB_CONNECTION=sqlite -e DB_DATABASE=:memory: api vendor/bin/pest
+run -e APP_ENV=testing -e DB_CONNECTION=sqlite -e DB_DATABASE=:memory: -e BROADCAST_CONNECTION=null api vendor/bin/pest

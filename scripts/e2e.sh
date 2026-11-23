@@ -16,8 +16,8 @@ PROJECT=kai-e2e
 COMPOSE=(docker compose -p "$PROJECT" -f docker-compose.yml -f docker-compose.e2e.yml)
 EMAIL=owner@example.test
 
-# A origem WebAuthn obriga às mesmas portas da stack de dev (5173/8000); o MySQL publica a 3306.
-for port in 5173 8000 3306; do
+# A origem WebAuthn obriga às mesmas portas da stack de dev (5173/8000); o MySQL publica a 3306 e o Reverb a 8080.
+for port in 5173 8000 3306 8080; do
   if (exec 3<>"/dev/tcp/127.0.0.1/$port") 2>/dev/null; then
     echo "A porta $port está ocupada (stack de dev ligada?). Pára-a com 'docker compose stop' e repete." >&2
     exit 1

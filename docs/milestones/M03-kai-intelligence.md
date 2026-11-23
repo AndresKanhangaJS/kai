@@ -22,10 +22,10 @@
 
 | ID | Tarefa | Tipo | Critério de aceitação | Depende de | Paralelo? |
 |---|---|---|---|---|---|
-| E1.1 | Spike do Reverb: publicar eventos a partir de um cliente não-Laravel (Python, protocolo Pusher por HTTP) num canal privado `run.{id}` autorizado pelo Laravel | spike | Um script Python publica 100 deltas e um browser autenticado recebe-os por ordem, em menos de 100 ms p95 em local. Se falhar, o ADR-0009 cai para SSE através do Laravel (opção 2) e a falha fica registada | — | Sim |
+| E1.1 | ~~Spike do Reverb~~ | spike | **Feito (2026-11-23).** `spikes/m03-reverb/run.sh`: Python só com a biblioteca padrão publica por HTTP (Pusher), e um cliente WebSocket recebe no canal privado: 100/100 por ordem, p95 8,9 ms; 500/500, p95 8,1 ms. Negativos recusados (assinatura errada → 401; auth inválida e origem não permitida → 4009). `laravel/reverb` v1.13.0 (MIT) e a extensão `pcntl` | — | Sim |
 | E1.2 | Escolhe as bibliotecas AMQP (PHP e Python) com publisher confirms e quorum queues | decisão (P-019) | Tabela comparativa com licença, data da versão e manutenção; aprovação do owner; versões exactas | — | Sim |
 | E1.3 | Escolhe o SDK OpenTelemetry (PHP e Python) e fixa a versão das semconv de messaging | decisão (P-019) | Idem; semconv fixada (`observability.md`) | — | Sim |
-| E1.4 | Regista o resultado do spike (ADR-0009 passa a incondicional, ou um ADR novo substitui-o) | docs/ADR | ADR com a evidência do E1.1 | E1.1 | Não |
+| E1.4 | ~~Regista o resultado do spike~~ | docs/ADR | **Feito (2026-11-23).** [ADR-0015](../adr/0015-streaming-de-tokens-reverb-confirmado.md) (Proposto) substitui o ADR-0009 quando for aceite | E1.1 | Não |
 
 ## Épico E2: infraestrutura de mensagens e observabilidade (ADR-0003, NFR-002)
 
@@ -33,7 +33,7 @@
 |---|---|---|---|---|---|
 | E2.1 | Acrescenta o RabbitMQ 4.4 ao Compose, fixado por digest, com definições versionadas: vhost `/kai`, exchanges `kai.commands`/`kai.events`, quorum queues, DLX com retry (TTL, backoff e jitter), um utilizador por serviço com permissões mínimas, `max_message_size` de 16 MiB | infra | `docker compose up` deixa-o *healthy*; um teste de integração publica e consome uma mensagem dos exemplos válidos; um utilizador não consegue publicar na exchange do outro | E1.2 | Sim |
 | E2.2 | Acrescenta o `grafana/otel-lgtm` ao Compose, fixado por digest, só em `127.0.0.1` | infra | Um span de teste aparece no Tempo | E1.3 | Sim |
-| E2.3 | Acrescenta o Reverb ao Compose, ou o fallback SSE, conforme o E1.4 | infra | O canal privado só autoriza o dono do `run` | E1.4 | Não |
+| E2.3 | Serviço Reverb no Compose | infra | **Parcial (2026-11-23):** o serviço `reverb` já existe (só em `127.0.0.1:8080`, origens restritas, healthy). Falta a autorização do canal privado (só o dono do `run`), na E4.6 | E1.4 | Não |
 
 ## Épico E3: AI Engine mínimo (`apps/ai-engine`) (ADR-0001, ADR-0006, ADR-0010)
 
@@ -54,7 +54,7 @@
 | E4.3 | Endpoint `POST /conversations/{id}/messages`: persiste a mensagem e escreve o `turn.requested` no outbox na mesma transacção, com o `traceparent` | código | Teste de produtor: a mensagem gerada valida contra o schema; uma falha a meio não deixa a mensagem sem outbox, nem o contrário | E4.2 | Não |
 | E4.4 | Relay do outbox para o RabbitMQ, com publisher confirms e span PRODUCER | código | Matar o relay a meio não perde nem duplica (at-least-once mais dedupe na inbox do Python) | E2.1, E4.3 | Não |
 | E4.5 | Consumidor de eventos com inbox: `turn.completed`/`failed` (*first-wins*), `usage.recorded` para `model_usage`; dono derivado do registo do Laravel | código | Negativos: `user_id` de outro dono, `run_id` de outro turno e um segundo evento terminal são rejeitados e auditados (SPEC-003 §4) | E4.4 | Não |
-| E4.6 | Autorização do canal privado do streaming (só o dono do `run`) | código | Negativo: outro utilizador ou uma sessão revogada não subscreve | E2.3, E4.2 | Sim |
+| E4.6 | Autorização do canal privado do streaming (só o dono do `run`) | código | Negativos: outro utilizador, uma sessão revogada e um pedido de outra origem `localhost` não subscrevem; teste de arquitectura: todo o evento usa `PrivateChannel` (revisão do spike, ADR-0015) | E2.3, E4.2 | Sim |
 
 ## Épico E5: chat no Command Center (FR-001, FR-008; AC-03, AC-09)
 

@@ -10,7 +10,7 @@ FROM php:8.5-cli@sha256:f324fcb4dc009ac0470a7d614cd122499dcee3ca47a9bab620fc14c0
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         libzip-dev libonig-dev unzip git \
-    && docker-php-ext-install pdo_mysql mbstring bcmath zip \
+    && docker-php-ext-install pdo_mysql mbstring bcmath zip pcntl \
     && pecl install redis && docker-php-ext-enable redis \
     && rm -rf /var/lib/apt/lists/*
 

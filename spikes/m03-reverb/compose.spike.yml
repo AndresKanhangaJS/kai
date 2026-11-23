@@ -1,0 +1,27 @@
+# Spike M03 E1.1: serviços descartáveis, ligados à rede da stack de dev.
+# As credenciais vêm da mesma interpolação do docker-compose.yml, por isso o
+# script nunca lê o ficheiro de ambiente. Imagens fixadas por digest.
+x-spike-env: &spike-env
+  REVERB_APP_ID: ${REVERB_APP_ID:-kai-local}
+  REVERB_APP_KEY: ${REVERB_APP_KEY:-kai-local-key}
+  REVERB_APP_SECRET: ${REVERB_APP_SECRET:-changeme-local-reverb}
+  SPIKE_CHANNEL: ${SPIKE_CHANNEL:-private-run.0b9d2f4e-1c3a-4e5f-9a7b-2c4d6e8f0a1b}
+  SPIKE_COUNT: ${SPIKE_COUNT:-100}
+  SPIKE_INTERVAL_MS: ${SPIKE_INTERVAL_MS:-50}
+
+services:
+  spike-sub:
+    image: node:24-alpine@sha256:116b800c3754b440ee0aa3ed2f20f5bf3d99a554bfd9adeea09ea8017f6e85f5
+    environment: *spike-env
+    volumes:
+      - ./spikes/m03-reverb:/spike:ro
+    command: ["node", "/spike/subscribe.mjs"]
+    profiles: ["spike"]
+
+  spike-pub:
+    image: python:3.14-slim@sha256:9aaa474097d094040649f2162a627c0049b408f52138d980916788d80f04802f
+    environment: *spike-env
+    volumes:
+      - ./spikes/m03-reverb:/spike:ro
+    command: ["python", "-I", "/spike/publish.py"]
+    profiles: ["spike"]
