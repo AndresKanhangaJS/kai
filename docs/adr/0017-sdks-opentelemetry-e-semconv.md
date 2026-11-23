@@ -1,6 +1,6 @@
 # ADR-0017: SDKs OpenTelemetry com instrumentação manual e semconv 1.44.0 fixada
 
-- **Estado:** Proposto
+- **Estado:** Aceite (2026-11-23)
 - **Data:** 2026-11-23
 - **Decisores:** owner
 - **Relacionados:** P-019; NFR-002; ADR-0016; `.claude/rules/observability.md`; M03 E1.3, E2.2, E7.1

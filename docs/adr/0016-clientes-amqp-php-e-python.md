@@ -1,6 +1,6 @@
 # ADR-0016: Clientes AMQP: php-amqplib no Laravel e aio-pika no AI Engine
 
-- **Estado:** Proposto
+- **Estado:** Aceite (2026-11-23)
 - **Data:** 2026-11-23
 - **Decisores:** owner
 - **Relacionados:** P-019; ADR-0003 (outbox e inbox), ADR-0007 (RabbitMQ 4.4), ADR-0015; M03 E1.2, E2.1, E3.4, E4.4
@@ -28,7 +28,7 @@
 ## Decisão
 - **Laravel:** `php-amqplib/php-amqplib` 3.7.5, usado só no relay do outbox e no consumidor de eventos (camada de infraestrutura), atrás de uma interface própria; a imagem do api ganha `ext-sockets`.
 - **AI Engine:** `aio-pika` 10.2.3, com `publisher_confirms` e `prefetch_count` explícitos.
-- **[P] Licença:** a LGPL-2.1 é compatível com a Apache-2.0 do KAI (D-02) quando a biblioteca é usada sem alterações e fica substituível (instalada pelo Composer, não copiada para o repositório). **O owner confirma que aceita a LGPL;** se não aceitar, fica a opção 2.
+- **Licença:** a LGPL-2.1 é compatível com a Apache-2.0 do KAI (D-02) quando a biblioteca é usada sem alterações e fica substituível (instalada pelo Composer, não copiada para o repositório). [C] **O owner aceitou a LGPL** ao aprovar este ADR (2026-11-23).
 
 ## Consequências
 - **Positivas:** clientes maduros, com *publisher confirms* e argumentos de fila (quorum, DLX, TTL); nenhum conflito com o lock actual.

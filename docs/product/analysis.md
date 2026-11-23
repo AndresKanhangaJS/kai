@@ -233,7 +233,7 @@ A recomendação vem primeiro em cada linha.
 | P-016 | Modelo-juiz das avaliações e orçamento mensal | Modelo fixado, calibrado com cerca de 50 itens etiquetados por humanos | M05 |
 | P-017 | Passkeys no Laravel 13 (1.ª parte ou pacote) | **Fechado** (2026-11-20): suporte de 1.ª parte confirmado — `laravel/fortify` v1.43.0 + `laravel/passkeys` v0.3.0 (MIT, PHP ^8.2, Laravel ^12\|^13), instalado em `apps/api`. Cobre também o TOTP de D-05 (`pragmarx/google2fa`) | M02 |
 | P-018 | Um turno de conversa é uma missão de um passo no M03? | Sim: a AC-09 fala de missões e o `ai.mission.cancel.requested.v1` exige `mission_id`; o M05 generaliza | M03 (E4.1) |
-| P-019 | Bibliotecas AMQP e OpenTelemetry (PHP e Python) | Escolher com licença, data e manutenção verificadas; aprovação do owner | M03 (E1.2, E1.3) |
+| P-019 | Bibliotecas AMQP e OpenTelemetry (PHP e Python) | **Fechado** (2026-11-23) → [ADR-0016](../adr/0016-clientes-amqp-php-e-python.md) (`php-amqplib` 3.7.5, LGPL aceite pelo owner; `aio-pika` 10.2.3) e [ADR-0017](../adr/0017-sdks-opentelemetry-e-semconv.md) (instrumentação manual, semconv 1.44.0) | M03 (E1.2, E1.3) |
 
 ### 4.3 Riscos
 

@@ -23,5 +23,5 @@
 | [0013](0013-modelo-de-seguranca.md) | Modelo de segurança: o LLM não é fronteira; níveis 1–6 (substitui o ADR-0004) | Aceite | 2026-11-20 |
 | [0014](0014-ci-github-actions-via-docker-compose.md) | CI em GitHub Actions via Docker Compose | Proposto | 2026-11-22 |
 | [0015](0015-streaming-de-tokens-reverb-confirmado.md) | Streaming de tokens por Reverb, confirmado pelo spike (substitui o ADR-0009) | Aceite | 2026-11-23 |
-| [0016](0016-clientes-amqp-php-e-python.md) | Clientes AMQP: php-amqplib no Laravel e aio-pika no AI Engine | Proposto | 2026-11-23 |
-| [0017](0017-sdks-opentelemetry-e-semconv.md) | SDKs OpenTelemetry com instrumentação manual e semconv 1.44.0 fixada | Proposto | 2026-11-23 |
+| [0016](0016-clientes-amqp-php-e-python.md) | Clientes AMQP: php-amqplib no Laravel e aio-pika no AI Engine | Aceite | 2026-11-23 |
+| [0017](0017-sdks-opentelemetry-e-semconv.md) | SDKs OpenTelemetry com instrumentação manual e semconv 1.44.0 fixada | Aceite | 2026-11-23 |
