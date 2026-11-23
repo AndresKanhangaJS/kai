@@ -14,7 +14,7 @@ System_Boundary(kai, "KAI") {
   Container(web, "Web", "React + TypeScript + Vite", "Login, chat em streaming, aprovações, auditoria")
   Container(api, "Core Platform", "Laravel 13 / PHP 8.5", "PDP, missões, aprovações, auditoria, Tool Registry e Policy, outbox (ADR-0001, ADR-0002, ADR-0013)")
   Container(reverb, "Realtime", "Laravel Reverb", "Canais privados run.{id}; streaming de tokens (ADR-0009, condicionado a spike M03)")
-  ContainerQueue(mq, "Broker", "RabbitMQ 4.4", "Exchanges kai.commands/kai.events; outbox/inbox (ADR-0003)")
+  ContainerQueue(mq, "Broker", "RabbitMQ 4.4", "Exchanges kai.commands/kai.events; outbox/inbox; DLQ por consumidor (ADR-0018)")
   Container(ai, "AI Engine", "FastAPI / Python 3.14", "LLM Gateway, Context Builder, Tool Execution com grants (ADR-0002, ADR-0006, ADR-0013)")
   ContainerDb(db, "MySQL", "MySQL 8.4 LTS", "Fonte de verdade: utilizadores, conversas, missões, auditoria")
   ContainerDb(cache, "Cache", "Redis 8", "Sessões, cache, rate limiting, pub/sub do Reverb")

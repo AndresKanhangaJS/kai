@@ -10,7 +10,7 @@
 | [0000](0000-registar-decisoes-arquitecturais.md) | Registar decisões arquitecturais (MADR) | Aceite | 2026-11-20 |
 | [0001](0001-modular-monolith-e-ai-engine.md) | Modular monolith Laravel + AI Engine Python separado | Aceite | 2026-11-20 |
 | [0002](0002-fronteira-de-contratos-laravel-python.md) | Fronteira de contratos Laravel ↔ Python | Aceite | 2026-11-20 |
-| [0003](0003-mensageria-rabbitmq-outbox.md) | Mensageria com RabbitMQ + Outbox/Inbox | Aceite | 2026-11-20 |
+| [0003](0003-mensageria-rabbitmq-outbox.md) | Mensageria com RabbitMQ + Outbox/Inbox | Substituído por ADR-0018 | 2026-11-20 |
 | [0004](0004-modelo-de-seguranca.md) | Modelo de segurança: o LLM não é fronteira; níveis 1–6 | Substituído por ADR-0013 | 2026-11-20 |
 | [0005](0005-memoria-e-rag.md) | Memória e RAG: MySQL, Qdrant e object storage | Aceite | 2026-11-20 |
 | [0006](0006-abstraccao-de-llm.md) | Abstracção de LLM como porta própria | Aceite | 2026-11-20 |
@@ -25,3 +25,4 @@
 | [0015](0015-streaming-de-tokens-reverb-confirmado.md) | Streaming de tokens por Reverb, confirmado pelo spike (substitui o ADR-0009) | Aceite | 2026-11-23 |
 | [0016](0016-clientes-amqp-php-e-python.md) | Clientes AMQP: php-amqplib no Laravel e aio-pika no AI Engine | Aceite | 2026-11-23 |
 | [0017](0017-sdks-opentelemetry-e-semconv.md) | SDKs OpenTelemetry com instrumentação manual e semconv 1.44.0 fixada | Aceite | 2026-11-23 |
+| [0018](0018-mensageria-rabbitmq-outbox-retry-no-consumidor.md) | Mensageria com RabbitMQ + Outbox/Inbox, com retry no consumidor (substitui o ADR-0003) | Aceite | 2026-11-23 |

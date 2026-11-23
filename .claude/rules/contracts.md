@@ -4,7 +4,7 @@ paths:
 ---
 # Contratos (`packages/contracts`)
 
-Fronteira Laravel ↔ Python: ADR-0002. Mensageria: ADR-0003. Skill: `kai-contract`.
+Fronteira Laravel ↔ Python: ADR-0002. Mensageria: ADR-0018 (substitui o ADR-0003). Skill: `kai-contract`.
 
 - REST síncrono: OpenAPI 3.1. Eventos e comandos RabbitMQ: AsyncAPI 3.x com payloads em JSON Schema.
 - O contrato muda **antes** do código e no mesmo PR que os testes dos dois lados.

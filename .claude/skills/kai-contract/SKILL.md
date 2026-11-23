@@ -4,7 +4,7 @@ description: Define ou altera contratos entre Laravel e Python. Cobre OpenAPI 3.
 ---
 # kai-contract: contratos Laravel ↔ Python
 
-Regras de base: `.claude/rules/contracts.md`, ADR-0002 e ADR-0003. Catálogo inicial de mensagens: `docs/product/analysis.md` §5.5.
+Regras de base: `.claude/rules/contracts.md`, ADR-0002 e ADR-0018 (substitui o ADR-0003). Catálogo inicial de mensagens: `docs/product/analysis.md` §5.5.
 
 ## Estrutura (criada no M02, não antes)
 ```

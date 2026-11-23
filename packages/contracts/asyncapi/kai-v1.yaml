@@ -29,7 +29,7 @@ servers:
 channels:
   commands:
     address: kai.commands
-    description: Exchange topic de comandos (Laravel → Python). Quorum queue por consumidor, DLX com retry.
+    description: Exchange topic de comandos (Laravel → Python). Quorum queue por consumidor, DLX para a DLQ; retry no consumidor (ADR-0018). Topologia em infra/rabbitmq/.
     servers:
       - $ref: '#/servers/rabbitmq'
     messages:

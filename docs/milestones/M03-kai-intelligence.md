@@ -27,11 +27,11 @@
 | E1.3 | Escolhe o SDK OpenTelemetry (PHP e Python) e fixa a versão das semconv | decisão (P-019) | **Feito (2026-11-23):** [ADR-0017](../adr/0017-sdks-opentelemetry-e-semconv.md): instrumentação manual, SDK PHP 1.16.1, SDK Python 1.45.2, semconv 1.44.0 | — | Sim |
 | E1.4 | ~~Regista o resultado do spike~~ | docs/ADR | **Feito (2026-11-23).** [ADR-0015](../adr/0015-streaming-de-tokens-reverb-confirmado.md) aceite a 2026-11-23; substitui o ADR-0009 | E1.1 | Não |
 
-## Épico E2: infraestrutura de mensagens e observabilidade (ADR-0003, NFR-002)
+## Épico E2: infraestrutura de mensagens e observabilidade (ADR-0018, NFR-002)
 
 | ID | Tarefa | Tipo | Critério de aceitação | Depende de | Paralelo? |
 |---|---|---|---|---|---|
-| E2.1 | Acrescenta o RabbitMQ 4.4 ao Compose, fixado por digest, com definições versionadas: vhost `/kai`, exchanges `kai.commands`/`kai.events`, quorum queues, DLX com retry (TTL, backoff e jitter), um utilizador por serviço com permissões mínimas, `max_message_size` de 16 MiB | infra | `docker compose up` deixa-o *healthy*; um teste de integração publica e consome uma mensagem dos exemplos válidos; um utilizador não consegue publicar na exchange do outro | E1.2 | Sim |
+| E2.1 | ~~RabbitMQ 4.4 no Compose com definições versionadas~~ | infra | **Feito (2026-11-23).** `infra/rabbitmq/` ([`rabbitmq.md`](../engineering/rabbitmq.md)), profile `messaging`: vhost `/kai`, quorum queues limitadas, DLQ pelo broker, retry no consumidor ([ADR-0018](../adr/0018-mensageria-rabbitmq-outbox-retry-no-consumidor.md), substitui o ADR-0003, porque o retry pelo broker perdia mensagens), um utilizador por serviço sem `configure` nem acesso à DLQ, topic permissions por tipo, validação do `user_id`, 16 MiB; só o AMQP é alcançável; recusa arrancar sem passwords fortes. `scripts/ci/integration.sh` (job `integration`): 32 testes e 4 recusas de arranque; três defeitos injectados apanhados. `php-amqplib` 3.7.5, `phpseclib` 3.0.58 (a 4.x fica em `conflict`), `ext-sockets`; `composer audit` no `api.sh`. Duas revisões de segurança | E1.2 | Sim |
 | E2.2 | Acrescenta o `grafana/otel-lgtm` ao Compose, fixado por digest, só em `127.0.0.1` | infra | Um span de teste aparece no Tempo | E1.3 | Sim |
 | E2.3 | Serviço Reverb no Compose | infra | **Parcial (2026-11-23):** o serviço `reverb` já existe (só em `127.0.0.1:8080`, origens restritas, healthy). Falta a autorização do canal privado (só o dono do `run`), na E4.6 | E1.4 | Não |
 

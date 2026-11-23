@@ -1,6 +1,6 @@
 # ADR-0003: Mensageria com RabbitMQ + Outbox/Inbox
 
-- **Estado:** Aceite (2026-11-20, D-11)
+- **Estado:** Substituído por ADR-0018
 - **Data:** 2026-11-20
 - **Decisores:** owner
 - **Relacionados:** PDF p.5, p.7, p.11, p.15, p.18; ADR-0002, 0011

@@ -101,6 +101,40 @@ services:
       timeout: 5s
       retries: 10
 
+  rabbitmq:
+    # M03 E2.1 (ADR-0003, ADR-0016). Topologia versionada em infra/rabbitmq/.
+    # Sem passwords por omissão: o contentor recusa arrancar sem passwords
+    # fortes (gera-as com scripts/dev/rabbitmq-passwords.sh). O AMQP (5672)
+    # fica só na rede interna; a gestão escuta só dentro do contentor e não há
+    # portas publicadas no host.
+    # Profile "messaging": fica fora do `docker compose up` por omissão até haver
+    # consumidores (E3.4/E4.4), para um clone limpo arrancar sem passwords
+    # (AC-01). Arranca com: docker compose --profile messaging up -d
+    profiles: ["messaging"]
+    image: rabbitmq:4.4-management@sha256:61f90c401a5b5ed2486771973ea92ad66046471eacab9c9149f1a6e091c91677
+    hostname: rabbitmq
+    entrypoint: ["/bin/sh", "/etc/rabbitmq/render-definitions.sh"]
+    environment:
+      KAI_RABBITMQ_ADMIN_PASSWORD: ${KAI_RABBITMQ_ADMIN_PASSWORD:-}
+      KAI_RABBITMQ_API_PASSWORD: ${KAI_RABBITMQ_API_PASSWORD:-}
+      KAI_RABBITMQ_AI_ENGINE_PASSWORD: ${KAI_RABBITMQ_AI_ENGINE_PASSWORD:-}
+      # Distribuição Erlang e epmd só em loopback; o nó chama-se pelo
+      # loopback para o rabbitmqctl o encontrar (revisão de segurança da E2.1).
+      ERL_EPMD_ADDRESS: 127.0.0.1
+      RABBITMQ_NODENAME: rabbit@localhost
+    volumes:
+      - ./infra/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+      - ./infra/rabbitmq/definitions.template.json:/etc/rabbitmq/definitions.template.json:ro
+      - ./infra/rabbitmq/render-definitions.sh:/etc/rabbitmq/render-definitions.sh:ro
+      - ./infra/rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins:ro
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD-SHELL", "rabbitmq-diagnostics -q check_running && rabbitmq-diagnostics -q check_port_listener 5672"]
+      interval: 10s
+      timeout: 10s
+      retries: 12
+      start_period: 20s
+
   web:
     build:
       context: ./apps/web
@@ -119,5 +153,6 @@ services:
 
 volumes:
   mysql_data:
+  rabbitmq_data:
   api_vendor:
   web_node_modules:

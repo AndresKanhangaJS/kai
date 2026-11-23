@@ -5,7 +5,7 @@
 - **Milestone:** M02 (E3.1, E3.2, E3.3 e E2.3)
 - **Autor:** Claude Code (`kai-spec`, `kai-contract`)
 - **Requisitos:** FR-032 (subconjunto), NFR-001, NFR-006, NFR-009, NFR-011
-- **ADRs relacionados:** ADR-0002 (fronteira), ADR-0003 (mensageria), ADR-0009 (streaming), ADR-0010 (autenticação entre serviços), ADR-0013 (modelo de segurança)
+- **ADRs relacionados:** ADR-0002 (fronteira), ADR-0018 (mensageria; substitui o ADR-0003), ADR-0009 (streaming), ADR-0010 (autenticação entre serviços), ADR-0013 (modelo de segurança)
 
 ## 1. Contexto
 - **[C `analysis.md` §5.5]** Catálogo: síncrono `POST /internal/v1/tool-authorizations`, `/health/live`, `/health/ready`; assíncrono, as 6 mensagens do MVP com envelope comum.

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# CI do apps/api (M02 E2.1): Pint, PHPStan (Larastan, nível 6) e Pest.
+# CI do apps/api (M02 E2.1): composer audit, Pint, PHPStan (Larastan, nível 6) e Pest.
 # Igual na CI (GitHub Actions) e no local. Uso: scripts/ci/api.sh
 set -euo pipefail
 cd "$(dirname "$0")/../.."
@@ -8,6 +8,9 @@ cd "$(dirname "$0")/../.."
 # As variáveis forçadas aqui (e não só no phpunit.xml) garantem que os testes
 # correm no SQLite em memória, nunca no MySQL do Compose (bug da E4.4).
 run() { docker compose run --rm --no-deps -T "$@"; }
+
+echo "→ composer audit (avisos de segurança das dependências do lock)"
+run api composer audit --locked --no-interaction
 
 echo "→ Pint (formatação)"
 run api vendor/bin/pint --test

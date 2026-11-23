@@ -1,6 +1,6 @@
 # Estado do projecto KAI
 
-- **Actualizado:** 2026-11-23 (M03 E1.1)
+- **Actualizado:** 2026-11-23 (M03 E1 e E2.1)
 - **Milestone actual:** M02 · Core Foundation — **Épicos E1 e E4 concluídos**; **E1–E4 concluídos; CI verde no GitHub** (corrida 45156786354, 5/5 jobs, 2026-11-23). Para fechar o M02 falta o owner activar o secret scanning (E2.4), aprovar o ADR-0014 e fazer merge do PR. **M03 decomposto** ([`M03-kai-intelligence.md`](milestones/M03-kai-intelligence.md))
 - **Branch:** `chore/m02-ci` (E2 e E3; PR aberto para `main`, CI verde). Spike do Reverb em `feat/m03-reverb-spike`
 
@@ -32,7 +32,7 @@
 ## Decisões recentes
 
 - D-01 a D-18: ver [`analysis.md` §0](product/analysis.md#0-decisões-do-owner-passam-a-c).
-- ADRs: ver [`docs/adr/`](adr/README.md). 12 aceites, 2 substituídos (0004 → 0013, 0009 → 0015). Todos os ADRs do M01 estão decididos. M02: ADR-0014 (CI) **Proposto**, à espera da aprovação do owner.
+- ADRs: ver [`docs/adr/`](adr/README.md). 15 aceites, 3 substituídos (0004 → 0013, 0009 → 0015, 0003 → 0018). Todos os ADRs do M01 estão decididos. M02: ADR-0014 (CI) **Proposto**, à espera da aprovação do owner.
 - Harness: ver [`docs/engineering/claude-code-setup.md`](engineering/claude-code-setup.md), que inclui a proposta de servidores MCP, ainda sem nada instalado (instalação pede aprovação no M02, D-18).
 
 ## M02 · Core Foundation
@@ -51,7 +51,7 @@ Decomposto em 4 épicos e 17 tarefas → [`docs/milestones/M02-core-foundation.m
 ## Próximas 3 tarefas
 
 1. Owner: activar *Secret scanning* + *Push protection*, aprovar o ADR-0014 e fazer merge do PR (fecha o M02).
-2. Owner: aprovar o [ADR-0016](adr/0016-clientes-amqp-php-e-python.md) (AMQP; confirmar a LGPL do `php-amqplib`) e o [ADR-0017](adr/0017-sdks-opentelemetry-e-semconv.md) (OpenTelemetry), que fecham a P-019. Depois: E2.1 (RabbitMQ no Compose) e E3.1 (spec do AI Engine).
+2. M03: E2.2 (otel-lgtm no Compose, em curso), E3.1 (spec do AI Engine) e E4.1 (spec de Conversations, fecha a P-018). E1 e E2.1 (RabbitMQ, [ADR-0018](adr/0018-mensageria-rabbitmq-outbox-retry-no-consumidor.md)) feitas. Owner: para ter o RabbitMQ em dev, gerar as passwords ([`rabbitmq.md`](engineering/rabbitmq.md)).
 3. Owner: correr `kai:enable-totp` no owner de dev (se ainda não tiver TOTP) e registar uma passkey real no Chrome/Windows Hello.
 
 ## Perguntas abertas

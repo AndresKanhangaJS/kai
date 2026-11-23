@@ -1,0 +1,41 @@
+{
+  "rabbit_version": "4.4.1",
+  "users": [
+    {"name": "kai-admin", "password": "<KAI_RABBITMQ_ADMIN_PASSWORD>", "tags": ["administrator"]},
+    {"name": "kai-api", "password": "<KAI_RABBITMQ_API_PASSWORD>", "tags": [], "limits": {"max-connections": 20, "max-channels": 100}},
+    {"name": "kai-ai-engine", "password": "<KAI_RABBITMQ_AI_ENGINE_PASSWORD>", "tags": [], "limits": {"max-connections": 20, "max-channels": 100}}
+  ],
+  "vhosts": [
+    {"name": "/kai"}
+  ],
+  "parameters": [
+    {"vhost": "/kai", "component": "vhost-limits", "name": "limits", "value": {"max-connections": 100, "max-queues": 20}}
+  ],
+  "permissions": [
+    {"user": "kai-admin", "vhost": "/kai", "configure": ".*", "write": ".*", "read": ".*"},
+    {"user": "kai-api", "vhost": "/kai", "configure": "^$", "write": "^kai\\.commands$", "read": "^kai-api\\.events$"},
+    {"user": "kai-ai-engine", "vhost": "/kai", "configure": "^$", "write": "^kai\\.events$", "read": "^ai-engine\\.commands$"}
+  ],
+  "topic_permissions": [
+    {"user": "kai-api", "vhost": "/kai", "exchange": "kai.commands", "write": "^ai\\.(conversation\\.turn\\.requested|mission\\.step\\.resume|mission\\.cancel\\.requested)\\.v1$", "read": ".*"},
+    {"user": "kai-ai-engine", "vhost": "/kai", "exchange": "kai.events", "write": "^ai\\.(conversation\\.turn\\.(completed|failed)|mission\\.step\\.reported|model\\.usage\\.recorded)\\.v1$", "read": ".*"}
+  ],
+  "exchanges": [
+    {"name": "kai.commands", "vhost": "/kai", "type": "topic", "durable": true, "auto_delete": false, "internal": false, "arguments": {}},
+    {"name": "kai.events", "vhost": "/kai", "type": "topic", "durable": true, "auto_delete": false, "internal": false, "arguments": {}},
+    {"name": "ai-engine.dead", "vhost": "/kai", "type": "direct", "durable": true, "auto_delete": false, "internal": false, "arguments": {}},
+    {"name": "kai-api.dead", "vhost": "/kai", "type": "direct", "durable": true, "auto_delete": false, "internal": false, "arguments": {}}
+  ],
+  "queues": [
+    {"name": "ai-engine.commands", "vhost": "/kai", "durable": true, "auto_delete": false, "arguments": {"x-queue-type": "quorum", "x-delivery-limit": 5, "x-max-length": 10000, "x-max-length-bytes": 268435456, "x-overflow": "reject-publish", "x-dead-letter-exchange": "ai-engine.dead", "x-dead-letter-routing-key": "ai-engine.commands", "x-dead-letter-strategy": "at-least-once"}},
+    {"name": "ai-engine.commands.dlq", "vhost": "/kai", "durable": true, "auto_delete": false, "arguments": {"x-queue-type": "quorum", "x-max-length": 10000, "x-max-length-bytes": 268435456, "x-overflow": "reject-publish"}},
+    {"name": "kai-api.events", "vhost": "/kai", "durable": true, "auto_delete": false, "arguments": {"x-queue-type": "quorum", "x-delivery-limit": 5, "x-max-length": 10000, "x-max-length-bytes": 268435456, "x-overflow": "reject-publish", "x-dead-letter-exchange": "kai-api.dead", "x-dead-letter-routing-key": "kai-api.events", "x-dead-letter-strategy": "at-least-once"}},
+    {"name": "kai-api.events.dlq", "vhost": "/kai", "durable": true, "auto_delete": false, "arguments": {"x-queue-type": "quorum", "x-max-length": 10000, "x-max-length-bytes": 268435456, "x-overflow": "reject-publish"}}
+  ],
+  "bindings": [
+    {"source": "kai.commands", "vhost": "/kai", "destination": "ai-engine.commands", "destination_type": "queue", "routing_key": "ai.#", "arguments": {}},
+    {"source": "ai-engine.dead", "vhost": "/kai", "destination": "ai-engine.commands.dlq", "destination_type": "queue", "routing_key": "ai-engine.commands", "arguments": {}},
+    {"source": "kai.events", "vhost": "/kai", "destination": "kai-api.events", "destination_type": "queue", "routing_key": "ai.#", "arguments": {}},
+    {"source": "kai-api.dead", "vhost": "/kai", "destination": "kai-api.events.dlq", "destination_type": "queue", "routing_key": "kai-api.events", "arguments": {}}
+  ]
+}
