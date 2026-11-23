@@ -22,7 +22,7 @@ paths:
 - Deltas de streaming são efémeros (Reverb) e não passam pelo RabbitMQ.
 
 ## Qualidade
-- Tipagem completa (mypy ou equivalente, definido no M02), pytest, Ruff.
+- Tipagem completa (mypy strict), pytest, Ruff.
 - Avaliações em `apps/ai-engine/evals/`, com datasets versionados (skill `kai-eval`).
 - Executa sempre com `python -I` quando processar ficheiros não confiáveis; nunca uses `eval`, `exec` nem `pickle` sobre input externo.
-- Os comandos concretos são definidos no M02/M03; até lá, não os inventes.
+- Comandos: `scripts/ci/ai-engine.sh` (ruff, `ruff format --check`, mypy strict, pytest, sem rede) e `scripts/ci/integration.sh` (serviço real). Locks: `scripts/dev/ai-engine-lock.sh <data limite>`; dependências novas pedem a aprovação do owner (P-021).

@@ -49,9 +49,10 @@ Corre a skill `/done` sobre o diff para verificar a DoD.
 - Tudo corre em Docker, igual na CI e no local ([`docs/engineering/ci.md`](docs/engineering/ci.md), ADR-0014):
   - `scripts/ci/api.sh`: Pint, PHPStan (nível 6) e Pest, com SQLite em memória forçado.
   - `scripts/ci/web.sh`: `tsc -b`, `oxlint` e Vitest.
+  - `scripts/ci/ai-engine.sh`: ruff, mypy (strict) e pytest do `apps/ai-engine`, sem rede.
   - `scripts/ci/harness.sh`: validação do harness, scan de segredos e testes do guard.
   - `scripts/ci/contracts.sh`: schemas, OpenAPI, AsyncAPI e exemplos de `packages/contracts`.
-  - `scripts/ci/integration.sh`: testes de integração do `apps/api` contra o RabbitMQ e o `otel-lgtm` reais, numa stack descartável (`kai-it`).
+  - `scripts/ci/integration.sh`: testes de integração do `apps/api` contra o RabbitMQ, o `otel-lgtm` e o AI Engine reais, numa stack descartável (`kai-it`).
   - `scripts/e2e.sh`: E2E Playwright numa stack descartável; a stack de dev tem de estar parada.
   - `scripts/ci/all.sh`: tudo.
 - Nunca corras os testes do `apps/api` com um `docker compose run` sem as variáveis de teste: correm contra o MySQL real (bug da E4.4). Usa o `scripts/ci/api.sh`.

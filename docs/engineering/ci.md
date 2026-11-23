@@ -11,7 +11,8 @@ A CI e o local correm exactamente os mesmos scripts, dentro das imagens do Docke
 | `harness` | `scripts/ci/harness.sh` | `validate_harness.py` (estrutura do harness + scan de segredos) e testes do hook `guard.sh` |
 | `contracts` | `scripts/ci/contracts.sh` | Contratos v1 (E2.3): JSON Schemas, OpenAPI 3.1 e AsyncAPI 3.0 contra os meta-schemas oficiais, `$ref`, exemplos válidos e inválidos, regras do KAI ([`packages/contracts`](../../packages/contracts/README.md)) |
 | `api` | `scripts/ci/api.sh` | `composer audit` (avisos de segurança do lock; precisa de rede), Pint (`--test`), PHPStan/Larastan nível 6, Pest (SQLite em memória, forçado no `docker compose run`) |
-| `integration` | `scripts/ci/integration.sh` | Pest `tests/Integration` contra o RabbitMQ (M03 E2.1) e o `otel-lgtm` (M03 E2.2) reais, numa stack descartável `kai-it`, com passwords aleatórias em cada corrida e o Grafana numa porta efémera; verifica também que os dois recusam arrancar com passwords fracas ([`rabbitmq.md`](rabbitmq.md), [`observability.md`](observability.md)) |
+| `integration` | `scripts/ci/integration.sh` | Pest `tests/Integration` contra o RabbitMQ (M03 E2.1), o `otel-lgtm` (M03 E2.2) e o AI Engine (M03 E3.2) reais, numa stack descartável `kai-it`, com passwords aleatórias em cada corrida e o Grafana numa porta efémera; verifica também que os dois recusam arrancar com passwords fracas ([`rabbitmq.md`](rabbitmq.md), [`observability.md`](observability.md)) |
+| `ai-engine` | `scripts/ci/ai-engine.sh` | ruff, `ruff format --check`, mypy (strict) e pytest do `apps/ai-engine`, num contentor **sem rede** e sem chaves (AC-004-03); dependências instaladas só por hash |
 | `web` | `scripts/ci/web.sh` | `npm ci`, `tsc -b`, `oxlint`, Vitest |
 | `e2e` | `scripts/e2e.sh` | AC-02 em Playwright, numa stack descartável `kai-e2e` |
 
@@ -23,6 +24,7 @@ O workflow corre em cada `pull_request` e em cada `push` para `main`. Tem só pe
 scripts/ci/harness.sh
 scripts/ci/contracts.sh
 scripts/ci/api.sh
+scripts/ci/ai-engine.sh
 scripts/ci/integration.sh               # pode correr com a stack de dev ligada
 scripts/ci/web.sh
 docker compose stop && scripts/e2e.sh   # o E2E usa as mesmas portas da stack de dev
@@ -41,7 +43,7 @@ O scan de segredos na CI (`validate_harness.py`) procura 10 padrões em todos os
 
 **Settings → Branches → Add rule** para `main`:
 - Require a pull request before merging.
-- Require status checks to pass, com os 6 jobs: `Harness e scan de segredos`, `Contratos (schemas, OpenAPI, AsyncAPI, exemplos)`, `API (Pint, PHPStan, Pest)`, `Integração (RabbitMQ)`, `Web (tsc, oxlint, Vitest)` e `E2E AC-02 (Playwright)`.
+- Require status checks to pass, com os 7 jobs: `Harness e scan de segredos`, `Contratos (schemas, OpenAPI, AsyncAPI, exemplos)`, `API (Pint, PHPStan, Pest)`, `AI Engine (ruff, mypy, pytest)`, `Integração (RabbitMQ, otel-lgtm, AI Engine)`, `Web (tsc, oxlint, Vitest)` e `E2E AC-02 (Playwright)`.
 
 ## Manutenção
 - Actualizar a `actions/checkout` (SHA), o digest de uma imagem ou a versão de uma ferramenta é uma alteração revista, com a fonte e a data no ADR-0014. Nunca é automática.

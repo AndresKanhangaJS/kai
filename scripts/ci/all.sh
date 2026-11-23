@@ -7,6 +7,7 @@ cd "$(dirname "$0")/../.."
 scripts/ci/harness.sh
 scripts/ci/contracts.sh
 scripts/ci/api.sh
+scripts/ci/ai-engine.sh
 scripts/ci/integration.sh
 scripts/ci/web.sh
 scripts/e2e.sh

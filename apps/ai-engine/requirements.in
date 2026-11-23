@@ -1,0 +1,6 @@
+# Dependências de runtime do AI Engine (SPEC-004, P-021; aprovadas pelo owner a 2026-11-23).
+# Versões exactas, publicadas há >= 14 dias. O lock com hashes é requirements.txt
+# (gerado por scripts/dev/ai-engine-lock.sh; nunca editar à mão).
+fastapi==0.162.2
+uvicorn==0.54.0
+aio-pika==10.2.3

@@ -1,0 +1,35 @@
+# Só configuração de ferramentas: o AI Engine não é publicado como pacote.
+# Dependências: requirements.in / requirements-dev.in (locks com hashes).
+[project]
+name = "kai-ai-engine"
+version = "0.1.0"
+requires-python = ">=3.14,<3.15"
+
+[tool.ruff]
+line-length = 110
+target-version = "py314"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "S", "UP", "N", "SIM", "PTH", "RUF", "ASYNC", "LOG", "G"]
+
+[tool.ruff.lint.per-file-ignores]
+# assert é o idioma do pytest.
+"tests/**" = ["S101"]
+
+[tool.mypy]
+strict = true
+python_version = "3.14"
+mypy_path = "src"
+packages = ["kai_ai_engine", "tests"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
+
+# jsonschema não traz tipos; os stubs (types-jsonschema) seriam uma dependência
+# nova. Só os testes o usam na E3.2: tratado como Any, isolado a este módulo.
+[[tool.mypy.overrides]]
+module = ["jsonschema", "jsonschema.*"]
+ignore_missing_imports = true

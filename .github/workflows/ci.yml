@@ -52,7 +52,7 @@ jobs:
       - run: scripts/ci/api.sh
 
   integration:
-    name: Integração (RabbitMQ)
+    name: Integração (RabbitMQ, otel-lgtm, AI Engine)
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
@@ -60,6 +60,16 @@ jobs:
         with:
           persist-credentials: false
       - run: scripts/ci/integration.sh
+
+  ai-engine:
+    name: AI Engine (ruff, mypy, pytest)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: scripts/ci/ai-engine.sh
 
   web:
     name: Web (tsc, oxlint, Vitest)

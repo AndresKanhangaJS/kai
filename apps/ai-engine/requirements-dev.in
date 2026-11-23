@@ -1,0 +1,10 @@
+# Dependências de desenvolvimento e CI (SPEC-004, P-021). Lock: requirements-dev.txt.
+-c requirements.txt
+fastapi==0.162.2
+uvicorn==0.54.0
+aio-pika==10.2.3
+pytest==9.2.0
+httpx==0.28.1
+jsonschema==4.26.0
+ruff==0.17.4
+mypy==2.4.1

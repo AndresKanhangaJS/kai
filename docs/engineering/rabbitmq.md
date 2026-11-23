@@ -28,7 +28,7 @@ O RabbitMQ está no *profile* `messaging`: um `docker compose up` sem profile n�
 | `enabled_plugins` | Só a gestão. O Prometheus (15692, sem autenticação) fica desligado até à E7.2 |
 
 - **Imagem:** `rabbitmq:4.4-management` (4.4.1), fixada por digest no `docker-compose.yml`. O nó chama-se `rabbit@localhost`, e o `epmd` (`ERL_EPMD_ADDRESS`) e a distribuição Erlang escutam só em loopback.
-- **Rede:** a partir de outro contentor, **só o AMQP (5672) é alcançável**; a gestão, as métricas, a distribuição Erlang e o `epmd` não o são (testado). Não há portas publicadas no host.
+- **Rede:** o RabbitMQ está só na rede `messaging` (api, ai-engine, reverb). A partir de outro contentor, **só o AMQP (5672) é alcançável**; a gestão, as métricas, a distribuição Erlang e o `epmd` não o são (testado). Não há portas publicadas no host.
 - **Topologia fixa:** nenhum serviço declara exchanges nem filas, nem cria bindings (`configure` vazio). A topologia muda só aqui, por revisão.
 
 ## Topologia (vhost `/kai`)

@@ -1,6 +1,6 @@
 # Estado do projecto KAI
 
-- **Actualizado:** 2026-11-23 (M03 E1, E2.1, E2.2 e E3.1)
+- **Actualizado:** 2026-11-23 (M03 E1, E2.1, E2.2, E3.1 e E3.2)
 - **Milestone actual:** M02 · Core Foundation — **Épicos E1 e E4 concluídos**; **E1–E4 concluídos; CI verde no GitHub** (corrida 45156786354, 5/5 jobs, 2026-11-23). Para fechar o M02 falta o owner activar o secret scanning (E2.4), aprovar o ADR-0014 e fazer merge do PR. **M03 decomposto** ([`M03-kai-intelligence.md`](milestones/M03-kai-intelligence.md))
 - **Branch:** `chore/m02-ci` (E2 e E3; PR aberto para `main`, CI verde). Spike do Reverb em `feat/m03-reverb-spike`
 
@@ -51,7 +51,7 @@ Decomposto em 4 épicos e 17 tarefas → [`docs/milestones/M02-core-foundation.m
 ## Próximas 3 tarefas
 
 1. Owner: activar *Secret scanning* + *Push protection*, aprovar o ADR-0014 e fazer merge do PR (fecha o M02).
-2. M03: E3.2 (`apps/ai-engine` com health, em curso) e E4.1 (spec de Conversations). Feitas: E1, E2.1 (RabbitMQ, [ADR-0018](adr/0018-mensageria-rabbitmq-outbox-retry-no-consumidor.md)), E2.2 (otel-lgtm, [`observability.md`](engineering/observability.md)) e E3.1 ([SPEC-004](specs/004-ai-engine-m03.md)). Owner: para ter o RabbitMQ e o Grafana em dev, gerar as passwords com `scripts/dev/passwords.sh`.
+2. M03: E3.3 (LLM Gateway: `fake`, Anthropic, Ollama) e E4.1 (spec de Conversations). Feitas: E1, E2.1 (RabbitMQ, [ADR-0018](adr/0018-mensageria-rabbitmq-outbox-retry-no-consumidor.md)), E2.2 (otel-lgtm, [`observability.md`](engineering/observability.md)), E3.1 ([SPEC-004](specs/004-ai-engine-m03.md)) e E3.2 ([`apps/ai-engine`](../apps/ai-engine/README.md)). Owner: para ter o RabbitMQ, o AI Engine e o Grafana em dev, gerar as passwords com `scripts/dev/passwords.sh`.
 3. Owner: a BD de dev foi apagada por engano a 2026-11-23 (um `docker compose down -v` do agente caiu na stack de dev) e já foi recriada e migrada, mas está vazia. Recriar o owner (`kai:create-owner`), correr `kai:enable-totp` e registar de novo a passkey no Chrome/Windows Hello.
 
 ## Perguntas abertas

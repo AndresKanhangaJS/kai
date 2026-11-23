@@ -64,7 +64,8 @@ services:
     ports:
       - "127.0.0.1:8000:8000"
     # telemetry: emite para o otel-lgtm (M03 E7.1; hoje só os testes de integração).
-    networks: [default, telemetry]
+    # messaging: RabbitMQ (relay do outbox e consumidor de eventos).
+    networks: [default, messaging, telemetry]
     depends_on:
       mysql:
         condition: service_healthy
@@ -85,6 +86,8 @@ services:
     # entrypoint não criar o ficheiro de ambiente e a APP_KEY em concorrência.
     build:
       context: ./apps/api
+    # messaging: o ai-engine publica deltas pela API HTTP (ADR-0015, E3.4).
+    networks: [default, messaging]
     command: ["php", "artisan", "reverb:start", "--host=0.0.0.0", "--port=8080"]
     environment:
       APP_ENV: local
@@ -113,6 +116,8 @@ services:
     # consumidores (E3.4/E4.4), para um clone limpo arrancar sem passwords
     # (AC-01). Arranca com: docker compose --profile messaging up -d
     profiles: ["messaging"]
+    # Só na rede messaging: chegam-lhe o api e o ai-engine, não o web nem o MySQL.
+    networks: [messaging]
     image: rabbitmq:4.4-management@sha256:61f90c401a5b5ed2486771973ea92ad66046471eacab9c9149f1a6e091c91677
     hostname: rabbitmq
     entrypoint: ["/bin/sh", "/etc/rabbitmq/render-definitions.sh"]
@@ -136,6 +141,36 @@ services:
       timeout: 10s
       retries: 12
       start_period: 20s
+
+  ai-engine:
+    # M03 E3.2 (SPEC-004): AI Engine em Python. Sem porta publicada no host
+    # (ADR-0010): o Laravel e os testes chegam-lhe por http://ai-engine:8000.
+    # Profile "messaging": precisa do RabbitMQ e das passwords.
+    profiles: ["messaging"]
+    build:
+      context: ./apps/ai-engine
+      target: runtime
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      KAI_RABBITMQ_AI_ENGINE_PASSWORD: ${KAI_RABBITMQ_AI_ENGINE_PASSWORD:-}
+    # Só messaging (RabbitMQ, Reverb, api) e telemetry: sem acesso ao MySQL nem ao
+    # Redis do Laravel (ADR-0002; revisão de segurança da E3.2, testado).
+    networks: [messaging, telemetry]
+    read_only: true
+    tmpfs: ["/tmp:size=64m,noexec,nosuid,nodev"]
+    mem_limit: 512m
+    pids_limit: 128
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-I", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/health/ready', timeout=4).status == 200 else 1)"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 15s
 
   otel-lgtm:
     # M03 E2.2 (ADR-0017, observability.md): colector OTLP, Tempo, Loki,
@@ -183,6 +218,7 @@ services:
 
 networks:
   default:
+  messaging:
   telemetry:
 
 volumes:

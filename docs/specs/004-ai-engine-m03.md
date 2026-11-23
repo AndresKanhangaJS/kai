@@ -48,7 +48,7 @@ O owner envia uma mensagem e o AI Engine gera a resposta com o modelo configurad
    - o fornecedor e o modelo vêm da configuração do serviço (`MODEL_PROVIDER`, por omissão `fake`), nunca da mensagem;
    - o prompt de sistema é versionado no repositório (ADR-0006);
    - as mensagens do owner entram no prompt como mensagens de utilizador, nunca como instruções de sistema.
-9. **Rede:** sem porta publicada no host (ADR-0010). Redes `default` (RabbitMQ, Reverb) e `telemetry` (OTLP).
+9. **Rede:** sem porta publicada no host (ADR-0010). Só as redes `messaging` (RabbitMQ, Reverb, api) e `telemetry` (OTLP). Não está na `default`, por isso não chega ao MySQL nem ao Redis do Laravel (ADR-0002; revisão de segurança da E3.2, 2026-11-23, testado no `integration.sh`).
 
 ## 4. Critérios de aceitação
 | ID | Dado | Quando | Então | Tipo de teste |

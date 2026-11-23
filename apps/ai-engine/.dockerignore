@@ -1,0 +1,9 @@
+# Allowlist: só entra no contexto de build o que o Dockerfile copia
+# (nunca ficheiros de ambiente, chaves nem caches).
+*
+!src
+!tests
+!pyproject.toml
+!requirements.txt
+!requirements-dev.txt
+**/__pycache__

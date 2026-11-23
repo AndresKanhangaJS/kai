@@ -17,7 +17,7 @@
 3. **ESLint + Prettier em vez de oxlint; gitleaks como secret scan; Vitest 3 em Node 20:** rejeitadas pelo owner (mais dependências; Node 20 sem suporte).
 
 ## Decisão
-A CI corre em GitHub Actions com 6 jobs (`harness`, `contracts`, `api`, `integration`, `web`, `e2e`; o `integration` entrou no M03 E2.1). Cada um executa os mesmos scripts do repositório, dentro das imagens do Docker Compose (o `contracts` usa a imagem fixada em `packages/contracts/tooling/`). Regras:
+A CI corre em GitHub Actions com 7 jobs (`harness`, `contracts`, `api`, `ai-engine`, `integration`, `web`, `e2e`; o `integration` entrou no M03 E2.1 e o `ai-engine` no M03 E3.2). Cada um executa os mesmos scripts do repositório, dentro das imagens do Docker Compose (o `contracts` usa a imagem fixada em `packages/contracts/tooling/`). Regras:
 - só `actions/checkout`, fixada por SHA de commit;
 - `permissions: contents: read` e `persist-credentials: false`.
 
@@ -45,7 +45,7 @@ Detalhes e desvios ao plano:
 ## Verificação
 - `.github/workflows/ci.yml` é revisto pelo `kai-security-reviewer` em cada alteração.
 - O `scripts/ci/api.sh` falha (exit 1) com um erro de tipos injectado (verificado em 2026-11-22).
-- Opcional: *branch protection* em `main` a exigir os 6 jobs (`docs/engineering/ci.md`).
+- Opcional: *branch protection* em `main` a exigir os 7 jobs (`docs/engineering/ci.md`).
 
 ## Fontes
 - `actions/checkout` v7.0.1 → commit `3d3c42e5aac5ba805825da76410c181273ba90b1` (`git ls-remote` e data do commit, 2026-07-17; verificado em 2026-11-22).
