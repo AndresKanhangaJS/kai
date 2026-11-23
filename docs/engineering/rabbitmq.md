@@ -7,7 +7,7 @@ Decisões: [ADR-0018](../adr/0018-mensageria-rabbitmq-outbox-retry-no-consumidor
 O RabbitMQ **recusa arrancar** sem passwords fortes. Não há valores por omissão: uma password vazia, com o valor de exemplo (`changeme…`), com menos de 24 caracteres ou com caracteres fora de `[A-Za-z0-9._-]` é recusada. Para as gerar:
 
 ```bash
-scripts/dev/rabbitmq-passwords.sh   # imprime 3 linhas KAI_RABBITMQ_*_PASSWORD=…
+scripts/dev/passwords.sh   # imprime 3 linhas KAI_RABBITMQ_*_PASSWORD=…
 ```
 
 **Só o owner corre o script**, com o output redireccionado para o ficheiro de ambiente da raiz do repositório (o mesmo que o Docker Compose lê), e nunca através de um agente: as passwords entrariam no transcript. O script não escreve em ficheiro nenhum. Depois: `docker compose --profile messaging up -d rabbitmq`.

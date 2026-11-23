@@ -67,6 +67,12 @@ O `kai:enable-totp` mostra **uma única vez** o URI `otpauth://` (para a app aut
 
 Se suspeitares de que a conta foi comprometida: `kai:enable-totp <email> --force` roda o segredo e revoga todas as sessões; junta `--revoke-passkeys` para apagar também as passkeys.
 
+RabbitMQ e observabilidade (`otel-lgtm`, Grafana em `http://127.0.0.1:3000`) são opcionais até haver consumidores e ficam nos *profiles* `messaging` e `observability`. Recusam arrancar sem passwords fortes: gera-as com `scripts/dev/passwords.sh`, redireccionando o output para o ficheiro de ambiente ([`rabbitmq.md`](docs/engineering/rabbitmq.md), [`observability.md`](docs/engineering/observability.md)), e depois:
+
+```bash
+docker compose --profile messaging --profile observability up -d --wait
+```
+
 E2E de AC-02 (Playwright, numa stack descartável `kai-e2e`; pára primeiro a stack de dev com `docker compose stop`):
 
 ```bash

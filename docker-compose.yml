@@ -63,6 +63,8 @@ services:
       - api_vendor:/app/vendor
     ports:
       - "127.0.0.1:8000:8000"
+    # telemetry: emite para o otel-lgtm (M03 E7.1; hoje só os testes de integração).
+    networks: [default, telemetry]
     depends_on:
       mysql:
         condition: service_healthy
@@ -104,7 +106,7 @@ services:
   rabbitmq:
     # M03 E2.1 (ADR-0003, ADR-0016). Topologia versionada em infra/rabbitmq/.
     # Sem passwords por omissão: o contentor recusa arrancar sem passwords
-    # fortes (gera-as com scripts/dev/rabbitmq-passwords.sh). O AMQP (5672)
+    # fortes (gera-as com scripts/dev/passwords.sh). O AMQP (5672)
     # fica só na rede interna; a gestão escuta só dentro do contentor e não há
     # portas publicadas no host.
     # Profile "messaging": fica fora do `docker compose up` por omissão até haver
@@ -135,6 +137,34 @@ services:
       retries: 12
       start_period: 20s
 
+  otel-lgtm:
+    # M03 E2.2 (ADR-0017, observability.md): colector OTLP, Tempo, Loki,
+    # Prometheus e Grafana num só contentor, só para dev. O start.sh desliga
+    # o Grafana anónimo (que a imagem traz como Admin) e a descarga de plugins,
+    # e exige uma password de admin forte. Telemetria efémera (sem volume).
+    # Só o Grafana é publicado no host, em loopback. Arranca com:
+    #   docker compose --profile observability up -d
+    profiles: ["observability"]
+    image: grafana/otel-lgtm:0.40.0@sha256:72e05804790e6e0d8c0b70a6d5ff1f721ef7b203463374631e99aa3429bd0cf6
+    entrypoint: ["/bin/sh", "/kai/start.sh"]
+    environment:
+      KAI_GRAFANA_ADMIN_PASSWORD: ${KAI_GRAFANA_ADMIN_PASSWORD:-}
+    volumes:
+      - ./infra/otel-lgtm/start.sh:/kai/start.sh:ro
+    # Rede própria: só quem emite telemetria (api) chega ao OTLP e às APIs de
+    # consulta sem autenticação; mysql, redis, rabbitmq, web e reverb não.
+    networks: [telemetry]
+    ports:
+      # KAI_GRAFANA_HOST_PORT vazio = porta efémera (o integration.sh usa-o
+      # para não colidir com o Grafana de dev).
+      - "127.0.0.1:${KAI_GRAFANA_HOST_PORT-3000}:3000"
+    healthcheck:
+      test: ["CMD", "/otel-lgtm/docker/healthcheck.sh"]
+      interval: 10s
+      timeout: 10s
+      retries: 12
+      start_period: 60s
+
   web:
     build:
       context: ./apps/web
@@ -150,6 +180,10 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+
+networks:
+  default:
+  telemetry:
 
 volumes:
   mysql_data:
