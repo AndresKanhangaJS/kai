@@ -1,0 +1,30 @@
+{
+  "dono-no-pedido": {
+    "keyword": "additionalProperties",
+    "path": ""
+  },
+  "grant-no-pedido": {
+    "keyword": "additionalProperties",
+    "path": ""
+  },
+  "modo-no-pedido": {
+    "keyword": "additionalProperties",
+    "path": ""
+  },
+  "nivel-no-pedido": {
+    "keyword": "additionalProperties",
+    "path": ""
+  },
+  "sem-hash": {
+    "keyword": "required",
+    "path": ""
+  },
+  "taint-no-pedido": {
+    "keyword": "additionalProperties",
+    "path": ""
+  },
+  "versao-nao-semver": {
+    "keyword": "pattern",
+    "path": "/tool/version"
+  }
+}

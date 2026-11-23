@@ -1,0 +1,156 @@
+asyncapi: 3.0.0
+info:
+  title: KAI — mensagens v1 (RabbitMQ)
+  version: 1.0.0
+  description: |
+    Comandos (Laravel → Python) e eventos (Python → Laravel) do MVP. SPEC-003,
+    ADR-0002, ADR-0003. Cada mensagem é um envelope v1
+    (`../schemas/envelope.v1.json`) com um payload próprio. O tipo da mensagem
+    é a routing key. Entrega at-least-once: os consumidores deduplicam por `id`
+    (inbox) e aplicam a `idempotency_key`. O `traceparent` vai também nos
+    headers AMQP (observability.md).
+    As operações estão descritas do ponto de vista do `kai-api` (Laravel):
+    envia comandos e recebe eventos; o `kai-ai-engine` faz o inverso.
+    Nos eventos Python → Laravel, os IDs (user_id, conversa, run, missão,
+    passo) servem só para lookup: o Laravel deriva o dono do seu registo e
+    rejeita divergências para a DLQ, com auditoria. Tamanho máximo de uma
+    mensagem: 16 MiB (`max_message_size` do RabbitMQ) [H, SPEC-003 §6].
+  license:
+    name: Apache-2.0
+defaultContentType: application/json
+
+servers:
+  rabbitmq:
+    host: rabbitmq:5672
+    protocol: amqp
+    protocolVersion: 0.9.1
+    description: RabbitMQ 4.4, rede privada; um utilizador por serviço (ADR-0010). Chega no M03.
+
+channels:
+  commands:
+    address: kai.commands
+    description: Exchange topic de comandos (Laravel → Python). Quorum queue por consumidor, DLX com retry.
+    servers:
+      - $ref: '#/servers/rabbitmq'
+    messages:
+      turnRequested:
+        $ref: '#/components/messages/turnRequested'
+      stepResume:
+        $ref: '#/components/messages/stepResume'
+      missionCancelRequested:
+        $ref: '#/components/messages/missionCancelRequested'
+    bindings:
+      amqp:
+        is: routingKey
+        exchange:
+          name: kai.commands
+          type: topic
+          durable: true
+          autoDelete: false
+          vhost: /kai
+        bindingVersion: 0.3.0
+  events:
+    address: kai.events
+    description: Exchange topic de eventos (Python → Laravel).
+    servers:
+      - $ref: '#/servers/rabbitmq'
+    messages:
+      turnCompleted:
+        $ref: '#/components/messages/turnCompleted'
+      turnFailed:
+        $ref: '#/components/messages/turnFailed'
+      stepReported:
+        $ref: '#/components/messages/stepReported'
+      usageRecorded:
+        $ref: '#/components/messages/usageRecorded'
+    bindings:
+      amqp:
+        is: routingKey
+        exchange:
+          name: kai.events
+          type: topic
+          durable: true
+          autoDelete: false
+          vhost: /kai
+        bindingVersion: 0.3.0
+
+operations:
+  sendTurnRequested:
+    action: send
+    channel:
+      $ref: '#/channels/commands'
+    messages:
+      - $ref: '#/channels/commands/messages/turnRequested'
+  sendStepResume:
+    action: send
+    channel:
+      $ref: '#/channels/commands'
+    messages:
+      - $ref: '#/channels/commands/messages/stepResume'
+  sendMissionCancelRequested:
+    action: send
+    channel:
+      $ref: '#/channels/commands'
+    messages:
+      - $ref: '#/channels/commands/messages/missionCancelRequested'
+  receiveEvents:
+    action: receive
+    channel:
+      $ref: '#/channels/events'
+    messages:
+      - $ref: '#/channels/events/messages/turnCompleted'
+      - $ref: '#/channels/events/messages/turnFailed'
+      - $ref: '#/channels/events/messages/stepReported'
+      - $ref: '#/channels/events/messages/usageRecorded'
+
+components:
+  messages:
+    turnRequested:
+      name: ai.conversation.turn.requested.v1
+      title: Pedido de turno de conversa
+      payload:
+        schemaFormat: application/schema+json;version=draft-2020-12
+        schema:
+          $ref: '../schemas/ai.conversation.turn.requested.v1.json'
+    turnCompleted:
+      name: ai.conversation.turn.completed.v1
+      title: Turno concluído
+      payload:
+        schemaFormat: application/schema+json;version=draft-2020-12
+        schema:
+          $ref: '../schemas/ai.conversation.turn.completed.v1.json'
+    turnFailed:
+      name: ai.conversation.turn.failed.v1
+      title: Turno falhado
+      payload:
+        schemaFormat: application/schema+json;version=draft-2020-12
+        schema:
+          $ref: '../schemas/ai.conversation.turn.failed.v1.json'
+    stepReported:
+      name: ai.mission.step.reported.v1
+      title: Passo de missão reportado
+      payload:
+        schemaFormat: application/schema+json;version=draft-2020-12
+        schema:
+          $ref: '../schemas/ai.mission.step.reported.v1.json'
+    stepResume:
+      name: ai.mission.step.resume.v1
+      title: Retomar passo aprovado
+      payload:
+        schemaFormat: application/schema+json;version=draft-2020-12
+        schema:
+          $ref: '../schemas/ai.mission.step.resume.v1.json'
+    missionCancelRequested:
+      name: ai.mission.cancel.requested.v1
+      title: Pedido de cancelamento de missão
+      payload:
+        schemaFormat: application/schema+json;version=draft-2020-12
+        schema:
+          $ref: '../schemas/ai.mission.cancel.requested.v1.json'
+    usageRecorded:
+      name: ai.model.usage.recorded.v1
+      title: Consumo de LLM registado
+      payload:
+        schemaFormat: application/schema+json;version=draft-2020-12
+        schema:
+          $ref: '../schemas/ai.model.usage.recorded.v1.json'

@@ -1,0 +1,14 @@
+# PHPStan + Larastan (M02 E2.1). Nível 6, sem baseline: os erros corrigem-se,
+# não se escondem. Subir de nível pede uma decisão explícita (ADR da CI).
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    level: 6
+    paths:
+        - app/
+        - config/
+        - database/
+        - routes/
+        - tests/
+    tmpDir: /tmp/phpstan

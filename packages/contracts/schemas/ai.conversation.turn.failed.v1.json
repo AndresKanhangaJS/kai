@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.kai.internal/schemas/ai.conversation.turn.failed.v1.json",
+  "title": "ai.conversation.turn.failed.v1",
+  "description": "Evento (Python → Laravel, kai.events): o turno terminou sem resposta (fornecedor, timeout, orçamento, cancelamento). A UI mostra o estado Error com o motivo (AC-09). Idempotência: turn_failed:{user_message_id}. Estado terminal first-wins: o Laravel aplica só o primeiro completed/failed de cada turno e audita o segundo.",
+  "allOf": [
+    {
+      "$ref": "envelope.v1.json"
+    }
+  ],
+  "properties": {
+    "type": {
+      "const": "ai.conversation.turn.failed.v1"
+    },
+    "producer": {
+      "const": "kai-ai-engine"
+    },
+    "idempotency_key": {
+      "pattern": "^turn_failed:[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "user_id",
+        "conversation_id",
+        "user_message_id",
+        "run_id",
+        "reason",
+        "error"
+      ],
+      "properties": {
+        "user_id": {
+          "$ref": "common.v1.json#/$defs/user_id"
+        },
+        "conversation_id": {
+          "$ref": "common.v1.json#/$defs/uuid"
+        },
+        "user_message_id": {
+          "$ref": "common.v1.json#/$defs/uuid"
+        },
+        "run_id": {
+          "$ref": "common.v1.json#/$defs/uuid"
+        },
+        "reason": {
+          "type": "string",
+          "enum": [
+            "provider_unavailable",
+            "provider_error",
+            "timeout",
+            "budget_exceeded",
+            "cancelled",
+            "invalid_request",
+            "internal_error"
+          ]
+        },
+        "error": {
+          "$ref": "common.v1.json#/$defs/safe_error"
+        }
+      }
+    }
+  }
+}

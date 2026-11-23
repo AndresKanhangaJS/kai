@@ -1,0 +1,145 @@
+openapi: 3.1.0
+jsonSchemaDialect: https://json-schema.org/draft/2020-12/schema
+info:
+  title: KAI — API interna v1 (Laravel ↔ Python)
+  version: 1.0.0
+  description: |
+    Contrato síncrono entre o Core Platform (Laravel, `kai-api`) e o AI Engine
+    (Python, `kai-ai-engine`). Só em rede privada (ADR-0010). SPEC-003.
+    Os corpos são JSON Schema 2020-12 em `../schemas/`. Limite do corpo:
+    1 MiB no pedido (o servidor responde 413 acima disso) [H, SPEC-003 §6].
+  license:
+    name: Apache-2.0
+    identifier: Apache-2.0
+servers:
+  - url: http://api:8000
+    description: kai-api (Laravel); chamado pelo Python
+  - url: http://ai-engine:8000
+    description: kai-ai-engine (Python); chamado pelo Laravel (health)
+tags:
+  - name: authorization
+  - name: health
+paths:
+  /internal/v1/tool-authorizations:
+    servers:
+      - url: http://api:8000
+    post:
+      operationId: authorizeToolCall
+      tags: [authorization]
+      summary: Pede ao PDP (Laravel) autorização para uma chamada de ferramenta
+      description: |
+        O Laravel decide `allow` (com execution grant), `deny` ou
+        `requires_approval`. Nível, modo, dono e taint vêm do Tool Registry e
+        da missão, nunca do pedido. Regras normativas (SPEC-003 §2.2, §2.6, §2.7):
+        - No máximo um grant por (`mission_id`, `step_id`, `arguments_sha256`).
+          A aprovação é consumida quando o grant é emitido. Um pedido repetido
+          recebe `deny` `step_already_authorized`, nunca o grant anterior.
+        - Uma aprovação pendente por (`mission_id`, `step_id`). O mesmo pedido
+          devolve o mesmo `approval_id`; args diferentes recebem `deny`
+          `approval_pending_for_step`.
+        - Ao emitir um grant de uma ferramenta que lê conteúdo externo, o
+          Laravel marca a missão como *tainted* na mesma transacção.
+        - Não é *tolerant reader*: um campo fora do schema dá 422.
+        - Tecto de passos e de pedidos por missão: `deny`
+          `step_budget_exceeded`, ou 429.
+      security:
+        - serviceJws: []
+      parameters:
+        - $ref: '#/components/parameters/Traceparent'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/tool-authorization.request.v1.json'
+      responses:
+        '200':
+          description: Decisão de política
+          headers:
+            Cache-Control:
+              description: Sempre `no-store`; a resposta pode levar um grant.
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                $ref: '../schemas/tool-authorization.response.v1.json'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '413':
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
+        '429':
+          $ref: '#/components/responses/Problem'
+  /health/live:
+    servers:
+      - url: http://ai-engine:8000
+    get:
+      operationId: healthLive
+      tags: [health]
+      summary: O processo está vivo
+      security: []
+      responses:
+        '200':
+          description: Vivo
+          content:
+            application/json:
+              schema:
+                $ref: '../schemas/health.v1.json'
+  /health/ready:
+    servers:
+      - url: http://ai-engine:8000
+    get:
+      operationId: healthReady
+      tags: [health]
+      summary: Pronto a receber trabalho (dependências ok)
+      security: []
+      responses:
+        '200':
+          description: Pronto
+          content:
+            application/json:
+              schema:
+                $ref: '../schemas/health.v1.json'
+        '503':
+          description: Não pronto
+          content:
+            application/json:
+              schema:
+                $ref: '../schemas/health.v1.json'
+components:
+  securitySchemes:
+    serviceJws:
+      type: http
+      scheme: bearer
+      bearerFormat: JWS
+      description: |
+        JWS assinado com a chave própria do Python, com `aud`, `jti`, `scope`
+        e validade ≤ 60 s (ADR-0010).
+  parameters:
+    Traceparent:
+      name: traceparent
+      in: header
+      required: false
+      schema:
+        type: string
+        pattern: '^00-(?!0{32})[0-9a-f]{32}-(?!0{16})[0-9a-f]{16}-[0-9a-f]{2}$'
+  responses:
+    Problem:
+      description: Erro (RFC 9457), sem stack traces nem dados sensíveis
+      content:
+        application/problem+json:
+          schema:
+            type: object
+            additionalProperties: true
+            required: [type, title, status]
+            properties:
+              type: { type: string, maxLength: 200 }
+              title: { type: string, maxLength: 200 }
+              status: { type: integer, minimum: 400, maximum: 599 }
+              detail: { type: string, maxLength: 500 }
+              trace_id: { type: string, pattern: '^[0-9a-f]{32}$' }

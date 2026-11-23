@@ -1,0 +1,20 @@
+# Segredos e configuração local
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+
+# Claude Code: definições pessoais
+.claude/settings.local.json
+
+# Artefactos do Windows (Alternate Data Streams copiados para o WSL)
+*Zone.Identifier
+
+# Sistema operativo e editores
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

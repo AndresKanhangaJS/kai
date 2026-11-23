@@ -1,0 +1,73 @@
+# CI do KAI (M02 E2). Cada job corre os mesmos scripts que se correm
+# localmente (scripts/ci/*.sh, scripts/e2e.sh), dentro das imagens do Docker
+# Compose (ou, no caso dos contratos, da imagem fixada em
+# packages/contracts/tooling): o que passa aqui passa no local, e vice-versa.
+# Decisão e alternativas: docs/adr (ADR da CI); guia: docs/engineering/ci.md.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# Mínimo privilégio: o workflow só lê o código. Sem segredos do repositório.
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  harness:
+    name: Harness e scan de segredos
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      # Única action de terceiros, fixada por SHA de commit (v7.0.1), nunca por tag.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: scripts/ci/harness.sh
+
+  contracts:
+    name: Contratos (schemas, OpenAPI, AsyncAPI, exemplos)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: scripts/ci/contracts.sh
+
+  api:
+    name: API (Pint, PHPStan, Pest)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: docker compose build api
+      - run: scripts/ci/api.sh
+
+  web:
+    name: Web (tsc, oxlint, Vitest)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: docker compose build web
+      - run: scripts/ci/web.sh
+
+  e2e:
+    name: E2E AC-02 (Playwright)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: scripts/e2e.sh

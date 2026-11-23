@@ -1,0 +1,26 @@
+{
+  "campo-extra-no-payload": {
+    "keyword": "additionalProperties",
+    "path": "/payload"
+  },
+  "chave-de-idempotencia-errada": {
+    "keyword": "pattern",
+    "path": "/idempotency_key"
+  },
+  "id-nao-uuidv7": {
+    "keyword": "pattern",
+    "path": "/id"
+  },
+  "produtor-errado": {
+    "keyword": "const",
+    "path": "/producer"
+  },
+  "sem-traceparent": {
+    "keyword": "required",
+    "path": ""
+  },
+  "sem-user-id": {
+    "keyword": "required",
+    "path": "/payload"
+  }
+}

@@ -1,0 +1,42 @@
+# syntax=docker/dockerfile:1
+
+# Só para extrair o binário do Composer; a imagem final corre PHP 8.5 (ADR-0007/D-09),
+# não o PHP embutido nesta imagem.
+# Imagens fixadas por digest (supply chain, security.md; revisão de segurança
+# da E2, 2026-11-22). Actualizar um digest é uma alteração revista (ADR-0014).
+FROM composer:2@sha256:50ea4d33fdcde1adb0f045547295faa1548b33872e5f789dae5b02ce2fb5de93 AS composer
+
+FROM php:8.5-cli@sha256:f324fcb4dc009ac0470a7d614cd122499dcee3ca47a9bab620fc14c0eb759ba2
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        libzip-dev libonig-dev unzip git \
+    && docker-php-ext-install pdo_mysql mbstring bcmath zip \
+    && pecl install redis && docker-php-ext-enable redis \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=composer /usr/bin/composer /usr/local/bin/composer
+
+WORKDIR /app
+COPY . .
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh /app/artisan
+
+ENTRYPOINT ["docker-entrypoint.sh"]
+EXPOSE 8000
+# Não usa "php artisan serve": esse comando filtra as variáveis de ambiente
+# que reenvia para o processo que serve os pedidos (só as que já estão no
+# ficheiro .env), por isso DB_HOST/DB_CONNECTION definidas só no Docker Compose
+# nunca lá chegavam. Invoca o servidor embutido do PHP directamente, com o
+# mesmo router que o Laravel usa, herdando o ambiente completo do contentor.
+#
+# O router (vendor/.../resources/server.php) resolve os caminhos a partir de
+# getcwd(), não de "-t" — por isso o cwd do processo tem de ser o próprio
+# public/ (é assim que o "php artisan serve" o invoca, via Symfony Process
+# com cwd = public_path()). Sem isto, qualquer pedido dá erro fatal
+# (require_once /app/index.php, que não existe) mesmo respondendo HTTP 200 —
+# um healthcheck que só olha para o código HTTP não apanha isto. O WORKDIR
+# fica em /app (o entrypoint precisa disso para o .env e o artisan); só o
+# comando final muda de directório.
+CMD ["sh", "-c", "cd public && exec php -S 0.0.0.0:8000 ../vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php"]

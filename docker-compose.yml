@@ -1,0 +1,85 @@
+# Portas publicadas só em loopback (revisão de segurança da E4.6b): nada
+# fica exposto à rede local. No Docker Desktop, o browser do Windows continua
+# a chegar a http://localhost:5173.
+services:
+  mysql:
+    # Imagens fixadas por digest (ADR-0014); actualizar é uma alteração revista.
+    image: mysql:8.4@sha256:a81d043930e51745522bd5c430961cf8286f0a23f0a9a2a6e0108f7ea71b0902
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-kai}
+      MYSQL_USER: ${DB_USERNAME:-kai}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-kai}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-kai_root}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "127.0.0.1:3306:3306"
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:8@sha256:1f88291b4c57bdf249f02eb085a8669889b2d2954e91d4de5118a5da6b78dd53
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: ./apps/api
+    environment:
+      APP_ENV: local
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: ${DB_DATABASE:-kai}
+      DB_USERNAME: ${DB_USERNAME:-kai}
+      DB_PASSWORD: ${DB_PASSWORD:-kai}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
+      SANCTUM_STATEFUL_DOMAINS: ${SANCTUM_STATEFUL_DOMAINS:-localhost:5173}
+    volumes:
+      - ./apps/api:/app
+      - api_vendor:/app/vendor
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      # /up é a rota de health check nativa do Laravel (bootstrap/app.php).
+      # Importante: um "não é false" não chega — um erro fatal do PHP com
+      # display_errors ligado também devolve HTTP 200 com HTML de erro, por
+      # isso confirma o conteúdo esperado, não só que respondeu algo.
+      test: ["CMD", "php", "-r", "exit(str_contains(@file_get_contents('http://localhost:8000/up') ?: '', 'PHP Fatal error') || !@file_get_contents('http://localhost:8000/up') ? 1 : 0);"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  web:
+    build:
+      context: ./apps/web
+    environment:
+      VITE_API_URL: http://localhost:8000
+    volumes:
+      - ./apps/web:/app
+      - web_node_modules:/app/node_modules
+    ports:
+      - "127.0.0.1:5173:5173"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:5173"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  mysql_data:
+  api_vendor:
+  web_node_modules:

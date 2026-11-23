@@ -1,0 +1,27 @@
+{
+  "id": "01937f3a-6c2e-7b4d-8a1e-3f5c9d2b7a40",
+  "type": "ai.mission.step.reported.v1",
+  "occurred_at": "2026-11-22T10:15:30.123Z",
+  "correlation_id": "2b3c4d5e-6f7a-4b2c-9d3e-4f5a6b7c8d9e",
+  "causation_id": null,
+  "idempotency_key": "step:7a8b9c0d-1e2f-4a7b-ac8d-9e0f1a2b3c4d:tool_call_proposed",
+  "producer": "kai-ai-engine",
+  "traceparent": "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01",
+  "payload": {
+    "user_id": 1,
+    "mission_id": "6f7a8b9c-0d1e-4f6a-9b7c-8d9e0f1a2b3c",
+    "step_id": "7a8b9c0d-1e2f-4a7b-ac8d-9e0f1a2b3c4d",
+    "sequence": 0,
+    "tool": {
+      "name": "github.repo.read",
+      "version": "1.0.0"
+    },
+    "arguments_sha256": "dfd4825b8d351198a26e3e6fc7291b50d26143bcf85637afb6a6cfb8da497cd3",
+    "kind": "tool_call_proposed",
+    "arguments": {
+      "repository": "kai-demo/sample-repo",
+      "path": "README.md"
+    },
+    "tainted": false
+  }
+}

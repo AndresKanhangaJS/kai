@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.kai.internal/schemas/tool-authorization.response.v1.json",
+  "title": "Decisão de autorização de ferramenta v1",
+  "description": "Resposta 200 de POST /internal/v1/tool-authorizations. Regras normativas (SPEC-003 §2.2, §2.7): no máximo um grant por (mission_id, step_id, arguments_sha256); a aprovação é consumida quando o grant é emitido; um pedido repetido depois disso recebe deny step_already_authorized e nunca o grant anterior. Uma aprovação pendente por (mission_id, step_id): o mesmo pedido devolve o mesmo approval_id; args diferentes com uma pendente recebem deny approval_pending_for_step.",
+  "oneOf": [
+    {
+      "title": "allow",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "decision",
+        "grant",
+        "grant_id",
+        "expires_at"
+      ],
+      "properties": {
+        "decision": {
+          "const": "allow"
+        },
+        "grant": {
+          "description": "JWS compacto assinado pelo Laravel (alg fixado pelo ADR-0010). O PEP-2 valida a assinatura com a chave pública e usa o exp do JWS; expires_at é só informativo. Segredo de curta duração: nunca em logs, traces nem no RabbitMQ.",
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$",
+          "maxLength": 4096,
+          "x-kai-sensitive": true
+        },
+        "grant_id": {
+          "description": "O jti do grant, para auditoria e para a recusa de reutilização.",
+          "$ref": "common.v1.json#/$defs/uuid"
+        },
+        "expires_at": {
+          "description": "Informativo; quem manda é o exp do JWS.",
+          "$ref": "common.v1.json#/$defs/timestamp"
+        }
+      }
+    },
+    {
+      "title": "deny",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "decision",
+        "reason"
+      ],
+      "properties": {
+        "decision": {
+          "const": "deny"
+        },
+        "reason": {
+          "type": "string",
+          "enum": [
+            "unknown_tool",
+            "tool_not_allowed",
+            "forbidden_level",
+            "arguments_invalid",
+            "arguments_hash_mismatch",
+            "mission_not_running",
+            "approval_rejected",
+            "approval_expired",
+            "step_already_authorized",
+            "approval_pending_for_step",
+            "step_budget_exceeded",
+            "rate_limited"
+          ]
+        }
+      }
+    },
+    {
+      "title": "requires_approval",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "decision",
+        "approval_id"
+      ],
+      "properties": {
+        "decision": {
+          "const": "requires_approval"
+        },
+        "approval_id": {
+          "description": "A missão passa a AWAITING_APPROVAL; quando o owner aprovar, chega ai.mission.step.resume.v1.",
+          "$ref": "common.v1.json#/$defs/uuid"
+        }
+      }
+    }
+  ]
+}

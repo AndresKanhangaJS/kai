@@ -1,0 +1,7 @@
+{
+  "status": "degraded",
+  "checks": {
+    "rabbitmq": "ok",
+    "llm_provider": "down"
+  }
+}

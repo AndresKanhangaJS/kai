@@ -1,0 +1,19 @@
+{
+  "id": "1a2b3c4d-5e6f-4a1b-8c2d-3e4f5a6b7c8d",
+  "type": "ai.conversation.turn.completed.v1",
+  "occurred_at": "2026-11-22T10:15:30.123Z",
+  "correlation_id": "2b3c4d5e-6f7a-4b2c-9d3e-4f5a6b7c8d9e",
+  "causation_id": "01937f3a-6c2e-7b4d-8a1e-3f5c9d2b7a10",
+  "idempotency_key": "turn_completed:1a2b3c4d-5e6f-4a1b-8c2d-3e4f5a6b7c8d",
+  "producer": "kai-ai-engine",
+  "traceparent": "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01",
+  "payload": {
+    "user_id": 1,
+    "conversation_id": "0b9d2f4e-1c3a-4e5f-9a7b-2c4d6e8f0a1b",
+    "user_message_id": "1a2b3c4d-5e6f-4a1b-8c2d-3e4f5a6b7c8d",
+    "run_id": "4d5e6f7a-8b9c-4d4e-bf5a-6b7c8d9e0f1a",
+    "assistant_message_id": "5e6f7a8b-9c0d-4e5f-8a6b-7c8d9e0f1a2b",
+    "content": "Posso conversar, ler o repositório configurado e guardar notas.",
+    "finish_reason": "end_turn"
+  }
+}
