@@ -9,6 +9,7 @@ import pytest
 from fastapi.testclient import TestClient
 from jsonschema import Draft202012Validator
 
+from kai_ai_engine.llm.fake import FakeGateway
 from kai_ai_engine.main import create_app
 
 # Na CI, os contratos são montados só para leitura (scripts/ci/ai-engine.sh);
@@ -41,7 +42,7 @@ def health_schema() -> Draft202012Validator:
 
 
 def client_for(broker: FakeBroker) -> TestClient:
-    return TestClient(create_app(lambda: broker))
+    return TestClient(create_app(lambda: broker, FakeGateway()))
 
 
 def test_ac_004_01_live_responde_ok_conforme_o_contrato(health_schema: Draft202012Validator) -> None:

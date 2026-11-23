@@ -1,0 +1,4 @@
+{"model": "llama-sintetico", "created_at": "2026-11-23T00:00:00Z", "message": {"role": "assistant", "content": "Olá"}, "done": false}
+{"model": "llama-sintetico", "created_at": "2026-11-23T00:00:00Z", "message": {"role": "assistant", "content": "! Tudo"}, "done": false}
+{"model": "llama-sintetico", "created_at": "2026-11-23T00:00:00Z", "message": {"role": "assistant", "content": " bem."}, "done": false}
+{"model": "llama-sintetico", "created_at": "2026-11-23T00:00:01Z", "message": {"role": "assistant", "content": ""}, "done": true, "done_reason": "stop", "prompt_eval_count": 21, "eval_count": 5}

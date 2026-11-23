@@ -11,8 +11,9 @@ from typing import override
 
 SERVICE = "kai-ai-engine"
 RESERVED = frozenset({"ts", "service", "level", "event", "error_class"})
-# Em DEBUG, o aiormq regista frames AMQP (o StartOk leva a resposta SASL PLAIN).
-QUIET_LIBRARIES = ("aiormq", "aio_pika", "pamqp")
+# Em DEBUG, o aiormq regista frames AMQP (o StartOk leva a resposta SASL PLAIN) e os
+# clientes HTTP registam cabeçalhos e corpos (chave da API, prompts, respostas).
+QUIET_LIBRARIES = ("aiormq", "aio_pika", "pamqp", "anthropic", "httpx2", "httpcore2", "httpx", "httpcore")
 
 
 class JsonFormatter(logging.Formatter):

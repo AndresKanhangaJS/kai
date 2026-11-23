@@ -153,6 +153,15 @@ services:
     environment:
       RABBITMQ_HOST: rabbitmq
       KAI_RABBITMQ_AI_ENGINE_PASSWORD: ${KAI_RABBITMQ_AI_ENGINE_PASSWORD:-}
+      # LLM (ADR-0006, M03 E3.3): fake por omissão; um fornecedor real sem chave
+      # falha no arranque (AC-004-03).
+      MODEL_PROVIDER: ${MODEL_PROVIDER:-fake}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-}
+      ANTHROPIC_EFFORT: ${ANTHROPIC_EFFORT:-}
+      ANTHROPIC_FALLBACK_MODELS: ${ANTHROPIC_FALLBACK_MODELS:-}
+      OLLAMA_HOST: ${OLLAMA_HOST:-}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-}
     # Só messaging (RabbitMQ, Reverb, api) e telemetry: sem acesso ao MySQL nem ao
     # Redis do Laravel (ADR-0002; revisão de segurança da E3.2, testado).
     networks: [messaging, telemetry]
