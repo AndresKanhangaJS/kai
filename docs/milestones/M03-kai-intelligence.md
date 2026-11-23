@@ -23,8 +23,8 @@
 | ID | Tarefa | Tipo | Critério de aceitação | Depende de | Paralelo? |
 |---|---|---|---|---|---|
 | E1.1 | ~~Spike do Reverb~~ | spike | **Feito (2026-11-23).** `spikes/m03-reverb/run.sh`: Python só com a biblioteca padrão publica por HTTP (Pusher), e um cliente WebSocket recebe no canal privado: 100/100 por ordem, p95 8,9 ms; 500/500, p95 8,1 ms. Negativos recusados (assinatura errada → 401; auth inválida e origem não permitida → 4009). `laravel/reverb` v1.13.0 (MIT) e a extensão `pcntl` | — | Sim |
-| E1.2 | Escolhe as bibliotecas AMQP (PHP e Python) com publisher confirms e quorum queues | decisão (P-019) | Tabela comparativa com licença, data da versão e manutenção; aprovação do owner; versões exactas | — | Sim |
-| E1.3 | Escolhe o SDK OpenTelemetry (PHP e Python) e fixa a versão das semconv de messaging | decisão (P-019) | Idem; semconv fixada (`observability.md`) | — | Sim |
+| E1.2 | Escolhe as bibliotecas AMQP (PHP e Python) | decisão (P-019) | **Proposta (2026-11-23):** [ADR-0016](../adr/0016-clientes-amqp-php-e-python.md): `php-amqplib` 3.7.5 (LGPL, a confirmar pelo owner) e `aio-pika` 10.2.3; o `bunny` fica excluído por conflito com a `react/promise` v3 | — | Sim |
+| E1.3 | Escolhe o SDK OpenTelemetry (PHP e Python) e fixa a versão das semconv | decisão (P-019) | **Proposta (2026-11-23):** [ADR-0017](../adr/0017-sdks-opentelemetry-e-semconv.md): instrumentação manual, SDK PHP 1.16.1, SDK Python 1.45.2, semconv 1.44.0 | — | Sim |
 | E1.4 | ~~Regista o resultado do spike~~ | docs/ADR | **Feito (2026-11-23).** [ADR-0015](../adr/0015-streaming-de-tokens-reverb-confirmado.md) aceite a 2026-11-23; substitui o ADR-0009 | E1.1 | Não |
 
 ## Épico E2: infraestrutura de mensagens e observabilidade (ADR-0003, NFR-002)

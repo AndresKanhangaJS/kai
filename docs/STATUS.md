@@ -51,7 +51,7 @@ Decomposto em 4 épicos e 17 tarefas → [`docs/milestones/M02-core-foundation.m
 ## Próximas 3 tarefas
 
 1. Owner: activar *Secret scanning* + *Push protection*, aprovar o ADR-0014 e fazer merge do PR (fecha o M02).
-2. M03 E1.2/E1.3: escolher as bibliotecas AMQP e OpenTelemetry (P-019; pede a aprovação do owner). O spike do Reverb (E1.1) passou: [ADR-0015](adr/0015-streaming-de-tokens-reverb-confirmado.md) aceite.
+2. Owner: aprovar o [ADR-0016](adr/0016-clientes-amqp-php-e-python.md) (AMQP; confirmar a LGPL do `php-amqplib`) e o [ADR-0017](adr/0017-sdks-opentelemetry-e-semconv.md) (OpenTelemetry), que fecham a P-019. Depois: E2.1 (RabbitMQ no Compose) e E3.1 (spec do AI Engine).
 3. Owner: correr `kai:enable-totp` no owner de dev (se ainda não tiver TOTP) e registar uma passkey real no Chrome/Windows Hello.
 
 ## Perguntas abertas
