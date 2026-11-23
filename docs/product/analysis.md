@@ -232,8 +232,11 @@ A recomendação vem primeiro em cada linha.
 | P-015 | Demo pública (custo e chaves) | **Fechado** → [`.env.example`](../../.env.example): `MODEL_PROVIDER=fake` por omissão para quem clona o repositório | M02 |
 | P-016 | Modelo-juiz das avaliações e orçamento mensal | Modelo fixado, calibrado com cerca de 50 itens etiquetados por humanos | M05 |
 | P-017 | Passkeys no Laravel 13 (1.ª parte ou pacote) | **Fechado** (2026-11-20): suporte de 1.ª parte confirmado — `laravel/fortify` v1.43.0 + `laravel/passkeys` v0.3.0 (MIT, PHP ^8.2, Laravel ^12\|^13), instalado em `apps/api`. Cobre também o TOTP de D-05 (`pragmarx/google2fa`) | M02 |
-| P-018 | Um turno de conversa é uma missão de um passo no M03? | Sim: a AC-09 fala de missões e o `ai.mission.cancel.requested.v1` exige `mission_id`; o M05 generaliza | M03 (E4.1) |
+| P-018 | Um turno de conversa é uma missão de um passo no M03? | **Fechado** (2026-11-23, [SPEC-004](../specs/004-ai-engine-m03.md)): sim, o Laravel envia sempre `mission_id`. A AC-09 fala de missões e o `ai.mission.cancel.requested.v1` exige `mission_id`; o M05 generaliza | M03 (E4.1) |
 | P-019 | Bibliotecas AMQP e OpenTelemetry (PHP e Python) | **Fechado** (2026-11-23) → [ADR-0016](../adr/0016-clientes-amqp-php-e-python.md) (`php-amqplib` 3.7.5, LGPL aceite pelo owner; `aio-pika` 10.2.3) e [ADR-0017](../adr/0017-sdks-opentelemetry-e-semconv.md) (instrumentação manual, semconv 1.44.0) | M03 (E1.2, E1.3) |
+| P-020 | Onde guarda o AI Engine a inbox de deduplicação? | **Fechado** (2026-11-23): Redis do Compose (`SET NX`, TTL de 7 dias, só IDs), com utilizador ACL próprio e `redis-py` como dependência nova ([SPEC-004](../specs/004-ai-engine-m03.md) §10) | M03 (E3.4) |
+| P-021 | Dependências do `apps/ai-engine` | Lista na [SPEC-004](../specs/004-ai-engine-m03.md) §10, aprovada pelo owner na E3.2 e na E3.3 | M03 (E3.2) |
+| P-022 | `prompt_version` no `ai.model.usage.recorded.v1` (NFR-017)? | Só no span no M03; campo opcional (compatível) se a auditoria de custos o pedir | M03 |
 
 ### 4.3 Riscos
 

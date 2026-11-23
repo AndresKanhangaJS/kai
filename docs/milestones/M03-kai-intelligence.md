@@ -39,7 +39,7 @@
 
 | ID | Tarefa | Tipo | Critério de aceitação | Depende de | Paralelo? |
 |---|---|---|---|---|---|
-| E3.1 | Spec do AI Engine M03 (`kai-spec`): consumidor de `turn.requested`, LLM Gateway, publicação de eventos, health | spec | Spec aprovada com Given/When/Then | — | Sim |
+| E3.1 | Spec do AI Engine M03 (`kai-spec`): consumidor de `turn.requested`, LLM Gateway, publicação de eventos, health | spec | **Feito (2026-11-23):** [SPEC-004](../specs/004-ai-engine-m03.md) aprovada, 11 critérios; P-018 e P-020 fechadas; P-021 (dependências) aprovadas em lista na E3.2/E3.3 | — | Sim |
 | E3.2 | Cria `apps/ai-engine` (Python 3.14, FastAPI, imagem fixada por digest, deps com hashes) com `/health/live` e `/health/ready` conforme o contrato; sem porta publicada no host (ADR-0010) | código | As respostas validam contra `health.v1`; `scripts/ci/ai-engine.sh` corre ruff, mypy (strict) e pytest; novo job na CI (actualiza o ADR-0014) | E3.1 | Não |
 | E3.3 | Porta `LLMGateway` (`generate`, `stream`, `count_tokens`) com os adaptadores `fake` (determinístico, por omissão), Anthropic e Ollama | código | Os testes correm só com o `fake`, sem rede (AC-10); os adaptadores reais estão atrás de flags de capacidade; as chaves vêm de variáveis de ambiente e nunca aparecem em logs | E3.2 | Não |
 | E3.4 | Consumidor de `turn.requested.v1` com inbox (dedupe por `id`), validação contra o schema, streaming de deltas (E2.3), `turn.completed`/`turn.failed` e `usage.recorded` | código | Teste de contrato: consome todos os exemplos válidos e rejeita os inválidos (para a DLQ); a reentrega não duplica a resposta; os eventos emitidos validam contra os schemas | E2.1, E3.3 | Não |
