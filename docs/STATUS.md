@@ -32,7 +32,7 @@
 ## Decisões recentes
 
 - D-01 a D-18: ver [`analysis.md` §0](product/analysis.md#0-decisões-do-owner-passam-a-c).
-- ADRs: ver [`docs/adr/`](adr/README.md). 12 aceites, 1 substituído (0004 → 0013). Todos os ADRs do M01 estão decididos. M02: ADR-0014 (CI) **Proposto**, à espera da aprovação do owner.
+- ADRs: ver [`docs/adr/`](adr/README.md). 12 aceites, 2 substituídos (0004 → 0013, 0009 → 0015). Todos os ADRs do M01 estão decididos. M02: ADR-0014 (CI) **Proposto**, à espera da aprovação do owner.
 - Harness: ver [`docs/engineering/claude-code-setup.md`](engineering/claude-code-setup.md), que inclui a proposta de servidores MCP, ainda sem nada instalado (instalação pede aprovação no M02, D-18).
 
 ## M02 · Core Foundation
@@ -51,7 +51,7 @@ Decomposto em 4 épicos e 17 tarefas → [`docs/milestones/M02-core-foundation.m
 ## Próximas 3 tarefas
 
 1. Owner: activar *Secret scanning* + *Push protection*, aprovar o ADR-0014 e fazer merge do PR (fecha o M02).
-2. M03 E1.2/E1.3: escolher as bibliotecas AMQP e OpenTelemetry (P-019; pede a aprovação do owner). O spike do Reverb (E1.1) já passou: [ADR-0015](adr/0015-streaming-de-tokens-reverb-confirmado.md) por aprovar.
+2. M03 E1.2/E1.3: escolher as bibliotecas AMQP e OpenTelemetry (P-019; pede a aprovação do owner). O spike do Reverb (E1.1) passou: [ADR-0015](adr/0015-streaming-de-tokens-reverb-confirmado.md) aceite.
 3. Owner: correr `kai:enable-totp` no owner de dev (se ainda não tiver TOTP) e registar uma passkey real no Chrome/Windows Hello.
 
 ## Perguntas abertas

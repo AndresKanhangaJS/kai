@@ -1,6 +1,6 @@
 # ADR-0015: Streaming de tokens por Reverb, confirmado pelo spike
 
-- **Estado:** Proposto
+- **Estado:** Aceite (2026-11-23)
 - **Data:** 2026-11-23
 - **Decisores:** owner
 - **Relacionados:** substitui o ADR-0009; FR-008; NFR-015; AC-03; M03 E1.1/E1.4; ADR-0002, ADR-0010

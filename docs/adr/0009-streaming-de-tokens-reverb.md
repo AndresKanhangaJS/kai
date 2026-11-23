@@ -1,6 +1,6 @@
 # ADR-0009: Streaming de tokens por Reverb
 
-- **Estado:** Aceite (condicionado ao spike no M03, ver Decisão)
+- **Estado:** Substituído por ADR-0015
 - **Data:** 2026-11-20
 - **Decisores:** owner
 - **Relacionados:** PDF p.6, p.7; ADR-0002, 0003; FR-008; AC-03
