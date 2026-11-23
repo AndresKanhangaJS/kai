@@ -1,0 +1,144 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.kai.internal/schemas/ai.mission.step.reported.v1.json",
+  "title": "ai.mission.step.reported.v1",
+  "description": "Evento (Python → Laravel, kai.events): o Python reporta um passo de missão. Só o Laravel muda o estado da missão (ADR-0002); este evento é uma proposta ou um relato, nunca uma decisão. O taint da missão é derivado só pelo Laravel, quando emite um grant de uma ferramenta que lê conteúdo externo (SPEC-003 §2.6): não vem aqui. arguments e output são não confiáveis. Idempotência: step:{step_id}:{kind}.",
+  "allOf": [
+    {
+      "$ref": "envelope.v1.json"
+    }
+  ],
+  "properties": {
+    "type": {
+      "const": "ai.mission.step.reported.v1"
+    },
+    "producer": {
+      "const": "kai-ai-engine"
+    },
+    "idempotency_key": {
+      "pattern": "^step:[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}:(tool_call_proposed|tool_call_completed|tool_call_failed)$"
+    },
+    "payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "user_id",
+        "mission_id",
+        "step_id",
+        "sequence",
+        "kind",
+        "tool",
+        "arguments_sha256"
+      ],
+      "properties": {
+        "user_id": {
+          "$ref": "common.v1.json#/$defs/user_id"
+        },
+        "mission_id": {
+          "$ref": "common.v1.json#/$defs/uuid"
+        },
+        "step_id": {
+          "$ref": "common.v1.json#/$defs/uuid"
+        },
+        "sequence": {
+          "description": "Ordem do passo na missão, a partir de 0.",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "tool_call_proposed",
+            "tool_call_completed",
+            "tool_call_failed"
+          ]
+        },
+        "tool": {
+          "$ref": "common.v1.json#/$defs/tool_ref"
+        },
+        "arguments": {
+          "$ref": "common.v1.json#/$defs/tool_arguments"
+        },
+        "arguments_sha256": {
+          "description": "SHA-256 do JSON canónico (RFC 8785) dos argumentos. O Laravel recalcula-o.",
+          "$ref": "common.v1.json#/$defs/sha256"
+        },
+        "output": {
+          "$ref": "common.v1.json#/$defs/tool_output"
+        },
+        "error": {
+          "$ref": "common.v1.json#/$defs/safe_error"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "tool_call_proposed"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "arguments"
+            ],
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "output"
+                  ]
+                },
+                {
+                  "required": [
+                    "error"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "tool_call_completed"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "output"
+            ],
+            "not": {
+              "required": [
+                "error"
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "tool_call_failed"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "error"
+            ],
+            "not": {
+              "required": [
+                "output"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

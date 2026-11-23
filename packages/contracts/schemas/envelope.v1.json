@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.kai.internal/schemas/envelope.v1.json",
+  "title": "Envelope de mensagem v1",
+  "description": "Envelope comum de todos os comandos e eventos do RabbitMQ (ADR-0002, ADR-0003). O payload é definido pelo schema de cada tipo. Nunca leva segredos, tokens nem grants.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "type",
+    "occurred_at",
+    "correlation_id",
+    "causation_id",
+    "idempotency_key",
+    "producer",
+    "traceparent",
+    "payload"
+  ],
+  "properties": {
+    "id": {
+      "description": "Identificador único da mensagem (UUIDv7). A inbox do consumidor deduplica por ele.",
+      "$ref": "common.v1.json#/$defs/uuidv7"
+    },
+    "type": {
+      "description": "Tipo da mensagem, com a major no nome: <contexto>.<entidade>.<acção>.v<major>.",
+      "type": "string",
+      "pattern": "^[a-z]+(\\.[a-z_]+){2,4}\\.v[1-9][0-9]*$",
+      "maxLength": 128
+    },
+    "occurred_at": {
+      "$ref": "common.v1.json#/$defs/timestamp"
+    },
+    "correlation_id": {
+      "description": "Liga todas as mensagens do mesmo pedido do owner (ex.: o turno).",
+      "$ref": "common.v1.json#/$defs/uuid"
+    },
+    "causation_id": {
+      "description": "O id da mensagem que causou esta; null na primeira de uma cadeia.",
+      "anyOf": [
+        {
+          "$ref": "common.v1.json#/$defs/uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "idempotency_key": {
+      "description": "Chave de negócio (ex.: turn:{user_message_id}). Duas mensagens com a mesma chave têm o mesmo efeito que uma.",
+      "type": "string",
+      "pattern": "^[a-z_]+:[0-9a-zA-Z:_-]+$",
+      "maxLength": 200
+    },
+    "producer": {
+      "type": "string",
+      "enum": [
+        "kai-api",
+        "kai-ai-engine"
+      ]
+    },
+    "traceparent": {
+      "$ref": "common.v1.json#/$defs/traceparent"
+    },
+    "tracestate": {
+      "$ref": "common.v1.json#/$defs/tracestate"
+    },
+    "payload": {
+      "description": "Fechado (additionalProperties: false) pelo schema de cada tipo.",
+      "type": "object"
+    }
+  }
+}

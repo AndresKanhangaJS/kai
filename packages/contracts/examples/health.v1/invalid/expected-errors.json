@@ -1,0 +1,10 @@
+{
+  "estado-desconhecido": {
+    "keyword": "enum",
+    "path": "/status"
+  },
+  "expoe-versao": {
+    "keyword": "additionalProperties",
+    "path": ""
+  }
+}

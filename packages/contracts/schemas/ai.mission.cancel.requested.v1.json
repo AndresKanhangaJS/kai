@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.kai.internal/schemas/ai.mission.cancel.requested.v1.json",
+  "title": "ai.mission.cancel.requested.v1",
+  "description": "Comando (Laravel → Python, kai.commands): parar uma missão em curso (AC-09). Só pára o Python: o estado final (CANCELLED, ou FAILED para timeout, orçamento e aprovação expirada; ADR-0013) é decidido e auditado pelo Laravel antes de enviar este comando. reason é informativo. Idempotência: cancel:{mission_id}.",
+  "allOf": [
+    {
+      "$ref": "envelope.v1.json"
+    }
+  ],
+  "properties": {
+    "type": {
+      "const": "ai.mission.cancel.requested.v1"
+    },
+    "producer": {
+      "const": "kai-api"
+    },
+    "idempotency_key": {
+      "pattern": "^cancel:[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "user_id",
+        "mission_id",
+        "reason"
+      ],
+      "properties": {
+        "user_id": {
+          "$ref": "common.v1.json#/$defs/user_id"
+        },
+        "mission_id": {
+          "$ref": "common.v1.json#/$defs/uuid"
+        },
+        "reason": {
+          "type": "string",
+          "enum": [
+            "owner_cancelled",
+            "timeout",
+            "budget_exceeded",
+            "approval_rejected",
+            "approval_timeout"
+          ]
+        }
+      }
+    }
+  }
+}

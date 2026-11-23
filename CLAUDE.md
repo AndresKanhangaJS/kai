@@ -50,6 +50,7 @@ Corre a skill `/done` sobre o diff para verificar a DoD.
   - `scripts/ci/api.sh`: Pint, PHPStan (nível 6) e Pest, com SQLite em memória forçado.
   - `scripts/ci/web.sh`: `tsc -b`, `oxlint` e Vitest.
   - `scripts/ci/harness.sh`: validação do harness, scan de segredos e testes do guard.
+  - `scripts/ci/contracts.sh`: schemas, OpenAPI, AsyncAPI e exemplos de `packages/contracts`.
   - `scripts/e2e.sh`: E2E Playwright numa stack descartável; a stack de dev tem de estar parada.
   - `scripts/ci/all.sh`: tudo.
 - Nunca corras os testes do `apps/api` com um `docker compose run` sem as variáveis de teste: correm contra o MySQL real (bug da E4.4). Usa o `scripts/ci/api.sh`.

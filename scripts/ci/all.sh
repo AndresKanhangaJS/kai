@@ -5,6 +5,7 @@ set -euo pipefail
 cd "$(dirname "$0")/../.."
 
 scripts/ci/harness.sh
+scripts/ci/contracts.sh
 scripts/ci/api.sh
 scripts/ci/web.sh
 scripts/e2e.sh

@@ -1,8 +1,8 @@
 # Estado do projecto KAI
 
-- **Actualizado:** 2026-11-22 (E2)
-- **Milestone actual:** M02 · Core Foundation — **Épicos E1 e E4 concluídos**; **E2 (CI) feita localmente** (E2.1, E2.2; E2.4 depende de o owner activar o secret scanning do GitHub; E2.3 espera pela E3); E3 por fazer
-- **Branch:** `chore/m02-ci` (E2; a partir de `chore/claude-harness`)
+- **Actualizado:** 2026-11-22 (E2 + E3)
+- **Milestone actual:** M02 · Core Foundation — **Épicos E1 e E4 concluídos**; **E2 (CI) e E3 (contratos v1) feitas localmente**; falta a CI verde no PR e o owner activar o secret scanning (E2.4)
+- **Branch:** `chore/m02-ci` (E2 e E3; a partir de `chore/claude-harness`; publicada, PR por abrir)
 
 ## Milestones concluídos
 
@@ -40,18 +40,18 @@
 Decomposto em 4 épicos e 17 tarefas → [`docs/milestones/M02-core-foundation.md`](milestones/M02-core-foundation.md).
 
 - **E1 (concluído):** monorepo mínimo (`apps/api`, `apps/web`, `packages/contracts`) e Docker Compose; AC-01 verificada a partir de um clone limpo; fecha P-015 (fornecedor `fake` por omissão).
-- **E2 (feita localmente, a confirmar no primeiro PR):** `.github/workflows/ci.yml` com 4 jobs que correm os mesmos scripts do local (`scripts/ci/*.sh`, `scripts/e2e.sh`), ADR-0014 (Proposto). Pint, Larastan nível 6 sem baseline, Pest (41), `tsc`, `oxlint`, Vitest (9), E2E (5). `apps/web` em Node 24 LTS. Falta: o owner activar *Secret scanning* + *Push protection* ([`ci.md`](engineering/ci.md)); E2.3 (schemas) com a E3; mypy com o primeiro código Python.
-- **E3:** contratos v1 (`kai-contract`) — síncrono (`tool-authorizations`, health) e os 6 schemas assíncronos do MVP, antes de o RabbitMQ existir (chega no M03).
+- **E2 (feita localmente, a confirmar no primeiro PR):** `.github/workflows/ci.yml` com 5 jobs que correm os mesmos scripts do local (`scripts/ci/*.sh`, `scripts/e2e.sh`), ADR-0014 (Proposto). Pint, Larastan nível 6 sem baseline, Pest (45), `tsc`, `oxlint`, Vitest (9), E2E (5). `apps/web` em Node 24 LTS. Falta: o owner activar *Secret scanning* + *Push protection* ([`ci.md`](engineering/ci.md)); mypy com o primeiro código Python.
+- **E3 (feita, 2026-11-22):** contratos v1 em `packages/contracts` ([SPEC-003](specs/003-contratos-v1.md)): OpenAPI 3.1 (`tool-authorizations`, health), AsyncAPI 3.0 com 7 mensagens e envelope v1, 23 exemplos válidos e 69 inválidos. **E2.3:** job `contracts` na CI (`scripts/ci/contracts.sh`), com o validador numa imagem própria, sem rede. Decisões: o `turn.requested` leva a janela de contexto; o grant nunca vai no RabbitMQ; o taint é derivado só pelo Laravel; um grant por passo e aprovação consumida (revisão de segurança).
 - **E4 (concluído; o E2E corre na CI desde a E2):** Identity & Access. P-017 fechada. `laravel/sanctum` instalado (SPA cross-origin). Fortify headless. `TotpLoginController` próprio (TOTP como alternativa à passkey). `SessionController`. Spec: [`docs/specs/002-identity-access.md`](specs/002-identity-access.md). Modelo de ameaças: [`docs/security/threat-model-identity-access.md`](security/threat-model-identity-access.md). 45 testes Pest a passar (E2). **E4.6b:** `scripts/e2e.sh` — 5 testes Playwright (AC-02a/b/c/e/f/g, T-02, T-03, T-07) numa stack descartável `kai-e2e`, passkey via Virtual Authenticator do CDP; registo de passkey na UI; `kai:enable-totp`. A revisão de segurança encontrou um achado ALTO (gestão de credenciais sem step-up, T-12), já corrigido: janela de 10 min e auditoria de credenciais. **UI mínima em `apps/web`** (login TOTP/recuperação/passkey, lista de sessões) — **primeiro ecrã do KAI visto e confirmado pelo owner num browser real** (Chrome, Windows), incluindo o login completo.
 
 **Critério de aceitação:** AC-01 e AC-02; CI verde.
 
-**Caminho crítico:** ~~E1.1 → E4.1 → E4.2 → E4.3 → E4.5 → E4.6a → E4.6b~~ — fechado. O M02 fica a depender da E2 (CI) e da E3 (contratos).
+**Caminho crítico:** ~~E1.1 → E4.1 → E4.2 → E4.3 → E4.5 → E4.6a → E4.6b~~ — fechado. O M02 fica a depender só da CI verde no GitHub.
 
 ## Próximas 3 tarefas
 
 1. Confirmar a CI verde no primeiro PR de `chore/m02-ci`; o owner activa o secret scanning do GitHub e aprova o ADR-0014.
-2. E3.1/E3.2: definir os contratos v1 com `kai-contract`.
+2. Fechar o M02: CI verde no PR, secret scanning activo, ADR-0014 aceite; depois o planeamento do M03 (`kai-milestone`).
 3. Owner: correr `kai:enable-totp` no owner de dev (se ainda não tiver TOTP) e registar uma passkey real no Chrome/Windows Hello.
 
 ## Perguntas abertas

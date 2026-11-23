@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.kai.internal/schemas/health.v1.json",
+  "title": "Estado de saúde v1",
+  "description": "Corpo de /health/live e /health/ready. Sem versões de bibliotecas, hosts nem mensagens de erro internas.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["status"],
+  "properties": {
+    "status": { "type": "string", "enum": ["ok", "degraded", "down"] },
+    "checks": {
+      "description": "Só em /health/ready: estado de cada dependência, por nome.",
+      "type": "object",
+      "maxProperties": 20,
+      "propertyNames": { "pattern": "^[a-z][a-z0-9_]{0,31}$" },
+      "additionalProperties": { "type": "string", "enum": ["ok", "down"] }
+    }
+  }
+}

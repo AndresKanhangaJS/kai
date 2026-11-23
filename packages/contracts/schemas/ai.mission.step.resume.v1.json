@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.kai.internal/schemas/ai.mission.step.resume.v1.json",
+  "title": "ai.mission.step.resume.v1",
+  "description": "Comando (Laravel → Python, kai.commands): retomar um passo depois de o owner aprovar. Não leva o execution grant: o Python pede-o em POST /internal/v1/tool-authorizations (SPEC-003 §2.2). Uma rejeição não gera resume; a missão passa a CANCELLED. Idempotência: resume:{approval_id}.",
+  "allOf": [
+    {
+      "$ref": "envelope.v1.json"
+    }
+  ],
+  "properties": {
+    "type": {
+      "const": "ai.mission.step.resume.v1"
+    },
+    "producer": {
+      "const": "kai-api"
+    },
+    "idempotency_key": {
+      "pattern": "^resume:[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "user_id",
+        "mission_id",
+        "step_id",
+        "approval_id"
+      ],
+      "properties": {
+        "user_id": {
+          "$ref": "common.v1.json#/$defs/user_id"
+        },
+        "mission_id": {
+          "$ref": "common.v1.json#/$defs/uuid"
+        },
+        "step_id": {
+          "$ref": "common.v1.json#/$defs/uuid"
+        },
+        "approval_id": {
+          "$ref": "common.v1.json#/$defs/uuid"
+        }
+      }
+    }
+  }
+}

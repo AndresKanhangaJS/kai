@@ -4,11 +4,12 @@ Decisão e alternativas: [ADR-0014](../adr/0014-ci-github-actions-via-docker-com
 
 ## O que corre
 
-A CI e o local correm exactamente os mesmos scripts, dentro das imagens do Docker Compose.
+A CI e o local correm exactamente os mesmos scripts, dentro das imagens do Docker Compose. A excepção é o job `contracts`, que usa a imagem fixada em `packages/contracts/tooling/`. As imagens são só para x86_64: o lock de Python tem hashes de wheels linux x86_64.
 
 | Job | Script | Passos |
 |---|---|---|
 | `harness` | `scripts/ci/harness.sh` | `validate_harness.py` (estrutura do harness + scan de segredos) e testes do hook `guard.sh` |
+| `contracts` | `scripts/ci/contracts.sh` | Contratos v1 (E2.3): JSON Schemas, OpenAPI 3.1 e AsyncAPI 3.0 contra os meta-schemas oficiais, `$ref`, exemplos válidos e inválidos, regras do KAI ([`packages/contracts`](../../packages/contracts/README.md)) |
 | `api` | `scripts/ci/api.sh` | Pint (`--test`), PHPStan/Larastan nível 6, Pest (SQLite em memória, forçado no `docker compose run`) |
 | `web` | `scripts/ci/web.sh` | `npm ci`, `tsc -b`, `oxlint`, Vitest |
 | `e2e` | `scripts/e2e.sh` | AC-02 em Playwright, numa stack descartável `kai-e2e` |
@@ -19,6 +20,7 @@ O workflow corre em cada `pull_request` e em cada `push` para `main`. Tem só pe
 
 ```bash
 scripts/ci/harness.sh
+scripts/ci/contracts.sh
 scripts/ci/api.sh
 scripts/ci/web.sh
 docker compose stop && scripts/e2e.sh   # o E2E usa as mesmas portas da stack de dev
@@ -37,9 +39,9 @@ O scan de segredos na CI (`validate_harness.py`) procura 10 padrões em todos os
 
 **Settings → Branches → Add rule** para `main`:
 - Require a pull request before merging.
-- Require status checks to pass, com os 4 jobs: `Harness e scan de segredos`, `API (Pint, PHPStan, Pest)`, `Web (tsc, oxlint, Vitest)` e `E2E AC-02 (Playwright)`.
+- Require status checks to pass, com os 5 jobs: `Harness e scan de segredos`, `Contratos (schemas, OpenAPI, AsyncAPI, exemplos)`, `API (Pint, PHPStan, Pest)`, `Web (tsc, oxlint, Vitest)` e `E2E AC-02 (Playwright)`.
 
 ## Manutenção
 - Actualizar a `actions/checkout` (SHA), o digest de uma imagem ou a versão de uma ferramenta é uma alteração revista, com a fonte e a data no ADR-0014. Nunca é automática.
 - Subir o nível do PHPStan pede uma decisão explícita. Hoje está no nível 6, sem baseline.
-- Por fazer: a E2.3 (validação de schemas de `packages/contracts`) entra com a E3; o mypy entra com o primeiro código Python (M03).
+- Por fazer: o mypy entra com o primeiro código Python (M03). Os testes de produtor e consumidor dos contratos entram com o código que os usa (M03, M05).

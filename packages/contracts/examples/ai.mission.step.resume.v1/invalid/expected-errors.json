@@ -1,0 +1,42 @@
+{
+  "campo-extra-no-payload": {
+    "keyword": "additionalProperties",
+    "path": "/payload"
+  },
+  "chave-so-com-hifenes": {
+    "keyword": "pattern",
+    "path": "/idempotency_key"
+  },
+  "grant-no-rabbitmq": {
+    "keyword": "additionalProperties",
+    "path": "/payload"
+  },
+  "id-nao-uuidv7": {
+    "keyword": "pattern",
+    "path": "/id"
+  },
+  "produtor-errado": {
+    "keyword": "const",
+    "path": "/producer"
+  },
+  "sem-traceparent": {
+    "keyword": "required",
+    "path": ""
+  },
+  "sem-user-id": {
+    "keyword": "required",
+    "path": "/payload"
+  },
+  "timestamp-sem-segundos": {
+    "keyword": "pattern",
+    "path": "/occurred_at"
+  },
+  "traceparent-a-zero": {
+    "keyword": "pattern",
+    "path": "/traceparent"
+  },
+  "tracestate-com-crlf": {
+    "keyword": "pattern",
+    "path": "/tracestate"
+  }
+}

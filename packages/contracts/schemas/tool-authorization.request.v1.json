@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.kai.internal/schemas/tool-authorization.request.v1.json",
+  "title": "Pedido de autorização de ferramenta v1",
+  "description": "Corpo de POST /internal/v1/tool-authorizations (Python → Laravel). Não leva nível, modo, dono nem taint: o Laravel deriva-os do Tool Registry e da missão (ADR-0013). Este endpoint NÃO é tolerant reader: qualquer campo fora do schema dá 422. O Laravel recalcula o arguments_sha256 e recusa se não coincidir; o step_id tem de pertencer à mission_id.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "mission_id",
+    "step_id",
+    "tool",
+    "arguments",
+    "arguments_sha256"
+  ],
+  "properties": {
+    "mission_id": {
+      "$ref": "common.v1.json#/$defs/uuid"
+    },
+    "step_id": {
+      "$ref": "common.v1.json#/$defs/uuid"
+    },
+    "tool": {
+      "$ref": "common.v1.json#/$defs/tool_ref"
+    },
+    "arguments": {
+      "$ref": "common.v1.json#/$defs/tool_arguments"
+    },
+    "arguments_sha256": {
+      "description": "SHA-256 do JSON canónico (RFC 8785) de arguments.",
+      "$ref": "common.v1.json#/$defs/sha256"
+    }
+  }
+}

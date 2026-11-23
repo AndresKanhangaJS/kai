@@ -1,0 +1,21 @@
+{
+  "id": "01937f3a-6c2e-7b4d-8a1e-3f5c9d2b7a70",
+  "type": "ai.model.usage.recorded.v1",
+  "occurred_at": "2026-11-22T10:15:30.123Z",
+  "correlation_id": "2b3c4d5e-6f7a-4b2c-9d3e-4f5a6b7c8d9e",
+  "causation_id": null,
+  "idempotency_key": "usage:9c0d1e2f-3a4b-4c9d-8e0f-1a2b3c4d5e6f",
+  "producer": "kai-ai-engine",
+  "traceparent": "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01",
+  "payload": {
+    "usage_id": "9c0d1e2f-3a4b-4c9d-8e0f-1a2b3c4d5e6f",
+    "conversation_id": "0b9d2f4e-1c3a-4e5f-9a7b-2c4d6e8f0a1b",
+    "run_id": "4d5e6f7a-8b9c-4d4e-bf5a-6b7c8d9e0f1a",
+    "provider": "fake",
+    "model": "fake-echo-1",
+    "input_tokens": 12,
+    "output_tokens": 20,
+    "cost_usd": "0",
+    "latency_ms": 3
+  }
+}

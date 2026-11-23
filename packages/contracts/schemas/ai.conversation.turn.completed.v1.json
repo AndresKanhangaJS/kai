@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.kai.internal/schemas/ai.conversation.turn.completed.v1.json",
+  "title": "ai.conversation.turn.completed.v1",
+  "description": "Evento (Python → Laravel, kai.events): resposta final de um turno. O Laravel persiste-a e o cliente reconcilia com os deltas (ADR-0009). O content vem do LLM: não confiável. Idempotência: turn_completed:{user_message_id}. Estado terminal first-wins: o Laravel aplica só o primeiro completed/failed de cada turno e audita o segundo.",
+  "allOf": [
+    {
+      "$ref": "envelope.v1.json"
+    }
+  ],
+  "properties": {
+    "type": {
+      "const": "ai.conversation.turn.completed.v1"
+    },
+    "producer": {
+      "const": "kai-ai-engine"
+    },
+    "idempotency_key": {
+      "pattern": "^turn_completed:[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "user_id",
+        "conversation_id",
+        "user_message_id",
+        "run_id",
+        "assistant_message_id",
+        "content",
+        "finish_reason"
+      ],
+      "properties": {
+        "user_id": {
+          "$ref": "common.v1.json#/$defs/user_id"
+        },
+        "conversation_id": {
+          "$ref": "common.v1.json#/$defs/uuid"
+        },
+        "user_message_id": {
+          "$ref": "common.v1.json#/$defs/uuid"
+        },
+        "run_id": {
+          "$ref": "common.v1.json#/$defs/uuid"
+        },
+        "assistant_message_id": {
+          "description": "Gerado pelo Python, para a persistência no Laravel ser idempotente.",
+          "$ref": "common.v1.json#/$defs/uuid"
+        },
+        "content": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100000
+        },
+        "finish_reason": {
+          "type": "string",
+          "enum": [
+            "end_turn",
+            "max_output_tokens",
+            "stop_sequence"
+          ]
+        },
+        "delta_count": {
+          "description": "Número de deltas publicados no Reverb (último seq + 1), para o cliente reconciliar.",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        }
+      }
+    }
+  }
+}

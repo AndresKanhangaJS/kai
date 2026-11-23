@@ -1,0 +1,23 @@
+{
+  "id": "01937f3a-6c2e-7b4d-8a1e-3f5c9d2b7a71",
+  "type": "ai.model.usage.recorded.v1",
+  "occurred_at": "2026-11-22T10:15:30.123Z",
+  "correlation_id": "2b3c4d5e-6f7a-4b2c-9d3e-4f5a6b7c8d9e",
+  "causation_id": null,
+  "idempotency_key": "usage:9c0d1e2f-3a4b-4c9d-8e0f-1a2b3c4d5e6f",
+  "producer": "kai-ai-engine",
+  "traceparent": "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01",
+  "payload": {
+    "user_id": 1,
+    "usage_id": "9c0d1e2f-3a4b-4c9d-8e0f-1a2b3c4d5e6f",
+    "mission_id": "6f7a8b9c-0d1e-4f6a-9b7c-8d9e0f1a2b3c",
+    "provider": "ollama",
+    "model": "llama3.2:3b",
+    "input_tokens": 1500,
+    "output_tokens": 320,
+    "cache_read_tokens": 1200,
+    "cache_write_tokens": 0,
+    "cost_usd": "0.00012345",
+    "latency_ms": 2150
+  }
+}

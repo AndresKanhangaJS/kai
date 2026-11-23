@@ -1,6 +1,7 @@
 # CI do KAI (M02 E2). Cada job corre os mesmos scripts que se correm
 # localmente (scripts/ci/*.sh, scripts/e2e.sh), dentro das imagens do Docker
-# Compose: o que passa aqui passa no local, e vice-versa.
+# Compose (ou, no caso dos contratos, da imagem fixada em
+# packages/contracts/tooling): o que passa aqui passa no local, e vice-versa.
 # Decisão e alternativas: docs/adr (ADR da CI); guia: docs/engineering/ci.md.
 name: CI
 
@@ -28,6 +29,16 @@ jobs:
         with:
           persist-credentials: false
       - run: scripts/ci/harness.sh
+
+  contracts:
+    name: Contratos (schemas, OpenAPI, AsyncAPI, exemplos)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: scripts/ci/contracts.sh
 
   api:
     name: API (Pint, PHPStan, Pest)

@@ -1,0 +1,34 @@
+{
+  "campo-extra-no-payload": {
+    "keyword": "additionalProperties",
+    "path": "/payload"
+  },
+  "custo-em-float": {
+    "keyword": "type",
+    "path": "/payload/limits/max_cost_usd"
+  },
+  "id-nao-uuidv7": {
+    "keyword": "pattern",
+    "path": "/id"
+  },
+  "produtor-errado": {
+    "keyword": "const",
+    "path": "/producer"
+  },
+  "role-system-injectado": {
+    "keyword": "enum",
+    "path": "/payload/messages/0/role"
+  },
+  "sem-mensagens": {
+    "keyword": "minItems",
+    "path": "/payload/messages"
+  },
+  "sem-traceparent": {
+    "keyword": "required",
+    "path": ""
+  },
+  "sem-user-id": {
+    "keyword": "required",
+    "path": "/payload"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "allow-sem-expiracao": {
+    "keyword": "required",
+    "path": ""
+  },
+  "aprovacao-com-grant": {
+    "keyword": "additionalProperties",
+    "path": ""
+  },
+  "decisao-desconhecida": {
+    "keyword": "const",
+    "path": "/decision"
+  },
+  "deny-com-grant": {
+    "keyword": "additionalProperties",
+    "path": ""
+  },
+  "motivo-desconhecido": {
+    "keyword": "enum",
+    "path": "/reason"
+  }
+}

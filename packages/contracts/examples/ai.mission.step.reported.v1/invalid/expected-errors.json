@@ -1,0 +1,54 @@
+{
+  "argumento-inteiro-inseguro": {
+    "keyword": "anyOf",
+    "path": "/payload/arguments/n"
+  },
+  "argumento-string-gigante": {
+    "keyword": "anyOf",
+    "path": "/payload/arguments/path"
+  },
+  "argumentos-demasiado-profundos": {
+    "keyword": "anyOf",
+    "path": "/payload/arguments/a"
+  },
+  "campo-extra-no-payload": {
+    "keyword": "additionalProperties",
+    "path": "/payload"
+  },
+  "falhado-com-output": {
+    "keyword": "not",
+    "path": "/payload"
+  },
+  "id-nao-uuidv7": {
+    "keyword": "pattern",
+    "path": "/id"
+  },
+  "nivel-escolhido-pelo-python": {
+    "keyword": "additionalProperties",
+    "path": "/payload"
+  },
+  "output-array-gigante": {
+    "keyword": "anyOf",
+    "path": "/payload/output/rows"
+  },
+  "produtor-errado": {
+    "keyword": "const",
+    "path": "/producer"
+  },
+  "proposto-sem-argumentos": {
+    "keyword": "required",
+    "path": "/payload"
+  },
+  "sem-traceparent": {
+    "keyword": "required",
+    "path": ""
+  },
+  "sem-user-id": {
+    "keyword": "required",
+    "path": "/payload"
+  },
+  "taint-escolhido-pelo-python": {
+    "keyword": "additionalProperties",
+    "path": "/payload"
+  }
+}

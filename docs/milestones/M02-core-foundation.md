@@ -29,18 +29,18 @@
 
 | ID | Tarefa | Tipo | Critério de aceitação | Depende de | Paralelo? |
 |---|---|---|---|---|---|
-| E2.1 | ~~Workflow CI do Laravel: Pint (lint), PHPStan/Larastan, Pest~~ | ci | **Feito localmente (2026-11-22); a confirmar no primeiro PR.** `scripts/ci/api.sh`: Pint, Larastan 3.14.0 no nível 6 sem baseline (22 erros corrigidos, nenhum ignorado) e Pest 4.7.8 (41 testes). Falha com exit 1 perante um erro injectado | E1.1 | Sim |
+| E2.1 | ~~Workflow CI do Laravel: Pint (lint), PHPStan/Larastan, Pest~~ | ci | **Feito localmente (2026-11-22); a confirmar no primeiro PR.** `scripts/ci/api.sh`: Pint, Larastan 3.14.0 no nível 6 sem baseline (22 erros corrigidos, nenhum ignorado) e Pest 4.7.8 (45 testes, com a guarda do SQLite). Falha com exit 1 perante um erro injectado | E1.1 | Sim |
 | E2.2 | ~~Workflow CI do React: lint, Vitest~~ | ci | **Feito localmente (2026-11-22).** `scripts/ci/web.sh`: `tsc -b`, `oxlint` (mantido em vez de ESLint/Prettier, decisão do owner) e Vitest 5.1.0 (9 testes: cliente WebAuthn e página de login). `apps/web` passa a Node 24 LTS. O `scripts/e2e.sh` corre também na CI | E1.1 | Sim |
-| E2.3 | Workflow CI de contratos: valida os schemas OpenAPI/AsyncAPI/JSON Schema de `packages/contracts` | ci | Falha se um schema for inválido ou um exemplo não validar contra ele | E3.3 | Não |
+| E2.3 | ~~Workflow CI de contratos~~ | ci | **Feito (2026-11-22).** Job `contracts` → `scripts/ci/contracts.sh`: JSON Schemas (2020-12), OpenAPI e AsyncAPI contra os meta-schemas oficiais, `$ref`, exemplos e regras do KAI. Prova de falha: com 3 defeitos injectados (campo `grant` numa mensagem, `$ref` partido, resposta OpenAPI inválida), sai com exit 1 | E3.3 | Não |
 | E2.4 | Secret scanning | ci | Bloqueia o merge se encontrar um segredo (NFR-007). **Feito do lado do repo (2026-11-22):** o `validate_harness.py` corre na CI. **Falta o owner activar *Secret scanning* + *Push protection* no GitHub** ([`ci.md`](../engineering/ci.md)); o gitleaks não foi aprovado (ADR-0014) | E1.1 | Sim |
 
 ## Épico E3: contratos v1 (FR-032 subconjunto, NFR-006; ADR-0002)
 
 | ID | Tarefa | Tipo | Critério de aceitação | Depende de | Paralelo? |
 |---|---|---|---|---|---|
-| E3.1 | Define o contrato síncrono (OpenAPI 3.1) com `kai-contract`: `POST /internal/v1/tool-authorizations`, `/health/live`, `/health/ready` | contrato (`kai-contract`) | Schema em `packages/contracts/`, validado sintacticamente | — | Sim |
-| E3.2 | Define os schemas AsyncAPI 3.x + JSON Schema das 6 mensagens do MVP (`ai.conversation.turn.*`, `ai.mission.step.*`, `ai.model.usage.recorded.v1`) com `kai-contract`, mesmo sem o RabbitMQ ainda (chega no M03) | contrato (`kai-contract`) | Schemas em `packages/contracts/`, com o envelope comum (`id`, `type`, `occurred_at`, `correlation_id`, `causation_id`, `idempotency_key`, `producer`, `traceparent`) | — | Sim |
-| E3.3 | Escreve exemplos válidos e inválidos de cada schema (E3.1, E3.2), para a CI de contratos (E2.3) | teste/contrato | Cada schema tem ≥ 1 exemplo válido e ≥ 1 inválido | E3.1, E3.2 | Não |
+| E3.1 | ~~Contrato síncrono (OpenAPI 3.1)~~ | contrato (`kai-contract`) | **Feito (2026-11-22).** `packages/contracts/openapi/internal-v1.yaml`: `tool-authorizations` (`allow`/`deny`/`requires_approval`) e health. [SPEC-003](../specs/003-contratos-v1.md) | — | Sim |
+| E3.2 | ~~AsyncAPI 3.0 + JSON Schema das mensagens do MVP~~ | contrato (`kai-contract`) | **Feito (2026-11-22).** `asyncapi/kai-v1.yaml` com 7 mensagens (o turno tem `completed` e `failed`) e `envelope.v1`. O execution grant nunca vai no RabbitMQ | — | Sim |
+| E3.3 | ~~Exemplos válidos e inválidos~~ | teste/contrato | **Feito (2026-11-22).** 23 válidos e 69 inválidos, incluindo negativos de segurança (nível no pedido, grant na mensagem, `role: system`, custo em float) | E3.1, E3.2 | Não |
 
 ## Épico E4: Identity & Access — login passkey + TOTP (FR-044, FR-045, FR-051; AC-02)
 
@@ -69,7 +69,7 @@ Confirmado depois desta mudança: a tabela `migrations` nem chega a existir no M
 
 ## Ordem e caminho crítico
 
-1. **Caminho crítico até AC-02:** ~~E1.1 → E4.1 → E4.2 → E4.3 → E4.5 → E4.6a → E4.6b~~ (E2E com passkey real, a passar localmente; só falta ligá-lo à CI na E2.2).
+1. **Caminho crítico até AC-02:** ~~E1.1 → E4.1 → E4.2 → E4.3 → E4.5 → E4.6a → E4.6b~~ (E2E com passkey real; corre na CI, job `e2e`).
 2. **Em paralelo com o caminho crítico:** E1.2 → E1.3 → E1.4 (AC-01); E2.1, E2.2, E2.4; E3.1, E3.2 → E3.3 → E2.3; E4.4.
 3. O milestone só fecha quando AC-01, AC-02 e a CI completa (E2.1–E2.4) estiverem todos verdes.
 
@@ -86,8 +86,8 @@ Confirmado depois desta mudança: a tabela `migrations` nem chega a existir no M
 
 - `docker compose up` num clone limpo deixa todos os serviços *healthy* em ≤ 10 min, sem segredos no repositório (AC-01).
 - O owner cria-se por CLI, autentica-se por passkey (ou TOTP), e uma sessão revogada deixa de funcionar (AC-02).
-- CI verde: Pint, PHPStan, Pest (`apps/api`); ESLint, Vitest (`apps/web`); validação de schemas (`packages/contracts`); secret scan.
-- `packages/contracts` tem o contrato síncrono e os 6 schemas assíncronos do MVP, cada um com exemplos válidos e inválidos.
+- CI verde: Pint, PHPStan, Pest (`apps/api`); `tsc`, oxlint, Vitest (`apps/web`); validação de contratos (`packages/contracts`); secret scan; E2E.
+- `packages/contracts` tem o contrato síncrono e os schemas assíncronos do MVP (7 schemas para os 6 itens do catálogo), cada um com exemplos válidos e inválidos.
 - `docs/product/analysis.md` §4.2: P-015 e P-017 marcados "Fechado".
 - `docs/STATUS.md` actualizado a reflectir o M02 fechado e a abertura do M03.
 
