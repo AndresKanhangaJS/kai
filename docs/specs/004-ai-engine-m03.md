@@ -48,7 +48,7 @@ O owner envia uma mensagem e o AI Engine gera a resposta com o modelo configurad
    - o fornecedor e o modelo vêm da configuração do serviço (`MODEL_PROVIDER`, por omissão `fake`), nunca da mensagem;
    - o prompt de sistema é versionado no repositório (ADR-0006);
    - as mensagens do owner entram no prompt como mensagens de utilizador, nunca como instruções de sistema.
-9. **Rede:** sem porta publicada no host (ADR-0010). Só as redes `messaging` (RabbitMQ, Reverb, api) e `telemetry` (OTLP). Não está na `default`, por isso não chega ao MySQL nem ao Redis do Laravel (ADR-0002; revisão de segurança da E3.2, 2026-11-23, testado no `integration.sh`).
+9. **Rede:** sem porta publicada no host (ADR-0010). Só as redes `messaging` (RabbitMQ, Reverb, api), `telemetry` (OTLP) e `ai-engine-data` (interna, só com o Redis da sua inbox; E3.4a). Não está na `default`, por isso não chega ao MySQL nem ao Redis do Laravel (ADR-0002; revisão de segurança da E3.2, 2026-11-23, testado no `integration.sh`).
 
 ## 4. Critérios de aceitação
 | ID | Dado | Quando | Então | Tipo de teste |
@@ -138,7 +138,7 @@ O evento de delta do Reverb (`{seq, text}`) não está em `packages/contracts`: 
 | ID | Pergunta | Recomendação | Bloqueia? |
 |---|---|---|---|
 | P-018 | Um turno é uma missão de um passo no M03? | **Fechada (2026-11-23): sim.** O Laravel envia sempre `mission_id` no `turn.requested`, e o cancelamento faz-se por essa `mission_id` (fecha na E4.1) | Não (fechada) |
-| P-020 | Onde guarda o Python a inbox (AC-004-05)? | **Fechada (2026-11-23):** Redis do Compose, com `SET NX` em `inbox:ai-engine:{id}` e TTL de 7 dias, só com IDs e estado, e um utilizador ACL próprio. Alternativa: sem inbox no Python, com o *first-wins* do Laravel a absorver duplicados, à custa de gerar e pagar duas vezes. Pede `redis-py` (dependência nova) | Não (fechada) |
+| P-020 | Onde guarda o Python a inbox (AC-004-05)? | **Fechada (2026-11-23):** Redis, com `SET NX` em `inbox:ai-engine:{id}` e TTL de 7 dias, só com IDs e estado, e um utilizador ACL próprio. **Revisto pelo owner (2026-11-23, E3.4a):** um Redis próprio do ai-engine (`ai-engine-redis`, rede interna), não o do Laravel, que não tem autenticação e está na rede `default`. Alternativa: sem inbox no Python, com o *first-wins* do Laravel a absorver duplicados, à custa de gerar e pagar duas vezes. Pede `redis-py` (dependência nova) | Não (fechada) |
 | P-021 | Dependências do `apps/ai-engine` | Python 3.14 (imagem por digest), FastAPI, uvicorn, `aio-pika` 10.2.3 (ADR-0016), `jsonschema`, `httpx` (Reverb e Ollama), SDK `anthropic`, OpenTelemetry (ADR-0017), pytest, ruff e mypy. Versões com ≥ 14 dias e com hashes; a aprovação é pedida em lista na E3.2 e na E3.3 | Sim, a E3.2 |
 | P-022 | `prompt_version` no `usage.recorded` (NFR-017) | Fica só no span no M03; se a auditoria de custos precisar, junta-se como campo opcional (compatível, mesma major) | Não |
 | P-002 | Valores dos limites (tokens, timeout, custo) | Ficam no Laravel (E6.1), medidos com o conjunto de avaliação; o AI Engine só aplica os do comando | Não |

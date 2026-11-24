@@ -43,7 +43,7 @@ class PriceTable:
         """Custo exacto. Modelo sem preço ou modificador desconhecido: `PricingError`."""
         if usage.modifiers:
             raise PricingError("unpriced_modifier", "modificador de preço fora da tabela")
-        return _quantize(sum((self._cost_one(u, self.price(u.model)) for u in usage.by_model), Decimal(0)))
+        return quantize_usd(sum((self._cost_one(u, self.price(u.model)) for u in usage.by_model), Decimal(0)))
 
     def cost_conservative(self, usage: Usage) -> Decimal:
         """Custo nunca subestimado, para quando `cost` falha depois de a chamada já ter custado.
@@ -53,7 +53,7 @@ class PriceTable:
         """
         worst = self._worst_price()
         total = sum((self._cost_one(u, self.models.get(u.model, worst)) for u in usage.by_model), Decimal(0))
-        return _quantize(total * (MODIFIER_UPPER_BOUND if usage.modifiers else 1))
+        return quantize_usd(total * (MODIFIER_UPPER_BOUND if usage.modifiers else 1))
 
     def _worst_price(self) -> ModelPrice:
         prices = list(self.models.values())
@@ -90,10 +90,11 @@ class PriceTable:
             ),
             Decimal(0),
         )
-        return _quantize(total)
+        return quantize_usd(total)
 
 
-def _quantize(value: Decimal) -> Decimal:
+def quantize_usd(value: Decimal) -> Decimal:
+    """8 casas, sempre para cima (`decimal_usd`): nunca subestima."""
     return value.quantize(QUANTUM, rounding=ROUND_CEILING)
 
 

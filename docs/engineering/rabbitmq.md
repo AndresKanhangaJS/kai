@@ -65,6 +65,8 @@ O retry é feito **no consumidor**, sem filas de retry. O retry pelo broker, que
 2. **Falha que persiste ou permanente** (schema inválido, `user_id` ou dono divergente): `nack` sem requeue → DLX → DLQ, com o `x-death` `rejected` e o `user_id` original.
 3. **Crash antes do `ack`:** ao fim de 5 entregas (`x-delivery-limit`), o broker manda a mensagem para a DLQ, com o `x-death` `delivery_limit`. Nunca se perde (testado).
 
+**No AI Engine (E3.4a):** a validação falhada (schema, `user_id`, tipo, routing key, ferramentas) vai logo para a DLQ; a publicação sem confirm repete 3 vezes antes da DLQ; com o Redis da inbox em baixo (nada gasto), volta à fila até ao `x-delivery-limit`; um `ack` só sai depois dos confirms dos eventos. O consumidor obtém a fila e o exchange sem os declarar (o `kai-ai-engine` não tem `configure`) e gere a reconexão ele próprio (ver o [README do ai-engine](../../apps/ai-engine/README.md)).
+
 **Reprocessar uma DLQ** nunca é mover mensagens para a fila principal: o produtor reemite a partir do outbox ou da auditoria, como mensagem nova. O consumidor continua a exigir o `user_id` do produtor; não se abre nenhuma excepção para mensagens "reprocessadas".
 
 ## Alterar a topologia

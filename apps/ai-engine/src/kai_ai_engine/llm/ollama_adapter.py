@@ -10,6 +10,7 @@ import logging
 import time
 from collections.abc import AsyncIterator
 from dataclasses import dataclass
+from decimal import Decimal
 from urllib.parse import urlsplit
 
 import httpx2
@@ -18,6 +19,7 @@ from kai_ai_engine.llm.errors import LlmError, ProviderError, ProviderUnavailabl
 from kai_ai_engine.llm.gateway import (
     Capabilities,
     Completed,
+    Cost,
     GenerationRequest,
     ModelUsage,
     Provider,
@@ -74,6 +76,12 @@ class OllamaGateway:
 
     def capabilities(self) -> Capabilities:
         return Capabilities(streaming=True, exact_token_count=False, priced=False)
+
+    def estimate_max_cost(self, input_tokens: int, max_output_tokens: int) -> Decimal:
+        return Decimal(0)
+
+    def cost(self, usage: Usage) -> Cost:
+        return Cost(usd=Decimal(0))
 
     async def count_tokens(self, request: GenerationRequest) -> int:
         texts = [request.system or "", *(m.content for m in request.messages)]

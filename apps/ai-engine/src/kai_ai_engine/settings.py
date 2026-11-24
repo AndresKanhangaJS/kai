@@ -9,6 +9,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass, field
 from typing import Literal, cast, get_args
 
+from kai_ai_engine.inbox import RedisSettings
 from kai_ai_engine.llm.anthropic_adapter import AnthropicSettings, Effort
 from kai_ai_engine.llm.errors import PricingError
 from kai_ai_engine.llm.fake import FakeConfigError, FakeOptions, options_from_env
@@ -48,6 +49,7 @@ class LlmSettings:
 class Settings:
     rabbitmq: RabbitMqSettings
     llm: LlmSettings
+    redis: RedisSettings
 
 
 def load_settings(env: Mapping[str, str] | None = None) -> Settings:
@@ -63,8 +65,23 @@ def load_settings(env: Mapping[str, str] | None = None) -> Settings:
     if not port_raw.isdigit() or not 0 < int(port_raw) < 65536:
         raise SettingsError("RABBITMQ_PORT tem de ser um porto TCP válido")
 
+    redis_password = source.get("KAI_AI_ENGINE_REDIS_PASSWORD", "")
+    if not redis_password:
+        raise SettingsError(
+            "falta a variável KAI_AI_ENGINE_REDIS_PASSWORD (gera com scripts/dev/passwords.sh)"
+        )
+    redis_port = source.get("AI_ENGINE_REDIS_PORT", "6379")
+    if not redis_port.isdigit() or not 0 < int(redis_port) < 65536:
+        raise SettingsError("AI_ENGINE_REDIS_PORT tem de ser um porto TCP válido")
+
     return Settings(
         llm=load_llm_settings(source),
+        redis=RedisSettings(
+            host=source.get("AI_ENGINE_REDIS_HOST", "ai-engine-redis"),
+            port=int(redis_port),
+            user="kai-ai-engine",
+            password=redis_password,
+        ),
         rabbitmq=RabbitMqSettings(
             host=source.get("RABBITMQ_HOST", "rabbitmq"),
             port=int(port_raw),

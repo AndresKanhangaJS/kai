@@ -19,6 +19,9 @@ COPY requirements.txt .
 RUN pip install --require-hashes --no-deps --only-binary=:all: --root-user-action=ignore -r requirements.txt \
  && python -m pip uninstall -y --root-user-action=ignore pip
 COPY src ./src
+# Contratos do mesmo commit (build context `contracts` = packages/contracts): o consumidor
+# valida mensagens e eventos contra eles, sem rede.
+COPY --from=contracts schemas /app/contracts/schemas
 USER kai
 EXPOSE 8000
 HEALTHCHECK --interval=10s --timeout=5s --start-period=20s --retries=6 \
@@ -31,6 +34,7 @@ COPY requirements-dev.txt .
 RUN pip install --require-hashes --no-deps --only-binary=:all: --root-user-action=ignore -r requirements-dev.txt
 COPY pyproject.toml ./
 COPY src ./src
+COPY --from=contracts schemas /app/contracts/schemas
 COPY tests ./tests
 USER kai
 ENV MYPY_CACHE_DIR=/tmp/mypy RUFF_CACHE_DIR=/tmp/ruff

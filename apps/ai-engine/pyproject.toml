@@ -29,7 +29,7 @@ testpaths = ["tests"]
 addopts = "-ra --strict-markers"
 
 # jsonschema não traz tipos; os stubs (types-jsonschema) seriam uma dependência
-# nova. Só os testes o usam na E3.2: tratado como Any, isolado a este módulo.
+# nova. Tratado como Any, isolado a contracts.py (validação dos contratos, E3.4a).
 [[tool.mypy.overrides]]
 module = ["jsonschema", "jsonschema.*"]
 ignore_missing_imports = true

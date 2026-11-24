@@ -14,6 +14,7 @@ import logging
 import time
 from collections.abc import AsyncIterator
 from dataclasses import dataclass, field
+from decimal import Decimal
 from typing import Literal
 
 import anthropic
@@ -26,10 +27,17 @@ from anthropic.types.beta import (
     BetaUserMessageParam,
 )
 
-from kai_ai_engine.llm.errors import LlmError, ProviderError, ProviderUnavailableError, detached
+from kai_ai_engine.llm.errors import (
+    LlmError,
+    PricingError,
+    ProviderError,
+    ProviderUnavailableError,
+    detached,
+)
 from kai_ai_engine.llm.gateway import (
     Capabilities,
     Completed,
+    Cost,
     GenerationRequest,
     ModelUsage,
     Provider,
@@ -39,6 +47,7 @@ from kai_ai_engine.llm.gateway import (
     Usage,
     UsageMeter,
 )
+from kai_ai_engine.llm.pricing import PriceTable, load_price_table
 
 log = logging.getLogger(__name__)
 
@@ -71,8 +80,14 @@ class AnthropicSettings:
 
 
 class AnthropicGateway:
-    def __init__(self, settings: AnthropicSettings, http_client: httpx2.AsyncClient | None = None) -> None:
+    def __init__(
+        self,
+        settings: AnthropicSettings,
+        http_client: httpx2.AsyncClient | None = None,
+        prices: PriceTable | None = None,
+    ) -> None:
         self._settings = settings
+        self._prices = prices or load_price_table()
         self._client = anthropic.AsyncAnthropic(
             api_key=settings.api_key,
             base_url=API_BASE_URL,
@@ -98,6 +113,20 @@ class AnthropicGateway:
 
     def capabilities(self) -> Capabilities:
         return Capabilities(streaming=True, exact_token_count=True, priced=True)
+
+    def estimate_max_cost(self, input_tokens: int, max_output_tokens: int) -> Decimal:
+        return self._prices.estimate_max_cost(self.possible_models, input_tokens, max_output_tokens)
+
+    def cost(self, usage: Usage) -> Cost:
+        try:
+            return Cost(usd=self._prices.cost(usage))
+        except PricingError as exc:
+            # A chamada já custou: regista-se por cima, nunca 0 nem uma falha (AC-004-06).
+            log.warning(
+                "llm_cost_conservative",
+                extra={"fields": {"provider": "anthropic", "code": exc.code, "prices": self._prices.version}},
+            )
+            return Cost(usd=self._prices.cost_conservative(usage), exact=False)
 
     def _timeout(self, request: GenerationRequest) -> anthropic.Timeout:
         return anthropic.Timeout(request.timeout_seconds, connect=CONNECT_TIMEOUT_SECONDS)

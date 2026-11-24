@@ -150,9 +150,13 @@ services:
     build:
       context: ./apps/ai-engine
       target: runtime
+      # Os schemas dos contratos entram na imagem (validação sem rede).
+      additional_contexts:
+        contracts: ./packages/contracts
     environment:
       RABBITMQ_HOST: rabbitmq
       KAI_RABBITMQ_AI_ENGINE_PASSWORD: ${KAI_RABBITMQ_AI_ENGINE_PASSWORD:-}
+      KAI_AI_ENGINE_REDIS_PASSWORD: ${KAI_AI_ENGINE_REDIS_PASSWORD:-}
       # LLM (ADR-0006, M03 E3.3): fake por omissão; um fornecedor real sem chave
       # falha no arranque (AC-004-03).
       MODEL_PROVIDER: ${MODEL_PROVIDER:-fake}
@@ -162,17 +166,28 @@ services:
       ANTHROPIC_FALLBACK_MODELS: ${ANTHROPIC_FALLBACK_MODELS:-}
       OLLAMA_HOST: ${OLLAMA_HOST:-}
       OLLAMA_MODEL: ${OLLAMA_MODEL:-}
-    # Só messaging (RabbitMQ, Reverb, api) e telemetry: sem acesso ao MySQL nem ao
-    # Redis do Laravel (ADR-0002; revisão de segurança da E3.2, testado).
-    networks: [messaging, telemetry]
+      # Comportamento do fake para os testes de integração (vazio = omissão).
+      KAI_FAKE_DELAY_PER_DELTA: ${KAI_FAKE_DELAY_PER_DELTA:-0}
+      KAI_FAKE_WORDS_PER_DELTA: ${KAI_FAKE_WORDS_PER_DELTA:-2}
+      KAI_FAKE_FAIL_BEFORE_FIRST_DELTA: ${KAI_FAKE_FAIL_BEFORE_FIRST_DELTA:-0}
+      KAI_FAKE_USD_PER_MTOK: ${KAI_FAKE_USD_PER_MTOK:-0}
+      KAI_FAKE_SCRIPT: ${KAI_FAKE_SCRIPT:-}
+    # Só messaging (RabbitMQ, Reverb, api), telemetry e a rede interna da sua
+    # inbox: sem acesso ao MySQL nem ao Redis do Laravel (ADR-0002; revisão de
+    # segurança da E3.2, testado).
+    networks: [messaging, telemetry, ai-engine-data]
     read_only: true
     tmpfs: ["/tmp:size=64m,noexec,nosuid,nodev"]
     mem_limit: 512m
+    # Drain de 10 s (consumer.py) mais a publicação do usage interrompido (3 s), antes do SIGKILL.
+    stop_grace_period: 20s
     pids_limit: 128
     cap_drop: [ALL]
     security_opt: ["no-new-privileges:true"]
     depends_on:
       rabbitmq:
+        condition: service_healthy
+      ai-engine-redis:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "python", "-I", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/health/ready', timeout=4).status == 200 else 1)"]
@@ -180,6 +195,34 @@ services:
       timeout: 5s
       retries: 12
       start_period: 15s
+
+  ai-engine-redis:
+    # M03 E3.4a (P-020): inbox do AI Engine, separada do Redis do Laravel. A
+    # mesma imagem do redis (por digest). Sem portas; rede interna só com o
+    # ai-engine; utilizador `default` desligado e ACL limitada à inbox
+    # (infra/ai-engine-redis/start.sh). AOF num volume próprio.
+    profiles: ["messaging"]
+    image: redis:8@sha256:1f88291b4c57bdf249f02eb085a8669889b2d2954e91d4de5118a5da6b78dd53
+    entrypoint: ["/bin/sh", "/kai/start.sh"]
+    user: redis
+    environment:
+      KAI_AI_ENGINE_REDIS_PASSWORD: ${KAI_AI_ENGINE_REDIS_PASSWORD:-}
+    volumes:
+      - ./infra/ai-engine-redis/start.sh:/kai/start.sh:ro
+      - ai_engine_redis_data:/data
+    networks: [ai-engine-data]
+    read_only: true
+    tmpfs: ["/tmp:size=1m,noexec,nosuid,nodev"]
+    mem_limit: 128m
+    pids_limit: 32
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    healthcheck:
+      # Sem password: basta o servidor responder (NOAUTH também prova que está vivo).
+      test: ["CMD-SHELL", "redis-cli ping 2>&1 | grep -qE 'PONG|NOAUTH'"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   otel-lgtm:
     # M03 E2.2 (ADR-0017, observability.md): colector OTLP, Tempo, Loki,
@@ -229,9 +272,13 @@ networks:
   default:
   messaging:
   telemetry:
+  # Sem saída: só o ai-engine e o seu Redis.
+  ai-engine-data:
+    internal: true
 
 volumes:
   mysql_data:
   rabbitmq_data:
+  ai_engine_redis_data:
   api_vendor:
   web_node_modules:

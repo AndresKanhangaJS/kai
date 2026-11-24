@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Testes de integração do apps/api contra serviços reais: RabbitMQ (M03 E2.1),
-# otel-lgtm (M03 E2.2) e AI Engine (M03 E3.2). Stack descartável `kai-it`, com passwords aleatórias
+# otel-lgtm (M03 E2.2) e AI Engine (M03 E3.2 e E3.4a: consumidor e inbox). Stack descartável `kai-it`, com passwords aleatórias
 # em cada corrida; não toca na stack de dev. Uso: scripts/ci/integration.sh
 set -euo pipefail
 cd "$(dirname "$0")/../.."
@@ -42,6 +42,11 @@ refuses rabbitmq render-definitions: "password curta" KAI_RABBITMQ_ADMIN_PASSWOR
 refuses rabbitmq render-definitions: "caracteres inválidos" KAI_RABBITMQ_ADMIN_PASSWORD="$strong" KAI_RABBITMQ_API_PASSWORD="$bad" KAI_RABBITMQ_AI_ENGINE_PASSWORD="$strong"
 "${COMPOSE[@]}" build -q ai-engine
 refuses ai-engine KAI_RABBITMQ_AI_ENGINE_PASSWORD "password vazia" KAI_RABBITMQ_AI_ENGINE_PASSWORD=
+refuses ai-engine KAI_AI_ENGINE_REDIS_PASSWORD "password do Redis vazia" KAI_RABBITMQ_AI_ENGINE_PASSWORD="$strong" KAI_AI_ENGINE_REDIS_PASSWORD=
+refuses ai-engine-redis ai-engine-redis: "password vazia" KAI_AI_ENGINE_REDIS_PASSWORD=
+refuses ai-engine-redis ai-engine-redis: "valor de exemplo" KAI_AI_ENGINE_REDIS_PASSWORD=changeme-redis-xxxxxxxxxxxxxxxxxx
+refuses ai-engine-redis ai-engine-redis: "password curta (23)" KAI_AI_ENGINE_REDIS_PASSWORD=it-aaaaaaaaaaaaaaaaaaaa
+refuses ai-engine-redis ai-engine-redis: "caracteres inválidos" KAI_AI_ENGINE_REDIS_PASSWORD="$bad"
 refuses otel-lgtm otel-lgtm: "password vazia" KAI_GRAFANA_ADMIN_PASSWORD=
 refuses otel-lgtm otel-lgtm: "valor de exemplo" KAI_GRAFANA_ADMIN_PASSWORD=changeme-grafana-xxxxxxxxxxxxxx
 refuses otel-lgtm otel-lgtm: "password curta (23)" KAI_GRAFANA_ADMIN_PASSWORD=it-aaaaaaaaaaaaaaaaaaaa
@@ -51,9 +56,10 @@ export KAI_RABBITMQ_ADMIN_PASSWORD=$(rand)
 export KAI_RABBITMQ_API_PASSWORD=$(rand)
 export KAI_RABBITMQ_AI_ENGINE_PASSWORD=$(rand)
 export KAI_GRAFANA_ADMIN_PASSWORD=$(rand)
+export KAI_AI_ENGINE_REDIS_PASSWORD=$(rand)
 
-echo "→ RabbitMQ, otel-lgtm e AI Engine (stack kai-it)"
-"${COMPOSE[@]}" up -d --build --wait rabbitmq otel-lgtm ai-engine
+echo "→ RabbitMQ, otel-lgtm, Redis da inbox e AI Engine (stack kai-it)"
+"${COMPOSE[@]}" up -d --build --wait rabbitmq otel-lgtm ai-engine-redis ai-engine
 
 echo "→ AI Engine: nenhuma porta publicada no host (ADR-0010)"
 [ -z "$(docker port "$("${COMPOSE[@]}" ps -q ai-engine)")" ] || { echo "FALHA: ai-engine com portas publicadas"; exit 1; }
@@ -87,6 +93,28 @@ for target in "mysql 3306" "redis 6379"; do
 done
 echo "  ✓ read_only, cap_drop ALL, utilizador kai, sem pip; chega ao rabbitmq, não ao mysql nem ao redis"
 
+echo "→ Redis da inbox: só o ai-engine, sem portas, default desligado e ACL limitada (P-020)"
+rcid=$("${COMPOSE[@]}" ps -q ai-engine-redis)
+[ -z "$(docker port "$rcid")" ] || { echo "FALHA: ai-engine-redis com portas publicadas"; exit 1; }
+[ "$(docker inspect -f '{{.HostConfig.ReadonlyRootfs}} {{.HostConfig.CapDrop}}' "$rcid")" = "true [ALL]" ] \
+  || { echo "FALHA: ai-engine-redis sem read_only ou cap_drop ALL"; exit 1; }
+[ "$(reach ai-engine-redis 6379)" = open ] || { echo "FALHA: controlo positivo (ai-engine-redis a partir do ai-engine)"; exit 1; }
+if api_reach ai-engine-redis 6379; then echo "FALHA: o api chega ao ai-engine-redis"; exit 1; fi
+rcli() { "${COMPOSE[@]}" exec -T ai-engine-redis redis-cli --no-auth-warning "$@" 2>&1; }
+out=$(rcli ping); grep -q NOAUTH <<<"$out" || { echo "FALHA: o Redis responde sem autenticação"; exit 1; }
+out=$(rcli --user default --pass qualquer-coisa ping); grep -qiE "WRONGPASS|disabled" <<<"$out" || { echo "FALHA: utilizador default activo"; exit 1; }
+as_engine() { rcli --user kai-ai-engine --pass "$KAI_AI_ENGINE_REDIS_PASSWORD" "$@"; }
+[ "$(as_engine ping)" = PONG ] || { echo "FALHA: o kai-ai-engine não autentica no Redis"; exit 1; }
+for cmd in "get outra:chave" "set outra:chave x" "config get maxmemory" "flushall" "scan 0" "del inbox:ai-engine:x" "acl list"; do
+  # shellcheck disable=SC2086
+  out=$(as_engine $cmd); grep -q NOPERM <<<"$out" || { echo "FALHA: o kai-ai-engine pode correr '$cmd'"; exit 1; }
+done
+# shellcheck disable=SC2016
+rleaks=$("${COMPOSE[@]}" exec -T ai-engine-redis sh -c 'for p in /proc/[0-9]*; do [ "${p#/proc/}" = "$$" ] && continue; grep -qaF "$KAI_AI_ENGINE_REDIS_PASSWORD" "$p/environ" 2>/dev/null && echo "$p"; done; grep -qF "$KAI_AI_ENGINE_REDIS_PASSWORD" /tmp/kai-redis/users.acl && echo acl; true')
+[ -z "$rleaks" ] || { echo "FALHA: password do Redis em claro ($rleaks)"; exit 1; }
+echo "  ✓ sem portas, read_only, só o ai-engine lhe chega; NOAUTH sem password, default desligado"
+echo "  ✓ kai-ai-engine só com GET/SET/PING em inbox:ai-engine:*; password só como hash no ACL"
+
 echo "→ Limites e topic permissions do RabbitMQ carregados"
 ctl() { "${COMPOSE[@]}" exec -T rabbitmq rabbitmqctl -q "$@"; }
 ctl list_user_limits --user kai-api | grep -q '"max-connections":20' || { echo "FALHA: limites do kai-api"; exit 1; }
@@ -109,15 +137,47 @@ leaks=$("${COMPOSE[@]}" exec -T otel-lgtm sh -c 'for p in /proc/[0-9]*; do [ "${
 [ -z "$leaks" ] || { echo "FALHA: password do Grafana no ambiente de processos"; exit 1; }
 echo "  ✓ password do Grafana fora do ambiente dos serviços"
 
-echo "→ Pest (tests/Integration)"
+pest() {
+  "${COMPOSE[@]}" run --rm --no-deps -T \
+    -v "$PWD/packages/contracts:/contracts:ro" \
+    -e APP_ENV=testing -e DB_CONNECTION=sqlite -e DB_DATABASE=:memory: -e BROADCAST_CONNECTION=null \
+    -e RABBITMQ_HOST=rabbitmq -e OTEL_LGTM_HOST=otel-lgtm -e AI_ENGINE_HOST=ai-engine -e KAI_CONTRACTS_DIR=/contracts \
+    -e KAI_RABBITMQ_ADMIN_PASSWORD -e KAI_RABBITMQ_API_PASSWORD -e KAI_RABBITMQ_AI_ENGINE_PASSWORD \
+    -e KAI_GRAFANA_ADMIN_PASSWORD \
+    api vendor/bin/pest "$@"
+}
 "${COMPOSE[@]}" build -q api
-"${COMPOSE[@]}" run --rm --no-deps -T \
-  -v "$PWD/packages/contracts:/contracts:ro" \
-  -e APP_ENV=testing -e DB_CONNECTION=sqlite -e DB_DATABASE=:memory: -e BROADCAST_CONNECTION=null \
-  -e RABBITMQ_HOST=rabbitmq -e OTEL_LGTM_HOST=otel-lgtm -e AI_ENGINE_HOST=ai-engine -e KAI_CONTRACTS_DIR=/contracts \
-  -e KAI_RABBITMQ_ADMIN_PASSWORD -e KAI_RABBITMQ_API_PASSWORD -e KAI_RABBITMQ_AI_ENGINE_PASSWORD \
-  -e KAI_GRAFANA_ADMIN_PASSWORD \
-  api vendor/bin/pest tests/Integration
+# Os testes de topologia consomem a ai-engine.commands como kai-ai-engine: com o
+# consumidor ligado, competiam pelas mensagens. Correm com o ai-engine parado.
+echo "→ Pest: topologia do RabbitMQ e otel-lgtm (ai-engine parado)"
+"${COMPOSE[@]}" stop ai-engine >/dev/null 2>&1
+pest tests/Integration/RabbitMqTopologyTest.php tests/Integration/OtelLgtmTest.php
+"${COMPOSE[@]}" up -d --wait ai-engine
+echo "→ Pest: AI Engine real"
+pest tests/Integration/AiEngineHealthTest.php
+
+echo "→ AI Engine: fluxo do turno contra o broker real (AC-004-02, 04, 05, 06, 07, 09)"
+docker build -q --target dev --build-context contracts=packages/contracts -t kai-ai-engine-it apps/ai-engine >/dev/null
+turn_flow() {
+  docker run --rm --network kai-it_messaging --read-only --tmpfs /tmp \
+    -v "$PWD/packages/contracts:/contracts:ro" -e KAI_CONTRACTS_DIR=/contracts \
+    -e KAI_IT_RABBITMQ_HOST=rabbitmq -e KAI_IT_SCENARIO="$1" \
+    -e KAI_RABBITMQ_API_PASSWORD -e KAI_RABBITMQ_ADMIN_PASSWORD \
+    --entrypoint pytest kai-ai-engine-it -p no:cacheprovider -q tests/integration
+}
+# with_fake <cenário> VAR=valor...: recria o ai-engine com o fake configurado e corre o cenário.
+with_fake() {
+  local name=$1; shift
+  env "$@" "${COMPOSE[@]}" up -d --wait --force-recreate ai-engine >/dev/null 2>&1 \
+    || { echo "FALHA: ai-engine não arrancou no cenário $name"; exit 1; }
+  echo "  cenário $name"
+  turn_flow "$name"
+}
+turn_flow base
+with_fake budget KAI_FAKE_USD_PER_MTOK=1000000
+with_fake retry KAI_FAKE_FAIL_BEFORE_FIRST_DELTA=2
+with_fake slow KAI_FAKE_DELAY_PER_DELTA=0.5 KAI_FAKE_WORDS_PER_DELTA=1
+"${COMPOSE[@]}" up -d --wait --force-recreate ai-engine >/dev/null 2>&1
 
 echo "→ AI Engine: a readiness acompanha o RabbitMQ (AC-004-01, NFR-027)"
 ready() { "${COMPOSE[@]}" exec -T ai-engine python -I -c "import urllib.request,urllib.error
@@ -133,12 +193,25 @@ wait_ready 503
 echo "  ✓ 503 com o RabbitMQ parado"
 "${COMPOSE[@]}" start rabbitmq >/dev/null 2>&1
 wait_ready 200
-echo "  ✓ 200 depois de o RabbitMQ voltar (reconexão)"
+echo "  ✓ 200 depois de o RabbitMQ voltar (reconexão, com o consumidor restaurado)"
+turn_flow base >/dev/null || { echo "FALHA: o consumidor não voltou a processar turnos depois da reconexão"; exit 1; }
+echo "  ✓ processa turnos depois da reconexão"
+"${COMPOSE[@]}" stop ai-engine-redis >/dev/null 2>&1
+wait_ready 503
+echo "  ✓ 503 com o Redis da inbox parado"
+"${COMPOSE[@]}" start ai-engine-redis >/dev/null 2>&1
+wait_ready 200
+echo "  ✓ 200 depois de o Redis voltar"
 
 echo "→ AI Engine: a password nunca aparece nos logs"
-if "${COMPOSE[@]}" logs ai-engine 2>&1 | grep -qF "$KAI_RABBITMQ_AI_ENGINE_PASSWORD"; then
-  echo "FALHA: password do ai-engine nos logs (após reconexão)"; exit 1
-fi
+# Os logs vão primeiro para uma variável: com pipefail, um `grep -q` que encontra
+# e sai cedo faz o `logs` levar SIGPIPE, e a condição daria falso (fuga não detectada).
+engine_logs=$("${COMPOSE[@]}" logs ai-engine ai-engine-redis 2>&1)
+for pw in "$KAI_RABBITMQ_AI_ENGINE_PASSWORD" "$KAI_AI_ENGINE_REDIS_PASSWORD"; do
+  if grep -qF "$pw" <<<"$engine_logs"; then
+    echo "FALHA: password nos logs do ai-engine ou do Redis (após reconexão)"; exit 1
+  fi
+done
 wrong=$(rand)
 out=$(timeout 15 env KAI_RABBITMQ_AI_ENGINE_PASSWORD="$wrong" "${COMPOSE[@]}" run --rm --no-deps -T ai-engine 2>&1) || true
 grep -q "rabbitmq_connect_failed" <<<"$out" || { echo "FALHA: a password errada não foi recusada pelo broker"; exit 1; }

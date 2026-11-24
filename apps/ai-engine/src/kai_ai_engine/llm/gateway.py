@@ -5,6 +5,7 @@ Sem ferramentas no M03 (SPEC-004 §6): um pedido não tem `tools`, e nenhum adap
 
 from collections.abc import AsyncIterator
 from dataclasses import dataclass, field
+from decimal import Decimal
 from typing import Literal, Protocol
 
 Provider = Literal["anthropic", "ollama", "fake"]
@@ -120,6 +121,15 @@ class GenerationResult:
 
 
 @dataclass(frozen=True)
+class Cost:
+    """Custo de uma chamada em USD. `exact=False`: custo conservador (modelo sem preço ou
+    modificador fora da tabela), nunca subestimado."""
+
+    usd: Decimal
+    exact: bool = True
+
+
+@dataclass(frozen=True)
 class Capabilities:
     """Flags de capacidade (ADR-0006): o consumidor consulta-as, nunca assume."""
 
@@ -133,7 +143,20 @@ class LLMGateway(Protocol):
     @property
     def provider(self) -> Provider: ...
 
+    @property
+    def model(self) -> str:
+        """Modelo configurado: o consumidor usa-o no pedido; nunca vem da mensagem."""
+        ...
+
     def capabilities(self) -> Capabilities: ...
+
+    def estimate_max_cost(self, input_tokens: int, max_output_tokens: int) -> Decimal:
+        """Tecto do custo antes da chamada (AC-004-07); com fallback, soma a cadeia inteira."""
+        ...
+
+    def cost(self, usage: Usage) -> Cost:
+        """Custo do que foi consumido, mesmo parcial; nunca falha depois de a chamada ter custado."""
+        ...
 
     async def count_tokens(self, request: GenerationRequest) -> int: ...
 

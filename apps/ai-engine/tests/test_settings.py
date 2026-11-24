@@ -19,16 +19,26 @@ def test_negativo_sem_password_falha_no_arranque_sem_valores_na_mensagem() -> No
 
 def test_negativo_porto_invalido() -> None:
     with pytest.raises(SettingsError, match="RABBITMQ_PORT"):
-        load_settings({"KAI_RABBITMQ_AI_ENGINE_PASSWORD": CANARY, "RABBITMQ_PORT": "abc"})
+        load_settings(
+            {
+                "KAI_RABBITMQ_AI_ENGINE_PASSWORD": CANARY,
+                "KAI_AI_ENGINE_REDIS_PASSWORD": CANARY,
+                "RABBITMQ_PORT": "abc",
+            }
+        )
 
 
 def test_valores_por_omissao_da_topologia() -> None:
-    s = load_settings({"KAI_RABBITMQ_AI_ENGINE_PASSWORD": CANARY}).rabbitmq
+    s = load_settings(
+        {"KAI_RABBITMQ_AI_ENGINE_PASSWORD": CANARY, "KAI_AI_ENGINE_REDIS_PASSWORD": CANARY}
+    ).rabbitmq
     assert (s.host, s.port, s.vhost, s.user) == ("rabbitmq", 5672, "/kai", "kai-ai-engine")
 
 
 def test_negativo_a_password_nunca_aparece_no_repr() -> None:
-    settings = load_settings({"KAI_RABBITMQ_AI_ENGINE_PASSWORD": CANARY})
+    settings = load_settings(
+        {"KAI_RABBITMQ_AI_ENGINE_PASSWORD": CANARY, "KAI_AI_ENGINE_REDIS_PASSWORD": CANARY}
+    )
     assert CANARY not in repr(settings)
     assert CANARY not in str(settings)
 
@@ -63,7 +73,7 @@ def test_negativo_campos_extra_nao_sobrepoem_os_reservados() -> None:
 
 # --- LLM (E3.3, AC-004-03): o fornecedor vem só da configuração e falha no arranque ---
 
-BASE = {"KAI_RABBITMQ_AI_ENGINE_PASSWORD": CANARY}
+BASE = {"KAI_RABBITMQ_AI_ENGINE_PASSWORD": CANARY, "KAI_AI_ENGINE_REDIS_PASSWORD": CANARY}
 
 
 def test_por_omissao_o_fornecedor_e_o_fake() -> None:
@@ -144,3 +154,23 @@ def test_factory_escolhe_o_adaptador_e_nunca_cai_no_fake_em_silencio() -> None:
     assert isinstance(build_gateway(anth), AnthropicGateway)
     with pytest.raises(ValueError, match="incompleta"):
         build_gateway(LlmSettings(provider="anthropic"))
+
+
+def test_negativo_sem_password_do_redis_falha_no_arranque() -> None:
+    with pytest.raises(SettingsError, match="KAI_AI_ENGINE_REDIS_PASSWORD") as info:
+        load_settings({"KAI_RABBITMQ_AI_ENGINE_PASSWORD": CANARY})
+    assert CANARY not in str(info.value)
+
+
+def test_redis_da_inbox_por_omissao_e_password_fora_do_repr() -> None:
+    settings = load_settings(BASE).redis
+    assert (settings.host, settings.port, settings.user) == ("ai-engine-redis", 6379, "kai-ai-engine")
+    assert CANARY not in repr(settings)
+    with pytest.raises(SettingsError, match="AI_ENGINE_REDIS_PORT"):
+        load_settings({**BASE, "AI_ENGINE_REDIS_PORT": "0"})
+
+
+@pytest.mark.parametrize("value", ["-1", "abc", "NaN", "Infinity"])
+def test_negativo_preco_do_fake_invalido(value: str) -> None:
+    with pytest.raises(SettingsError, match="KAI_FAKE_USD_PER_MTOK"):
+        load_settings({**BASE, "KAI_FAKE_USD_PER_MTOK": value})

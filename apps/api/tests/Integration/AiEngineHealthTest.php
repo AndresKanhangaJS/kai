@@ -13,7 +13,7 @@ function aiEngine(string $path): string
     return 'http://'.((string) (getenv('AI_ENGINE_HOST') ?: 'ai-engine')).':8000'.$path;
 }
 
-test('AC-004-01: o AI Engine real está vivo e pronto, com o RabbitMQ ligado', function () {
+test('AC-004-01: o AI Engine real está vivo e pronto: RabbitMQ, consumidor e Redis da inbox', function () {
     $http = new Client(['timeout' => 5, 'http_errors' => false]);
 
     $live = $http->get(aiEngine('/health/live'));
@@ -22,7 +22,7 @@ test('AC-004-01: o AI Engine real está vivo e pronto, com o RabbitMQ ligado', f
 
     $ready = $http->get(aiEngine('/health/ready'));
     expect($ready->getStatusCode())->toBe(200)
-        ->and(json_decode((string) $ready->getBody(), true))->toBe(['status' => 'ok', 'checks' => ['rabbitmq' => 'ok']]);
+        ->and(json_decode((string) $ready->getBody(), true))->toBe(['status' => 'ok', 'checks' => ['rabbitmq' => 'ok', 'consumer' => 'ok', 'redis' => 'ok']]);
 });
 
 test('AC-004-01 negativo: o AI Engine não expõe documentação nem OpenAPI', function (string $path) {

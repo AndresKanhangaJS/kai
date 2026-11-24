@@ -1,18 +1,21 @@
 """Fornecedor `fake` (P-015, AC-10): determinístico, sem rede, por omissão.
 
 Configurável para os testes de integração da E3.4: atraso por delta (AC-004-06), falhas
-transitórias antes ou depois do primeiro delta (AC-004-09) e resposta fixa (canário, AC-004-11).
+transitórias antes ou depois do primeiro delta (AC-004-09), resposta fixa (canário, AC-004-11) e
+um preço por milhão de tokens (orçamento, AC-004-07; por omissão 0).
 """
 
 import asyncio
 import math
 from collections.abc import AsyncIterator, Mapping
 from dataclasses import dataclass
+from decimal import Decimal, InvalidOperation
 
 from kai_ai_engine.llm.errors import ProviderUnavailableError, detached
 from kai_ai_engine.llm.gateway import (
     Capabilities,
     Completed,
+    Cost,
     GenerationRequest,
     ModelUsage,
     Provider,
@@ -21,6 +24,7 @@ from kai_ai_engine.llm.gateway import (
     Usage,
     UsageMeter,
 )
+from kai_ai_engine.llm.pricing import MILLION, quantize_usd
 
 FAKE_MODEL = "fake-echo-1"
 PREFIX = "Resposta fake: "
@@ -40,6 +44,8 @@ class FakeOptions:
     fail_after_deltas: int | None = None
     # Resposta fixa; por omissão é um eco determinístico da última mensagem.
     script: str | None = None
+    # USD por milhão de tokens (entrada e saída); 0 por omissão.
+    usd_per_mtok: Decimal = Decimal(0)
 
 
 def options_from_env(env: Mapping[str, str]) -> FakeOptions:
@@ -53,6 +59,14 @@ def options_from_env(env: Mapping[str, str]) -> FakeOptions:
             raise FakeConfigError(f"{name} tem de ser finito e não negativo")
         return value
 
+    raw_price = env.get("KAI_FAKE_USD_PER_MTOK", "0")
+    try:
+        price = Decimal(raw_price)
+    except InvalidOperation:
+        raise FakeConfigError("KAI_FAKE_USD_PER_MTOK tem de ser um número") from None
+    if not price.is_finite() or price < 0:
+        raise FakeConfigError("KAI_FAKE_USD_PER_MTOK tem de ser finito e não negativo")
+
     after = env.get("KAI_FAKE_FAIL_AFTER_DELTAS")
     return FakeOptions(
         delay_per_delta=number("KAI_FAKE_DELAY_PER_DELTA", "0", float),
@@ -60,6 +74,7 @@ def options_from_env(env: Mapping[str, str]) -> FakeOptions:
         fail_before_first_delta=int(number("KAI_FAKE_FAIL_BEFORE_FIRST_DELTA", "0", int)),
         fail_after_deltas=None if after is None else int(number("KAI_FAKE_FAIL_AFTER_DELTAS", after, int)),
         script=env.get("KAI_FAKE_SCRIPT") or None,
+        usd_per_mtok=price,
     )
 
 
@@ -77,8 +92,19 @@ class FakeGateway:
         """Chamadas a `stream` (os testes verificam que não houve chamada ao fornecedor)."""
         return self._calls
 
+    @property
+    def model(self) -> str:
+        return FAKE_MODEL
+
     def capabilities(self) -> Capabilities:
         return Capabilities(streaming=True, exact_token_count=True, priced=False)
+
+    def estimate_max_cost(self, input_tokens: int, max_output_tokens: int) -> Decimal:
+        return quantize_usd((input_tokens + max_output_tokens) * self._options.usd_per_mtok / MILLION)
+
+    def cost(self, usage: Usage) -> Cost:
+        tokens = usage.input_tokens + usage.output_tokens
+        return Cost(usd=quantize_usd(tokens * self._options.usd_per_mtok / MILLION))
 
     async def count_tokens(self, request: GenerationRequest) -> int:
         return _words(request.system or "") + sum(_words(m.content) for m in request.messages)
