@@ -29,6 +29,11 @@ async function sessionsStatus(page: Page): Promise<number> {
   }, API_URL)
 }
 
+// SPEC-005: depois do login, a página inicial é a conversa; as sessões estão na navegação.
+async function openSessions(page: Page): Promise<void> {
+  await page.getByRole('button', { name: 'Sessões' }).click()
+}
+
 async function loginWithTotp(page: Page, code: string): Promise<void> {
   await page.goto('/')
   await page.getByLabel('Email').fill(EMAIL)
@@ -81,7 +86,9 @@ test.describe.serial('AC-02 Identity & Access', () => {
     await loginWithTotp(page, invalid)
 
     await expect(page.getByRole('alert')).toHaveText('Credenciais inválidas.')
-    await expect(page.getByRole('heading', { name: 'As tuas sessões' })).toHaveCount(0)
+    // SPEC-005 AC-005-09 (E2E): sem login não há navegação autenticada nem chat.
+    await expect(page.getByRole('navigation', { name: 'Principal' })).toHaveCount(0)
+    await expect(page.getByLabel('Mensagem')).toHaveCount(0)
     expect(await sessionsStatus(page)).toBe(401)
   })
 
@@ -98,6 +105,7 @@ test.describe.serial('AC-02 Identity & Access', () => {
 
     await loginWithTotp(ownerPage, totp(TOTP_SECRET))
 
+    await openSessions(ownerPage)
     await expect(ownerPage.getByRole('heading', { name: 'As tuas sessões' })).toBeVisible()
     await expect(ownerPage.getByText('Esta sessão')).toBeVisible()
     expect(await sessionsStatus(ownerPage)).toBe(200)
@@ -134,6 +142,7 @@ test.describe.serial('AC-02 Identity & Access', () => {
 
     await ownerPage.getByRole('button', { name: 'Entrar com passkey' }).click()
 
+    await openSessions(ownerPage)
     await expect(ownerPage.getByRole('heading', { name: 'As tuas sessões' })).toBeVisible()
     expect(await sessionsStatus(ownerPage)).toBe(200)
   })
@@ -164,6 +173,7 @@ test.describe.serial('AC-02 Identity & Access', () => {
       await route.continue()
     })
     await ownerPage.getByRole('button', { name: 'Entrar com passkey' }).click()
+    await openSessions(ownerPage)
     await expect(ownerPage.getByRole('heading', { name: 'As tuas sessões' })).toBeVisible()
     await ownerPage.unroute('**/passkeys/login')
     expect(captured).not.toBeNull()
@@ -191,6 +201,7 @@ test.describe.serial('AC-02 Identity & Access', () => {
 
     // Volta a entrar legitimamente, para o teste seguinte revogar esta sessão.
     await ownerPage.getByRole('button', { name: 'Entrar com passkey' }).click()
+    await openSessions(ownerPage)
     await expect(ownerPage.getByRole('heading', { name: 'As tuas sessões' })).toBeVisible()
     expect(await sessionsStatus(ownerPage)).toBe(200)
   })
@@ -207,6 +218,7 @@ test.describe.serial('AC-02 Identity & Access', () => {
     await otherPage.getByLabel('Código de recuperação').fill(RECOVERY_CODE)
     await otherPage.getByRole('button', { name: 'Entrar', exact: true }).click()
 
+    await openSessions(otherPage)
     await expect(otherPage.getByRole('heading', { name: 'As tuas sessões' })).toBeVisible()
     const revokeButtons = otherPage.getByRole('button', { name: 'Revogar' })
     await expect(revokeButtons).toHaveCount(1)

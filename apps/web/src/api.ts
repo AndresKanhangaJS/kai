@@ -206,5 +206,7 @@ export async function revokeSession(id: string): Promise<void> {
 }
 
 export async function logout(): Promise<void> {
-  await apiFetch('/logout', { method: 'POST' })
+  const response = await apiFetch('/logout', { method: 'POST' })
+  // Com 419/5xx a sessão continua válida no servidor: a UI não pode fingir que saiu.
+  if (!response.ok) throw new ApiError('Não foi possível terminar a sessão.', response.status)
 }

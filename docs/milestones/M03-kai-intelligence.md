@@ -61,6 +61,7 @@
 
 | ID | Tarefa | Tipo | Critério de aceitação | Depende de | Paralelo? |
 |---|---|---|---|---|---|
+| E5.0 | ~~Protótipo visual do chat com respostas simuladas no browser~~ | código | **Feito (2026-11-24, decisão do owner: opção 3, em paralelo com o E4).** [SPEC-005](../specs/005-prototipo-chat.md), `apps/web/src/chat/`. Transporte simulado atrás de `ConversationTransport`, que o E5.1 troca pelo real. 58 testes Vitest e E2E com 11 testes (AC-02 e SPEC-005, com axe e contraste num browser real). Defeitos injectados apanhados (5). Revisão de segurança sem bloqueantes: 4 MÉDIOS e 4 BAIXOS de robustez para o transporte real, já aplicados (turno com token, eventos depois do fim ignorados, motivos e erros validados em runtime, tectos de `seq` e texto, resposta incompleta assinalada, logout falhado não finge que saiu, ErrorBoundary); fica para o E5.1 tratar o 401/419 do transporte real como fim de sessão. Dependência de dev: `axe-core` 4.14.0 (P-023) | — | Sim |
 | E5.1 | Vista de conversa: enviar, ver os tokens a chegar, reconciliar com a resposta final (`delta_count`) | código | Vitest; E2E AC-03: os tokens aparecem incrementalmente e, depois de recarregar a página, a mensagem e a resposta estão lá | E4.3, E4.6 | Não |
 | E5.2 | Estados explícitos e acessíveis (Processing, Error com o motivo e o `trace_id`) e botão de cancelar | código | E2E AC-09 (cancelar mostra Error com o motivo); `aria-live`; WCAG 2.2 AA | E5.1, E6.2 | Não |
 

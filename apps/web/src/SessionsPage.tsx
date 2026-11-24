@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { type ApiSession, ApiError, listSessions, logout, registerPasskey, revokeSession } from './api'
+import { type ApiSession, ApiError, listSessions, registerPasskey, revokeSession } from './api'
 
 type Props = {
   onLoggedOut: () => void
@@ -48,18 +48,10 @@ export function SessionsPage({ onLoggedOut }: Props) {
     }
   }
 
-  async function handleLogout() {
-    await logout()
-    onLoggedOut()
-  }
-
   return (
     <main className="sessions-page">
       <header className="sessions-header">
         <h1>As tuas sessões</h1>
-        <button type="button" className="btn-link" onClick={handleLogout}>
-          Terminar sessão
-        </button>
       </header>
 
       <button type="button" className="btn-secondary" onClick={handleRegisterPasskey} disabled={busy}>
