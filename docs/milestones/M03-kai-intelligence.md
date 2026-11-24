@@ -50,7 +50,7 @@
 
 | ID | Tarefa | Tipo | Critério de aceitação | Depende de | Paralelo? |
 |---|---|---|---|---|---|
-| E4.1 | Spec de Conversations (`kai-spec`), incluindo a P-018 | spec | Spec aprovada; P-018 fechada | — | Sim |
+| E4.1 | ~~Spec de Conversations (`kai-spec`), incluindo a P-018~~ | spec | **Feito (2026-11-24).** Dividida em [SPEC-006](../specs/006-conversas-e-envio-de-turnos.md) (conversas e envio de turnos) e [SPEC-007](../specs/007-eventos-de-turno-e-canal.md) (eventos de volta, uso, vigia e canal), aprovadas pelo owner. P-018 aplicada (missão de um passo, `PENDING → PLANNING → RUNNING`); P-025, P-026 e P-027 fechadas | — | Sim |
 | E4.2 | Tabelas `conversations`, `messages` e `missions` (mínima), `outbox` e `inbox`, com `user_id` e migrações reversíveis (`kai-db-migration`) | código | Os testes de migração sobem e descem; as queries filtram por `user_id` | E4.1 | Não |
 | E4.3 | Endpoint `POST /conversations/{id}/messages`: persiste a mensagem e escreve o `turn.requested` no outbox na mesma transacção, com o `traceparent` | código | Teste de produtor: a mensagem gerada valida contra o schema; uma falha a meio não deixa a mensagem sem outbox, nem o contrário | E4.2 | Não |
 | E4.4 | Relay do outbox para o RabbitMQ, com publisher confirms e span PRODUCER | código | Matar o relay a meio não perde nem duplica (at-least-once mais dedupe na inbox do Python) | E2.1, E4.3 | Não |

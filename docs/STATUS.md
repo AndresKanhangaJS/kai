@@ -1,6 +1,6 @@
 # Estado do projecto KAI
 
-- **Actualizado:** 2026-11-24 (M03 E1, E2.1, E2.2, E3.1, E3.2, E3.3, E3.4a e E5.0)
+- **Actualizado:** 2026-11-24 (M03 E1, E2.1, E2.2, E3.1, E3.2, E3.3, E3.4a, E4.1 e E5.0)
 - **Milestone actual:** M02 · Core Foundation — **Épicos E1 e E4 concluídos**; **E1–E4 concluídos; CI verde no GitHub** (corrida 45156786354, 5/5 jobs, 2026-11-23). Para fechar o M02 falta o owner activar o secret scanning (E2.4), aprovar o ADR-0014 e fazer merge do PR. **M03 decomposto** ([`M03-kai-intelligence.md`](milestones/M03-kai-intelligence.md))
 - **Branch:** `chore/m02-ci` (E2 e E3; PR aberto para `main`, CI verde). M03 em `feat/m03-reverb-spike` (até à E3.4a); protótipo do chat em `feat/m03-chat-prototype` (por cima da anterior)
 
@@ -51,7 +51,7 @@ Decomposto em 4 épicos e 17 tarefas → [`docs/milestones/M02-core-foundation.m
 ## Próximas 3 tarefas
 
 1. Owner: activar *Secret scanning* + *Push protection*, aprovar o ADR-0014 e fazer merge do PR (fecha o M02).
-2. M03: E4.1 (spec de Conversations, a partir do protótipo), E3.4b (deltas no Reverb, AC-004-10) e E3.5 (cancelamento). **E5.0 feito:** protótipo visual do chat com respostas simuladas ([SPEC-005](specs/005-prototipo-chat.md)); é a página inicial depois do login. Feitas: E1, E2.1 (RabbitMQ, [ADR-0018](adr/0018-mensageria-rabbitmq-outbox-retry-no-consumidor.md)), E2.2 (otel-lgtm, [`observability.md`](engineering/observability.md)), E3.1 ([SPEC-004](specs/004-ai-engine-m03.md)), E3.2 ([`apps/ai-engine`](../apps/ai-engine/README.md)) E3.3 (LLM Gateway: `fake`, Anthropic com SDK `anthropic` 2.6.0, Ollama; tabela de preços versionada) e E3.4a (consumidor de `turn.requested` com inbox num Redis próprio, orçamento, retry, timeout e eventos com confirms; reconexão própria ao RabbitMQ). Owner: para ter o RabbitMQ, o Redis da inbox, o AI Engine e o Grafana em dev, gerar as passwords com `scripts/dev/passwords.sh` (há uma nova, `KAI_AI_ENGINE_REDIS_PASSWORD`).
+2. M03: contrato OpenAPI da SPA (P-027) e E4.2 (tabelas), depois E4.3–E4.6; E3.4b (deltas no Reverb, AC-004-10) e E3.5 (cancelamento). **E4.1 feita:** [SPEC-006](specs/006-conversas-e-envio-de-turnos.md) e [SPEC-007](specs/007-eventos-de-turno-e-canal.md) aprovadas. **E5.0 feito:** protótipo visual do chat com respostas simuladas ([SPEC-005](specs/005-prototipo-chat.md)); é a página inicial depois do login. Feitas: E1, E2.1 (RabbitMQ, [ADR-0018](adr/0018-mensageria-rabbitmq-outbox-retry-no-consumidor.md)), E2.2 (otel-lgtm, [`observability.md`](engineering/observability.md)), E3.1 ([SPEC-004](specs/004-ai-engine-m03.md)), E3.2 ([`apps/ai-engine`](../apps/ai-engine/README.md)) E3.3 (LLM Gateway: `fake`, Anthropic com SDK `anthropic` 2.6.0, Ollama; tabela de preços versionada) e E3.4a (consumidor de `turn.requested` com inbox num Redis próprio, orçamento, retry, timeout e eventos com confirms; reconexão própria ao RabbitMQ). Owner: para ter o RabbitMQ, o Redis da inbox, o AI Engine e o Grafana em dev, gerar as passwords com `scripts/dev/passwords.sh` (há uma nova, `KAI_AI_ENGINE_REDIS_PASSWORD`).
 3. Owner: a BD de dev foi apagada por engano a 2026-11-23 (um `docker compose down -v` do agente caiu na stack de dev) e já foi recriada e migrada, mas está vazia. Recriar o owner (`kai:create-owner`), correr `kai:enable-totp` e registar de novo a passkey no Chrome/Windows Hello.
 
 ## Perguntas abertas

@@ -239,6 +239,10 @@ A recomendação vem primeiro em cada linha.
 | P-022 | `prompt_version` no `ai.model.usage.recorded.v1` (NFR-017)? | Só no span no M03; campo opcional (compatível) se a auditoria de custos o pedir | M03 |
 | P-023 | `axe-core` como dependência de dev da web (testes de acessibilidade)? | **Fechado** (2026-11-24, owner): sim, só em dev, 4.14.0, MPL-2.0 ([SPEC-005](../specs/005-prototipo-chat.md)) | M03 |
 | P-024 | Como se escolhe o cenário do chat simulado? | **Fechado** (2026-11-24, owner): selector no aviso "Respostas simuladas" ([SPEC-005](../specs/005-prototipo-chat.md)) | M03 |
+| P-025 | Janela de contexto de cada turno no M03 | **Fechado** (2026-11-24, owner): últimas 20 mensagens concluídas, até 48 000 caracteres ([SPEC-006](../specs/006-conversas-e-envio-de-turnos.md)); revista na E6.3 | M03 |
+| P-026 | Limites provisórios por turno (P-002) | **Fechado** (2026-11-24, owner): 1024 tokens de saída, 60 s, 0,25 USD; 10 envios por minuto ([SPEC-006](../specs/006-conversas-e-envio-de-turnos.md)); medidos na E6.3 | M03 |
+| P-027 | Contrato da API da SPA | **Fechado** (2026-11-24, owner): OpenAPI `public-v1.yaml` antes do código; tipos gerados no E5.1 ([SPEC-006](../specs/006-conversas-e-envio-de-turnos.md)) | M03 |
+| P-028 | Margem do vigia de turnos órfãos e janela do canal depois do fim | 120 s depois do timeout; canal autorizado até 10 min depois do fim ([SPEC-007](../specs/007-eventos-de-turno-e-canal.md)) | M03 |
 
 ### 4.3 Riscos
 
